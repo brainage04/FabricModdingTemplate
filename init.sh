@@ -8,14 +8,24 @@ base=$(dirname "$(readlink -f "$0")")
 echo "Updating $base"
 
 owner="$1"
-mod_name="$2"
-package_name="com.github.${owner,,}.${mod_name,,}"
-mod_id=${mod_name,,}
+mod_name=$2
+mod_name_spaces=$(
+  printf '%s\n' "$2" \
+  | sed -E 's/([A-Z])/ \1/g' \
+  | sed -E 's/^ //'
+)
+mod_id=$(
+  printf '%s\n' "$mod_name_spaces" \
+  | tr 'A-Z' 'a-z' \
+  | tr ' ' '_'
+)
+package_name="com.github.${owner,,}.${mod_id,,}"
 package_dir=$(echo "$package_name" | tr . /)
+
 echo "Setting owner to $owner"
-echo "Setting mod name to $mod_name"
-echo "Setting package name to $package_name"
+echo "Setting mod name to $mod_name ($mod_name_spaces)"
 echo "Setting mod id to $mod_id"
+echo "Setting package name to $package_name"
 echo "Setting package dir to $package_dir"
 
 (
@@ -28,6 +38,7 @@ echo "Setting package dir to $package_dir"
   # which will cause issues if replaced
   find "$base/src/main" -type f -exec sed -i \
       -e "s/examplemod/$mod_id/g" \
+      -e "s/\"ExampleMod\"/\"$mod_name_spaces\"/g" \
       -e "s/ExampleMod/$mod_name/g" \
       -e "s/brainage04/$owner/g" \
       -e "s/com\.example/$package_name/g" {} +
