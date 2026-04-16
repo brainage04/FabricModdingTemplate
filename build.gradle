@@ -26,26 +26,22 @@ dependencies {
 }
 
 processResources {
-	inputs.property "mod_version", project.version
 	inputs.property "mod_id", project.properties.mod_id
-	inputs.property "maven_group", project.group
-	inputs.property "archives_base_name", project.base.archivesName
+	inputs.property "mod_version", project.version
 	inputs.property "mod_name", project.properties.mod_name
-	inputs.property "mod_author", project.properties.mod_author
 	inputs.property "mod_description", project.properties.mod_description
+	inputs.property "mod_author", project.properties.mod_author
 	inputs.property "mod_license", project.properties.mod_license
 	inputs.property "loader_version", project.properties.loader_version
 	inputs.property "minecraft_version", project.properties.minecraft_version
 
 	filesMatching("fabric.mod.json") {
 		expand([
-				"mod_version": inputs.properties.mod_version,
 				"mod_id": inputs.properties.mod_id,
-				"maven_group": inputs.properties.maven_group,
-				"archives_base_name": inputs.properties.archives_base_name,
+				"mod_version": inputs.properties.mod_version,
 				"mod_name": inputs.properties.mod_name,
-				"mod_author": inputs.properties.mod_author,
 				"mod_description": inputs.properties.mod_description,
+				"mod_author": inputs.properties.mod_author,
 				"mod_license": inputs.properties.mod_license,
 				"loader_version": inputs.properties.loader_version,
 				"minecraft_version": inputs.properties.minecraft_version,
