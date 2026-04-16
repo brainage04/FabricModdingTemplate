@@ -12,6 +12,16 @@ This script is designed to work both with GitHub Actions and manual usage, and w
   - Leftover unused folders that are not tracked by Git (src/main/java/com/example and src/main/resources/examplemod).
   - The `init` workflow and script after successful execution.
 
+# Testing
+Run:
+```shell
+./gradlew test
+```
+
+The template includes example tests under `src/test/java` that show two useful patterns:
+  - Fabric-aware tests that boot Fabric Loader and inspect loaded mod metadata.
+  - Plain unit tests for your own code, such as command registration.
+
 # Credits
 Thank you to [nea89o](https://github.com/nea89o)
 for developing the GitHub Actions [workflow](https://github.com/nea89o/Forge1.8.9Template/blob/master/.github/workflows/init.yml)
