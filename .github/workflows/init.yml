@@ -9,7 +9,7 @@ jobs:
   cleanup:
     name: "Initialize template repository"
     runs-on: ubuntu-latest
-    if: github.event.repository.name != 'FabricTemplateServer'
+    if: ${{ !github.event.repository.is_template }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4.1.1
