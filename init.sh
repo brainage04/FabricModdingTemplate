@@ -36,7 +36,7 @@ echo "Setting package dir to $package_dir"
   # important that owner is done before package name
   # as owner may or may not be in the package name string
   # which will cause issues if replaced
-  find "$base/src/main" "$base/src/test" -type f -exec sed -i \
+  find "$base/src/main" "$base/src/test" "$base/src/gametest" -type f -exec sed -i \
       -e "s/examplemod/$mod_id/g" \
       -e "s/\"ExampleMod\"/\"$mod_name_spaces\"/g" \
       -e "s/ExampleMod/$mod_name/g" \
@@ -64,6 +64,8 @@ echo "Setting package dir to $package_dir"
 
   # rename main class
   mv "$base"/src/main/java/com/example/ExampleMod.java "$base"/src/main/java/com/example/"$mod_name".java
+  mv "$base"/src/test/java/com/example/ExampleModMetadataTest.java "$base"/src/test/java/com/example/"$mod_name"MetadataTest.java
+  mv "$base"/src/gametest/java/com/example/ExampleModGameTest.java "$base"/src/gametest/java/com/example/"$mod_name"GameTest.java
 
   # lastly, refactor package directory
   mkdir -p "$base"/src/main/java/"$package_dir"
@@ -75,6 +77,11 @@ echo "Setting package dir to $package_dir"
   mv "$base"/src/test/java/com/example/* "$base"/src/test/java/"$package_dir"
   rmdir "$base"/src/test/java/com/example
   rmdir "$base"/src/test/java/com
+
+  mkdir -p "$base"/src/gametest/java/"$package_dir"
+  mv "$base"/src/gametest/java/com/example/* "$base"/src/gametest/java/"$package_dir"
+  rmdir "$base"/src/gametest/java/com/example
+  rmdir "$base"/src/gametest/java/com
 
   rm "$base"/.github/workflows/init.yml
   rm "$(readlink -f "$0")"

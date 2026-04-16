@@ -86,3 +86,15 @@ test {
 	useJUnitPlatform()
 	systemProperty "fabric.side", "server"
 }
+
+
+
+fabricApi {
+	configureTests {
+		createSourceSet = true
+		modId = "${project.mod_id}-gametest"
+		enableGameTests = true
+		enableClientGameTests = false
+		eula = true
+	}
+}
