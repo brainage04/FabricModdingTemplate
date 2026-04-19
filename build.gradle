@@ -16,6 +16,9 @@ repositories {
 	mavenLocal()
 	maven { url "https://libraries.minecraft.net" }
 	maven { url "https://maven.fabricmc.net/" }
+
+	// ModMenu
+	maven { url "https://maven.terraformersmc.com/" }
 }
 
 dependencies {
@@ -24,6 +27,9 @@ dependencies {
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
 	testImplementation "net.fabricmc:fabric-loader-junit:${project.loader_version}"
+
+	// ModMenu
+	modImplementation "com.terraformersmc:modmenu:${project.modmenu_version}"
 }
 
 processResources {

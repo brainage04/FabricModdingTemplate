@@ -17,9 +17,10 @@ This script is designed to work both with GitHub Actions and manual usage, and w
   - Leftover unused folders that are not tracked by Git (such as `src/main/java/com/example`, `src/client/java/com/example`, and `src/main/resources/examplemod`).
   - The `init` workflow and script after successful execution.
 
-For local development after initialization:
+For local development after initialisation:
   - `./gradlew runServer` launches the common/server side when you keep `--side=both` or choose `--side=server`.
   - `./gradlew runClient` launches the client side when you keep `--side=both` or choose `--side=client`.
+  - Mod Menu is included as a development dependency and a minimal `modmenu` entrypoint is kept in the generated mod metadata so you can test the integration during local client development without having to re-add it by hand.
 
 # Testing
 
@@ -49,7 +50,7 @@ For client-side GameTests, run:
 ```
 
 The template also includes a minimal client GameTest that opens a singleplayer world and checks that the client and integrated server are both reachable from the test context.
-When you initialize with `--side=client`, the generated repo keeps this client GameTest path and removes the dedicated-server GameTest path.
+When you initialise with `--side=client`, the generated repo keeps this client GameTest path and removes the dedicated-server GameTest path.
 
 # Credits
 

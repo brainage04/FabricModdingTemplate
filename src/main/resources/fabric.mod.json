@@ -18,6 +18,9 @@
 		"main": [
 			"com.example.ExampleMod"
 		],
+		"modmenu": [
+			"com.example.ModMenuIntegration"
+		],
 		"client": [
 			"com.example.ExampleModClient"
 		]
