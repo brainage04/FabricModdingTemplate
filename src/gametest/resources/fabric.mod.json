@@ -8,6 +8,9 @@
 	"entrypoints": {
 		"fabric-gametest": [
 			"com.example.ExampleModGameTest"
+		],
+		"fabric-client-gametest": [
+			"com.example.ExampleModClientGameTest"
 		]
 	}
 }

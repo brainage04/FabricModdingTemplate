@@ -125,6 +125,7 @@ echo "Setting package dir to $package_dir"
   mv "$base"/src/main/java/com/example/ExampleMod.java "$base"/src/main/java/com/example/"$mod_name".java
   mv "$base"/src/test/java/com/example/ExampleModMetadataTest.java "$base"/src/test/java/com/example/"$mod_name"MetadataTest.java
   mv "$base"/src/gametest/java/com/example/ExampleModGameTest.java "$base"/src/gametest/java/com/example/"$mod_name"GameTest.java
+  mv "$base"/src/gametest/java/com/example/ExampleModClientGameTest.java "$base"/src/gametest/java/com/example/"$mod_name"ClientGameTest.java
   if [ "$side" = "both" ]; then
     mv "$base"/src/client/java/com/example/ExampleModClient.java "$base"/src/client/java/com/example/"$mod_name"Client.java
   fi
@@ -152,11 +153,15 @@ echo "Setting package dir to $package_dir"
     rmdir --ignore-fail-on-non-empty "$base"/src/client/java/com
   else
     perl -0pi -e 's/,\n\t\t"client": \[\n\t\t\t"[^"]+"\n\t\t\]//s' "$base"/src/main/resources/fabric.mod.json
+    perl -0pi -e 's/,\n\t\t"fabric-client-gametest": \[\n\t\t\t"[^"]+"\n\t\t\]//s' "$base"/src/gametest/resources/fabric.mod.json
     sed -i \
       -e '/splitEnvironmentSourceSets()/d' \
-      -e '/sourceSet sourceSets.client/d' "$base"/build.gradle
+      -e '/sourceSet sourceSets.client/d' \
+      -e 's/enableClientGameTests = true/enableClientGameTests = false/' "$base"/build.gradle
     perl -0pi -e 's/, client-only code in `src\/client`//g' "$base"/README.md
     sed -i '/runClient/d' "$base"/README.md
+    sed -i '/runClientGameTest/d' "$base"/README.md
+    rm -f "$base"/src/gametest/java/"$package_dir"/"$mod_name"ClientGameTest.java
     rm -rf "$base"/src/client
   fi
 

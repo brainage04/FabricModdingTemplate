@@ -40,6 +40,14 @@ For integration-style server tests, run:
 The template includes a separate `src/gametest` source set with a minimal server GameTest that checks the example command was registered on the server.
 Server GameTests also run automatically as part of `./gradlew build`, which is what the included GitHub Actions workflow executes.
 
+For client-side GameTests, run:
+
+```shell
+./gradlew runClientGameTest
+```
+
+The template also includes a minimal client GameTest that opens a singleplayer world and checks that the client and integrated server are both reachable from the test context.
+
 # Credits
 
 Thank you to [nea89o](https://github.com/nea89o)
