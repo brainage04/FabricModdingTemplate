@@ -50,6 +50,19 @@ processResources {
 	}
 }
 
+loom {
+	splitEnvironmentSourceSets()
+
+	mods {
+		examplemod {
+			sourceSet sourceSets.main
+			sourceSet sourceSets.client
+		}
+	}
+
+	accessWidenerPath = file("src/main/resources/examplemod.accesswidener")
+}
+
 fabricApi {
 	configureTests {
 		createSourceSet = true
@@ -100,10 +113,6 @@ publishing {
             from components.java
         }
     }
-}
-
-loom {
-    accessWidenerPath = file("src/main/resources/examplemod.accesswidener")
 }
 
 test {
