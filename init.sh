@@ -1,7 +1,7 @@
 #!/bin/bash
 
 usage() {
-  echo "Usage: $0 [--side=both|server] <owner> <mod_name>"
+  echo "Usage: $0 [--side=both|server|client] <owner> <mod_name>"
 }
 
 side="both"
@@ -43,7 +43,7 @@ if [ "${#positionals[@]}" -ne 2 ]; then
 fi
 
 case "$side" in
-  both|server)
+  both|server|client)
     ;;
   *)
     echo "Invalid side: $side"
@@ -126,7 +126,7 @@ echo "Setting package dir to $package_dir"
   mv "$base"/src/test/java/com/example/ExampleModMetadataTest.java "$base"/src/test/java/com/example/"$mod_name"MetadataTest.java
   mv "$base"/src/gametest/java/com/example/ExampleModGameTest.java "$base"/src/gametest/java/com/example/"$mod_name"GameTest.java
   mv "$base"/src/gametest/java/com/example/ExampleModClientGameTest.java "$base"/src/gametest/java/com/example/"$mod_name"ClientGameTest.java
-  if [ "$side" = "both" ]; then
+  if [ "$side" != "server" ]; then
     mv "$base"/src/client/java/com/example/ExampleModClient.java "$base"/src/client/java/com/example/"$mod_name"Client.java
   fi
 
@@ -146,24 +146,49 @@ echo "Setting package dir to $package_dir"
   rmdir "$base"/src/gametest/java/com/example
   rmdir --ignore-fail-on-non-empty "$base"/src/gametest/java/com
 
-  if [ "$side" = "both" ]; then
+  if [ "$side" != "server" ]; then
     mkdir -p "$base"/src/client/java/"$package_dir"
     mv "$base"/src/client/java/com/example/* "$base"/src/client/java/"$package_dir"
     rmdir "$base"/src/client/java/com/example
     rmdir --ignore-fail-on-non-empty "$base"/src/client/java/com
-  else
-    perl -0pi -e 's/,\n\t\t"client": \[\n\t\t\t"[^"]+"\n\t\t\]//s' "$base"/src/main/resources/fabric.mod.json
-    perl -0pi -e 's/,\n\t\t"fabric-client-gametest": \[\n\t\t\t"[^"]+"\n\t\t\]//s' "$base"/src/gametest/resources/fabric.mod.json
-    sed -i \
-      -e '/splitEnvironmentSourceSets()/d' \
-      -e '/sourceSet sourceSets.client/d' \
-      -e 's/enableClientGameTests = true/enableClientGameTests = false/' "$base"/build.gradle
-    perl -0pi -e 's/, client-only code in `src\/client`//g' "$base"/README.md
-    sed -i '/runClient/d' "$base"/README.md
-    sed -i '/runClientGameTest/d' "$base"/README.md
-    rm -f "$base"/src/gametest/java/"$package_dir"/"$mod_name"ClientGameTest.java
-    rm -rf "$base"/src/client
   fi
+
+  case "$side" in
+    both)
+      ;;
+    server)
+      perl -0pi -e 's/,\n\t\t"client": \[\n\t\t\t"[^"]+"\n\t\t\]//s' "$base"/src/main/resources/fabric.mod.json
+      perl -0pi -e 's/,\n\t\t"fabric-client-gametest": \[\n\t\t\t"[^"]+"\n\t\t\]//s' "$base"/src/gametest/resources/fabric.mod.json
+      sed -i \
+        -e '/splitEnvironmentSourceSets()/d' \
+        -e '/sourceSet sourceSets.client/d' \
+        -e 's/enableClientGameTests = true/enableClientGameTests = false/' "$base"/build.gradle
+      perl -0pi -e 's/, client-only code in `src\/client`//g' "$base"/README.md
+      sed -i '/runClient/d' "$base"/README.md
+      perl -0pi -e 's/For client-side GameTests, run:\n\n```shell\n(?:\.\/gradlew runClientGameTest\n)?```\n\nThe template also includes a minimal client GameTest that opens a singleplayer world and checks that the client and integrated server are both reachable from the test context\.\nWhen you initialize with `--side=client`, the generated repo keeps this client GameTest path and removes the dedicated-server GameTest path\.\n\n//' "$base"/README.md
+      rm -f "$base"/src/gametest/java/"$package_dir"/"$mod_name"ClientGameTest.java
+      rm -rf "$base"/src/client
+      ;;
+    client)
+      sed -i \
+        -e 's/"environment": "\\*"/"environment": "client"/' \
+        -e 's/"environment": "\*"/"environment": "client"/' "$base"/src/main/resources/fabric.mod.json
+      sed -i \
+        -e 's/"environment": "\\*"/"environment": "client"/' \
+        -e 's/"environment": "\*"/"environment": "client"/' "$base"/src/gametest/resources/fabric.mod.json \
+        -e '/"fabric-gametest": \[/,/\]/d' "$base"/src/gametest/resources/fabric.mod.json
+      sed -i \
+        -e 's/enableGameTests = true/enableGameTests = false/' \
+        -e 's/systemProperty "fabric.side", "server"/systemProperty "fabric.side", "client"/' "$base"/build.gradle
+      sed -i \
+        -e 's/assertEquals(EnvType.SERVER/assertEquals(EnvType.CLIENT/' "$base"/src/test/java/"$package_dir"/"$mod_name"MetadataTest.java
+      perl -0pi -e 's/common code in `src\/main`, client-only code in `src\/client`, and server-side GameTests in `src\/gametest`/common code in `src\/main`, client-only code in `src\/client`, and client-side GameTests in `src\/gametest`/' "$base"/README.md
+      perl -0pi -e 's/defaults to `both`\. Use `--side=server` to generate a server-only repo and remove the client entrypoint\/source set from the generated project\./defaults to `both`. Use `--side=server` to generate a server-only repo and remove the client entrypoint\/source set from the generated project. Use `--side=client` to generate a client-only repo and remove the dedicated-server GameTest path from the generated project./' "$base"/README.md
+      sed -i '/runServer/d' "$base"/README.md
+      perl -0pi -e 's/For integration-style server tests, run:\n\n```shell\n(?:\.\/gradlew runGameTest\n)?```\n\nThe template includes a separate `src\/gametest` source set with a minimal server GameTest that checks the example command was registered on the server\.\nServer GameTests also run automatically as part of `\.\/gradlew build`, which is what the included GitHub Actions workflow executes\.\n\n//' "$base"/README.md
+      rm -f "$base"/src/gametest/java/"$package_dir"/"$mod_name"GameTest.java
+      ;;
+  esac
 
   rm "$base"/.github/workflows/init.yml
   rm "$(readlink -f "$0")"
