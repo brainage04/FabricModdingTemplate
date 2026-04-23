@@ -43,6 +43,7 @@ Defaults:
 
 In practice, `.modrinth/project.json` can be kept very small. The template only needs it when you want to override defaults such as:
 
+- `slug`
 - `categories`
 - `additional_categories`
 - `dependency_overrides`

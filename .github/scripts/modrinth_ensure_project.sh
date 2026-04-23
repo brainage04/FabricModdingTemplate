@@ -26,6 +26,7 @@ if [ ! -f "$config_file" ]; then
 fi
 
 mod_id="$(jq -r '.id' "$MODRINTH_FABRIC_MOD_JSON")"
+project_slug="$(jq -r --arg mod_id "$mod_id" '.slug // $mod_id' "$config_file")"
 repo_url="https://github.com/${GITHUB_REPOSITORY}"
 issues_url="${repo_url}/issues"
 icon_rel_path="$(jq -r '.icon // empty' "$MODRINTH_FABRIC_MOD_JSON")"
@@ -35,7 +36,7 @@ if [ -n "$icon_rel_path" ]; then
   icon_path="src/main/resources/${icon_rel_path}"
 fi
 
-if project_id="$(resolve_project_id "$mod_id")"; then
+if project_id="$(resolve_project_id "$project_slug")"; then
   echo "Modrinth project already exists: ${project_id}"
   echo "MODRINTH_PROJECT_ID=${project_id}" >> "$GITHUB_ENV"
   exit 0
@@ -100,7 +101,7 @@ fi
 status="$(modrinth_request POST "/project" "$response_file" "${curl_args[@]}")"
 
 if [ "$status" != "200" ]; then
-  echo "Failed to create Modrinth project for slug ${mod_id}: HTTP ${status}" >&2
+  echo "Failed to create Modrinth project for slug ${project_slug}: HTTP ${status}" >&2
   cat "$response_file" >&2
   exit 1
 fi

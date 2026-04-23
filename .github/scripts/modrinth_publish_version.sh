@@ -24,13 +24,14 @@ mod_id="$(gradle_property mod_id)"
 mod_name="$(gradle_property mod_name)"
 mod_version="$(gradle_property mod_version)"
 minecraft_version="$(gradle_property minecraft_version)"
+project_slug="$(jq -r --arg mod_id "$mod_id" '.slug // $mod_id' "$config_file")"
 release_tag="${RELEASE_TAG:-$(release_field '.release.tag_name')}"
 release_body="${RELEASE_BODY:-$(release_field '.release.body')}"
 release_prerelease="${RELEASE_PRERELEASE:-$(release_field '.release.prerelease')}"
 project_id="${MODRINTH_PROJECT_ID:-}"
 
 if [ -z "$project_id" ]; then
-  project_id="$(resolve_project_id "$mod_id")"
+  project_id="$(resolve_project_id "$project_slug")"
 fi
 
 if [ "${release_tag}" != "v${mod_version}" ]; then
@@ -39,16 +40,16 @@ if [ "${release_tag}" != "v${mod_version}" ]; then
 fi
 
 response_file="$(mktemp)"
-status="$(modrinth_request GET "/project/${mod_id}/version?include_changelog=false" "$response_file")"
+status="$(modrinth_request GET "/project/${project_slug}/version?include_changelog=false" "$response_file")"
 
 if [ "$status" != "200" ]; then
-  echo "Failed to list Modrinth versions for ${mod_id}: HTTP ${status}" >&2
+  echo "Failed to list Modrinth versions for ${project_slug}: HTTP ${status}" >&2
   cat "$response_file" >&2
   exit 1
 fi
 
 if jq -e --arg version_number "$mod_version" '.[] | select(.version_number == $version_number)' "$response_file" >/dev/null; then
-  echo "Modrinth version ${mod_version} already exists for ${mod_id}; skipping publish."
+  echo "Modrinth version ${mod_version} already exists for ${project_slug}; skipping publish."
   exit 0
 fi
 
