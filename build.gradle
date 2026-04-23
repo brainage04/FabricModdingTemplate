@@ -21,10 +21,7 @@ repositories {
 	maven { url "https://maven.terraformersmc.com/" }
 
 	// Fzzy Config
-	maven {
-		name = "FzzyMaven"
-		url = "https://maven.fzzyhmstrs.me/"
-	}
+	maven { url = "https://maven.fzzyhmstrs.me/" }
 }
 
 dependencies {
