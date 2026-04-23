@@ -81,7 +81,8 @@ project_payload="$(
         donation_urls: ($config.donation_urls // []),
         license_id: ($config.license_id // $mod.license),
         license_url: ($config.license_url // null),
-        project_type: ($config.project_type // "mod")
+        project_type: ($config.project_type // "mod"),
+        initial_versions: []
       }
       | with_entries(select(.value != null))
     '
