@@ -16,6 +16,7 @@ Create a Modrinth personal access token and add it as a repository secret to the
 Minimum useful scopes:
 
 - `PROJECT_CREATE`
+- `PROJECT_WRITE`
 - `VERSION_CREATE`
 
 The release workflow uses the Modrinth API directly:
@@ -38,14 +39,19 @@ Defaults:
 - The project is created as `draft`
 - The GitHub repo URL is used when `fabric.mod.json.contact.sources` is absent
 - The GitHub issues URL is used when `fabric.mod.json.contact.issues` is absent
+- The GitHub wiki URL is used when `fabric.mod.json.contact.wiki` is absent
+- The licence link points at `LICENSE` by default
 - `fabric` is used as the default loader/category when no override is supplied
 - `discord_url` is always set to `https://discord.gg/N4zfhBx8Fm`
+- The workflow syncs `wiki_url` and `license_url` on every release so existing Modrinth projects stay aligned with the repository
 
 In practice, `.modrinth/project.json` can be kept very small. The template only needs it when you want to override defaults such as:
 
 - `slug`
 - `categories`
 - `additional_categories`
+- `wiki_url`
+- `license_url`
 - `dependency_overrides`
 
 Valid values for `categories` and `additional_categories` are as follows:
