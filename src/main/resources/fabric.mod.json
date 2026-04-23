@@ -3,15 +3,15 @@
 	"id": "${mod_id}",
 	"version": "${mod_version}",
 	"name": "${mod_name}",
-	"description": "${mod_description}",
+	"description": "My Fabric modding template.",
 	"authors": [
-		"${mod_author}"
+		"brainage04"
 	],
 	"contact": {
-		"homepage": "https://github.com/${mod_author}/${mod_name}",
-		"sources": "https://github.com/${mod_author}/${mod_name}"
+		"homepage": "https://github.com/brainage04/ExampleMod",
+		"sources": "https://github.com/brainage04/ExampleMod"
 	},
-	"license": "${mod_license}",
+	"license": "MIT",
 	"icon": "assets/examplemod/icon.png",
 	"environment": "*",
 	"entrypoints": {
