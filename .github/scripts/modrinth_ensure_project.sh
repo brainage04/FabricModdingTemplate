@@ -6,7 +6,7 @@ set -euo pipefail
 
 require_command curl
 require_command jq
-require_env GITHUB_EVENT_PATH GITHUB_REPOSITORY MODRINTH_TOKEN
+require_env GITHUB_REPOSITORY MODRINTH_TOKEN
 
 if [ ! -f "$MODRINTH_FABRIC_MOD_JSON" ]; then
   echo "Missing Fabric mod metadata: $MODRINTH_FABRIC_MOD_JSON" >&2

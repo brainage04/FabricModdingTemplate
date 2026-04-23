@@ -6,7 +6,7 @@ set -euo pipefail
 
 require_command curl
 require_command jq
-require_env GITHUB_EVENT_PATH GITHUB_REPOSITORY MODRINTH_TOKEN
+require_env GITHUB_REPOSITORY MODRINTH_TOKEN
 
 if [ ! -f "$MODRINTH_FABRIC_MOD_JSON" ]; then
   echo "Missing Fabric mod metadata: $MODRINTH_FABRIC_MOD_JSON" >&2
@@ -24,9 +24,9 @@ mod_id="$(gradle_property mod_id)"
 mod_name="$(gradle_property mod_name)"
 mod_version="$(gradle_property mod_version)"
 minecraft_version="$(gradle_property minecraft_version)"
-release_tag="$(release_field '.release.tag_name')"
-release_body="$(release_field '.release.body')"
-release_prerelease="$(release_field '.release.prerelease')"
+release_tag="${RELEASE_TAG:-$(release_field '.release.tag_name')}"
+release_body="${RELEASE_BODY:-$(release_field '.release.body')}"
+release_prerelease="${RELEASE_PRERELEASE:-$(release_field '.release.prerelease')}"
 project_id="${MODRINTH_PROJECT_ID:-}"
 
 if [ -z "$project_id" ]; then

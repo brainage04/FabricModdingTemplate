@@ -1,13 +1,13 @@
 # Modrinth publishing
 
-This template includes an optional Modrinth publishing workflow in `.github/workflows/modrinth.yml`.
+This template includes optional Modrinth publishing as part of `.github/workflows/release.yml`.
 
-It runs when a GitHub release is published and does two things:
+After the GitHub release is created, a second job in the same workflow does two things:
 
 1. Creates the Modrinth project if a project with slug `mod_id` does not already exist.
 2. Uploads the built release jar as a Modrinth version if that `mod_version` has not already been uploaded.
 
-The workflow is skipped unless the repository has a `MODRINTH_TOKEN` secret configured.
+The Modrinth job is skipped unless the repository has a `MODRINTH_TOKEN` secret configured.
 
 ## Required secret
 
@@ -18,7 +18,7 @@ Minimum useful scopes:
 - `PROJECT_CREATE`
 - `VERSION_CREATE`
 
-The workflow uses the Modrinth API directly:
+The release workflow uses the Modrinth API directly:
 
 - Project creation: `POST /project`
 - Version upload: `POST /version`
@@ -127,7 +127,7 @@ You can still override the inferred values in `.modrinth/project.json` if needed
 
 ## Release notes
 
-The Modrinth changelog is taken from the GitHub release body. See [RELEASE.md](RELEASE.md) for more info.
+The Modrinth changelog is taken from the same annotated tag notes that are used for the GitHub release body. See [RELEASE.md](RELEASE.md) for more info.
 
 ## Notes
 

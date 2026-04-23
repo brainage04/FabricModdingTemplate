@@ -34,6 +34,12 @@ gradle_property() {
 
 release_field() {
   local jq_filter="$1"
+
+  if [ -z "${GITHUB_EVENT_PATH:-}" ] || [ ! -f "${GITHUB_EVENT_PATH}" ]; then
+    echo ""
+    return 0
+  fi
+
   jq -r "$jq_filter // empty" "$GITHUB_EVENT_PATH"
 }
 
