@@ -83,6 +83,7 @@ project_payload="$(
         license_url: ($config.license_url // null),
         project_type: ($config.project_type // "mod")
       }
+      | with_entries(select(.value != null))
     '
 )"
 
