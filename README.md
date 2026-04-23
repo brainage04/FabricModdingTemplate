@@ -52,6 +52,11 @@ For client-side GameTests, run:
 The template also includes a minimal client GameTest that opens a singleplayer world and checks that the client and integrated server are both reachable from the test context.
 When you initialise with `--side=client`, the generated repo keeps this client GameTest path and removes the dedicated-server GameTest path.
 
+# Publishing
+
+Release automation is documented in [docs/RELEASE.md](docs/RELEASE.md).
+Optional Modrinth publishing is documented in [docs/MODRINTH.md](docs/MODRINTH.md).
+
 # Credits
 
 Thank you to [nea89o](https://github.com/nea89o)

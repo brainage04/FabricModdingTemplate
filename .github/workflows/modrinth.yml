@@ -1,0 +1,81 @@
+name: modrinth
+on:
+  release:
+    types:
+      - published
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: check Modrinth token
+        id: config
+        env:
+          MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+        run: |
+          if [ -z "${MODRINTH_TOKEN}" ]; then
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Skipping Modrinth publish because MODRINTH_TOKEN is not configured."
+          else
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: checkout repository
+        if: steps.config.outputs.enabled == 'true'
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.release.tag_name }}
+
+      - name: validate gradle wrapper
+        if: steps.config.outputs.enabled == 'true'
+        uses: gradle/actions/wrapper-validation@v4
+
+      - name: setup jdk
+        if: steps.config.outputs.enabled == 'true'
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'microsoft'
+
+      - name: setup gradle
+        if: steps.config.outputs.enabled == 'true'
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: make scripts executable
+        if: steps.config.outputs.enabled == 'true'
+        run: chmod +x ./gradlew .github/scripts/*.sh
+
+      - name: verify tag matches mod version
+        if: steps.config.outputs.enabled == 'true'
+        env:
+          TAG_NAME: ${{ github.event.release.tag_name }}
+        run: |
+          VERSION="$(grep '^mod_version=' gradle.properties | cut -d= -f2)"
+          if [ "v${VERSION}" != "${TAG_NAME}" ]; then
+            echo "Expected tag v${VERSION}, got ${TAG_NAME}"
+            exit 1
+          fi
+
+      - name: build
+        if: steps.config.outputs.enabled == 'true'
+        run: ./gradlew clean build
+
+      - name: ensure Modrinth project exists
+        if: steps.config.outputs.enabled == 'true'
+        env:
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_EVENT_PATH: ${{ github.event_path }}
+          MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+        run: ./.github/scripts/modrinth_ensure_project.sh
+
+      - name: publish Modrinth version
+        if: steps.config.outputs.enabled == 'true'
+        env:
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_EVENT_PATH: ${{ github.event_path }}
+          MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+        run: ./.github/scripts/modrinth_publish_version.sh

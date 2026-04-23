@@ -163,9 +163,13 @@ echo "Setting package dir to $package_dir"
         -e '/splitEnvironmentSourceSets()/d' \
         -e '/sourceSet sourceSets.client/d' \
         -e 's/enableClientGameTests = true/enableClientGameTests = false/' "$base"/build.gradle
-      perl -0pi -e 's/, client-only code in `src\/client`//g' "$base"/README.md
-      sed -i '/runClient/d' "$base"/README.md
-      perl -0pi -e 's/For client-side GameTests, run:\n\n```shell\n(?:\.\/gradlew runClientGameTest\n)?```\n\nThe template also includes a minimal client GameTest that opens a singleplayer world and checks that the client and integrated server are both reachable from the test context\.\nWhen you initialize with `--side=client`, the generated repo keeps this client GameTest path and removes the dedicated-server GameTest path\.\n\n//' "$base"/README.md
+      perl -0pi -e 's/\n\tloom\.runs\.named\("clientGameTest"\) \{\n\t\trunDir = "build\/run\/clientGameTest"\n\t\}//s' "$base"/build.gradle
+      perl -0pi -e 's/common code in `src\/main`, client-only code in `src\/client`, and GameTests in `src\/gametest`/common code in `src\/main` and GameTests in `src\/gametest`/' "$base"/README.md
+      sed -i '/launches the client side/d' "$base"/README.md
+      perl -0pi -e 's/For client-side GameTests, run:\n\n```shell\n\.\/gradlew runClientGameTest\n```\n\nThe template also includes a minimal client GameTest that opens a singleplayer world and checks that the client and integrated server are both reachable from the test context\.\nWhen you initialise with `--side=client`, the generated repo keeps this client GameTest path and removes the dedicated-server GameTest path\.\n\n//' "$base"/README.md
+      sed -i \
+        -e 's/"client_side": "optional"/"client_side": "unsupported"/' \
+        -e 's/"server_side": "optional"/"server_side": "required"/' "$base"/.modrinth/project.json
       rm -f "$base"/src/gametest/java/"$package_dir"/"$mod_name"ClientGameTest.java
       rm -rf "$base"/src/client
       ;;
@@ -180,12 +184,15 @@ echo "Setting package dir to $package_dir"
       sed -i \
         -e 's/enableGameTests = true/enableGameTests = false/' \
         -e 's/systemProperty "fabric.side", "server"/systemProperty "fabric.side", "client"/' "$base"/build.gradle
+      perl -0pi -e 's/\n\tloom\.runs\.named\("gameTest"\) \{\n\t\trunDir = "build\/run\/gameTest"\n\t\}//s' "$base"/build.gradle
       sed -i \
         -e 's/assertEquals(EnvType.SERVER/assertEquals(EnvType.CLIENT/' "$base"/src/test/java/"$package_dir"/"$mod_name"MetadataTest.java
-      perl -0pi -e 's/common code in `src\/main`, client-only code in `src\/client`, and server-side GameTests in `src\/gametest`/common code in `src\/main`, client-only code in `src\/client`, and client-side GameTests in `src\/gametest`/' "$base"/README.md
-      perl -0pi -e 's/defaults to `both`\. Use `--side=server` to generate a server-only repo and remove the client entrypoint\/source set from the generated project\./defaults to `both`. Use `--side=server` to generate a server-only repo and remove the client entrypoint\/source set from the generated project. Use `--side=client` to generate a client-only repo and remove the dedicated-server GameTest path from the generated project./' "$base"/README.md
-      sed -i '/runServer/d' "$base"/README.md
-      perl -0pi -e 's/For integration-style server tests, run:\n\n```shell\n(?:\.\/gradlew runGameTest\n)?```\n\nThe template includes a separate `src\/gametest` source set with a minimal server GameTest that checks the example command was registered on the server\.\nServer GameTests also run automatically as part of `\.\/gradlew build`, which is what the included GitHub Actions workflow executes\.\n\n//' "$base"/README.md
+      perl -0pi -e 's/common code in `src\/main`, client-only code in `src\/client`, and GameTests in `src\/gametest`/common code in `src\/main`, client-only code in `src\/client`, and client-side GameTests in `src\/gametest`/' "$base"/README.md
+      sed -i '/launches the common\/server side/d' "$base"/README.md
+      perl -0pi -e 's/For integration-style server tests, run:\n\n```shell\n\.\/gradlew runGameTest\n```\n\nThe template includes a separate `src\/gametest` source set with a minimal server GameTest that checks the example command was registered on the server\.\nServer GameTests also run automatically as part of `\.\/gradlew build`, which is what the included GitHub Actions workflow executes\.\n\n//' "$base"/README.md
+      sed -i \
+        -e 's/"client_side": "optional"/"client_side": "required"/' \
+        -e 's/"server_side": "optional"/"server_side": "unsupported"/' "$base"/.modrinth/project.json
       rm -f "$base"/src/gametest/java/"$package_dir"/"$mod_name"GameTest.java
       ;;
   esac

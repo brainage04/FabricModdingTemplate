@@ -10,3 +10,5 @@
 
 The release workflow reads the annotated tag message and uses it as the GitHub release body.
 If the tag has no annotation text, GitHub auto-generated release notes are used as a fallback.
+
+If `MODRINTH_TOKEN` is configured, the Modrinth workflow reuses that same GitHub release body as the Modrinth version changelog.
