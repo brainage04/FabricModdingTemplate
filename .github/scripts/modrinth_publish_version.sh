@@ -84,7 +84,7 @@ esac
 
 dependency_entries_file="$(mktemp)"
 
-jq -c \
+jq -nc \
   --slurpfile config "$config_file" \
   --slurpfile mod "$MODRINTH_FABRIC_MOD_JSON" \
   '
@@ -103,7 +103,7 @@ jq -c \
       inferred_dependencies("conflicts"; "incompatible") +
       inferred_dependencies("breaks"; "incompatible")
     )
-    | map(select((["minecraft", "java", "fabricloader"] | index(.mod_id)) | not))
+    | map(. as $dependency | select((["minecraft", "java", "fabricloader"] | index($dependency.mod_id)) | not))
     | unique_by([.mod_id, (.override.dependency_type // .dependency_type)])
     | .[]
   ' > "$dependency_entries_file"
@@ -148,7 +148,7 @@ while IFS= read -r dependency_entry; do
 done < "$dependency_entries_file"
 
 if [ -s "$inferred_dependencies_file" ]; then
-  inferred_dependencies="$(jq -s 'unique_by(.project_id, .dependency_type)' "$inferred_dependencies_file")"
+  inferred_dependencies="$(jq -s 'unique_by([.project_id, .dependency_type])' "$inferred_dependencies_file")"
 else
   inferred_dependencies='[]'
 fi
@@ -185,7 +185,7 @@ version_payload="$(
 response_file="$(mktemp)"
 status="$(modrinth_request POST "/version" "$response_file" \
   -F "data=${version_payload};type=application/json" \
-  -F "primary=@${release_jars[0]}")
+  -F "primary=@${release_jars[0]}")"
 
 if [ "$status" != "200" ]; then
   echo "Failed to publish Modrinth version ${mod_version}: HTTP ${status}" >&2
