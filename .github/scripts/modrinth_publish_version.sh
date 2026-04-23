@@ -8,6 +8,11 @@ require_command curl
 require_command jq
 require_env GITHUB_EVENT_PATH GITHUB_REPOSITORY MODRINTH_TOKEN
 
+if [ ! -f "$MODRINTH_FABRIC_MOD_JSON" ]; then
+  echo "Missing Fabric mod metadata: $MODRINTH_FABRIC_MOD_JSON" >&2
+  exit 1
+fi
+
 config_file="$MODRINTH_PROJECT_CONFIG"
 
 if [ ! -f "$config_file" ]; then
@@ -76,6 +81,77 @@ case "${release_tag,,}" in
     ;;
 esac
 
+dependency_entries_file="$(mktemp)"
+
+jq -c \
+  --slurpfile config "$config_file" \
+  --slurpfile mod "$MODRINTH_FABRIC_MOD_JSON" \
+  '
+    ($config[0]) as $config |
+    ($mod[0]) as $mod |
+    def inferred_dependencies($field; $dependency_type):
+      (($mod[$field] // {}) | to_entries | map({
+        mod_id: .key,
+        dependency_type: $dependency_type,
+        override: ($config.dependency_overrides[.key] // {})
+      }));
+    (
+      inferred_dependencies("depends"; "required") +
+      inferred_dependencies("recommends"; "optional") +
+      inferred_dependencies("suggests"; "optional") +
+      inferred_dependencies("conflicts"; "incompatible") +
+      inferred_dependencies("breaks"; "incompatible")
+    )
+    | map(select((["minecraft", "java", "fabricloader"] | index(.mod_id)) | not))
+    | unique_by([.mod_id, (.override.dependency_type // .dependency_type)])
+    | .[]
+  ' > "$dependency_entries_file"
+
+inferred_dependencies_file="$(mktemp)"
+
+while IFS= read -r dependency_entry; do
+  mod_dependency_id="$(jq -r '.mod_id' <<< "$dependency_entry")"
+  dependency_type="$(jq -r '.override.dependency_type // .dependency_type' <<< "$dependency_entry")"
+  project_id_override="$(jq -r '.override.project_id // empty' <<< "$dependency_entry")"
+  project_slug_override="$(jq -r '.override.project_slug // empty' <<< "$dependency_entry")"
+  skip_dependency="$(jq -r '.override.skip // false' <<< "$dependency_entry")"
+
+  if [ "$skip_dependency" = "true" ]; then
+    continue
+  fi
+
+  if [ -n "$project_id_override" ]; then
+    resolved_dependency_project_id="$project_id_override"
+  else
+    candidate_slug_hyphenated="${mod_dependency_id//_/-}"
+    candidate_slug_normalized="${candidate_slug_hyphenated//./-}"
+
+    if ! resolved_dependency_project_id="$(
+      resolve_project_id_candidates \
+        "$project_slug_override" \
+        "$mod_dependency_id" \
+        "$candidate_slug_hyphenated" \
+        "$candidate_slug_normalized"
+    )"; then
+      echo "Could not resolve Modrinth project for dependency ${mod_dependency_id}." >&2
+      echo "Add a dependency_overrides entry in ${MODRINTH_PROJECT_CONFIG}, for example:" >&2
+      echo "  \"${mod_dependency_id}\": { \"project_slug\": \"modrinth-slug\" }" >&2
+      exit 1
+    fi
+  fi
+
+  jq -nc \
+    --arg project_id "$resolved_dependency_project_id" \
+    --arg dependency_type "$dependency_type" \
+    '{project_id: $project_id, dependency_type: $dependency_type}' >> "$inferred_dependencies_file"
+done < "$dependency_entries_file"
+
+if [ -s "$inferred_dependencies_file" ]; then
+  inferred_dependencies="$(jq -s 'unique_by(.project_id, .dependency_type)' "$inferred_dependencies_file")"
+else
+  inferred_dependencies='[]'
+fi
+
 version_payload="$(
   jq -n \
     --arg project_id "$project_id" \
@@ -84,6 +160,7 @@ version_payload="$(
     --arg changelog "$release_body" \
     --arg minecraft_version "$minecraft_version" \
     --arg version_type "$version_type" \
+    --argjson inferred_dependencies "$inferred_dependencies" \
     --slurpfile config "$config_file" \
     '
       ($config[0]) as $config |
@@ -92,7 +169,7 @@ version_payload="$(
         name: $name,
         version_number: $version_number,
         changelog: (if $changelog == "" then null else $changelog end),
-        dependencies: ($config.version.dependencies // []),
+        dependencies: (($inferred_dependencies + ($config.version.dependencies // [])) | unique_by([.project_id, .version_id, .file_name, .dependency_type])),
         game_versions: (if ($config.version.game_versions // [] | length) > 0 then $config.version.game_versions else [$minecraft_version] end),
         version_type: $version_type,
         loaders: (if ($config.version.loaders // [] | length) > 0 then $config.version.loaders else ["fabric"] end),

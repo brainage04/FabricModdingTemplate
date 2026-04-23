@@ -45,6 +45,7 @@ In practice, `.modrinth/project.json` can be kept very small. The template only 
 
 - `categories`
 - `additional_categories`
+- `dependency_overrides`
 
 Valid values for `categories` and `additional_categories` are as follows:
 
@@ -71,6 +72,47 @@ Valid values for `categories` and `additional_categories` are as follows:
 `additional_categories` uses the same values as `categories`; the difference is that they are searchable but not shown as primary display categories.
 
 If you do not need any overrides, you can remove `.modrinth/project.json` entirely and the workflow will fall back to defaults.
+
+## Version dependencies
+
+Version dependencies are inferred from `src/main/resources/fabric.mod.json`:
+
+- `depends` becomes Modrinth `required`
+- `recommends` and `suggests` become Modrinth `optional`
+- `conflicts` and `breaks` become Modrinth `incompatible`
+- `minecraft`, `java`, and `fabricloader` are ignored
+
+The workflow first tries the Fabric mod ID as a Modrinth slug, then simple normalisations such as replacing `_` with `-`.
+
+If a dependency uses a different Modrinth slug, add an override in `.modrinth/project.json`:
+
+```json
+{
+  "dependency_overrides": {
+    "fzzy_config": {
+      "project_slug": "fzzy-config"
+    }
+  }
+}
+```
+
+You can also override the dependency type, provide a project ID directly, or skip a dependency entirely:
+
+```json
+{
+  "dependency_overrides": {
+    "some_mod": {
+      "project_id": "AABBCCDD",
+      "dependency_type": "optional"
+    },
+    "local_only_mod": {
+      "skip": true
+    }
+  }
+}
+```
+
+Manual extra version dependencies are still supported with `version.dependencies` if you need to append entries that do not come from `fabric.mod.json`.
 
 ## Side support defaults
 

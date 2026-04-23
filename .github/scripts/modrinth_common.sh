@@ -6,6 +6,7 @@ MODRINTH_API="${MODRINTH_API:-https://api.modrinth.com/v2}"
 MODRINTH_PROJECT_CONFIG="${MODRINTH_PROJECT_CONFIG:-.modrinth/project.json}"
 MODRINTH_FABRIC_MOD_JSON="${MODRINTH_FABRIC_MOD_JSON:-src/main/resources/fabric.mod.json}"
 MODRINTH_PROJECT_BODY="${MODRINTH_PROJECT_BODY:-README.md}"
+MODRINTH_DISCORD_URL="${MODRINTH_DISCORD_URL:-https://discord.gg/N4zfhBx8Fm}"
 MODRINTH_USER_AGENT="${MODRINTH_USER_AGENT:-${GITHUB_REPOSITORY:-unknown}/github-actions modrinth-publisher}"
 
 require_command() {
@@ -70,4 +71,16 @@ resolve_project_id() {
       exit 1
       ;;
   esac
+}
+
+resolve_project_id_candidates() {
+  local candidate
+
+  for candidate in "$@"; do
+    if [ -n "$candidate" ] && resolve_project_id "$candidate"; then
+      return 0
+    fi
+  done
+
+  return 1
 }
