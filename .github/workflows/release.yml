@@ -135,6 +135,10 @@ jobs:
             exit 1
           fi
 
+      - name: process resources
+        if: steps.config.outputs.enabled == 'true'
+        run: ./gradlew processResources
+
       - name: download release artifacts
         if: steps.config.outputs.enabled == 'true'
         uses: actions/download-artifact@v4
