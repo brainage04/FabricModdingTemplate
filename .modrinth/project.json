@@ -1,26 +1,4 @@
 {
-  "project_type": "mod",
-  "categories": [
-    "fabric"
-  ],
-  "additional_categories": [],
-  "client_side": "optional",
-  "server_side": "optional",
-  "status": "draft",
-  "requested_status": null,
-  "issues_url": null,
-  "source_url": null,
-  "wiki_url": null,
-  "discord_url": null,
-  "license_url": null,
-  "donation_urls": [],
-  "version": {
-    "loaders": [
-      "fabric"
-    ],
-    "game_versions": [],
-    "dependencies": [],
-    "featured": true,
-    "status": "listed"
-  }
+  "categories": [],
+  "additional_categories": []
 }

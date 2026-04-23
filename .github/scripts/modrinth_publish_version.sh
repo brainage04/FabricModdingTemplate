@@ -8,9 +8,11 @@ require_command curl
 require_command jq
 require_env GITHUB_EVENT_PATH GITHUB_REPOSITORY MODRINTH_TOKEN
 
-if [ ! -f "$MODRINTH_PROJECT_CONFIG" ]; then
-  echo "Missing Modrinth config: $MODRINTH_PROJECT_CONFIG" >&2
-  exit 1
+config_file="$MODRINTH_PROJECT_CONFIG"
+
+if [ ! -f "$config_file" ]; then
+  config_file="$(mktemp)"
+  printf '{}\n' > "$config_file"
 fi
 
 mod_id="$(gradle_property mod_id)"
@@ -82,7 +84,7 @@ version_payload="$(
     --arg changelog "$release_body" \
     --arg minecraft_version "$minecraft_version" \
     --arg version_type "$version_type" \
-    --slurpfile config "$MODRINTH_PROJECT_CONFIG" \
+    --slurpfile config "$config_file" \
     '
       ($config[0]) as $config |
       {

@@ -167,9 +167,6 @@ echo "Setting package dir to $package_dir"
       perl -0pi -e 's/common code in `src\/main`, client-only code in `src\/client`, and GameTests in `src\/gametest`/common code in `src\/main` and GameTests in `src\/gametest`/' "$base"/README.md
       sed -i '/launches the client side/d' "$base"/README.md
       perl -0pi -e 's/For client-side GameTests, run:\n\n```shell\n\.\/gradlew runClientGameTest\n```\n\nThe template also includes a minimal client GameTest that opens a singleplayer world and checks that the client and integrated server are both reachable from the test context\.\nWhen you initialise with `--side=client`, the generated repo keeps this client GameTest path and removes the dedicated-server GameTest path\.\n\n//' "$base"/README.md
-      sed -i \
-        -e 's/"client_side": "optional"/"client_side": "unsupported"/' \
-        -e 's/"server_side": "optional"/"server_side": "required"/' "$base"/.modrinth/project.json
       rm -f "$base"/src/gametest/java/"$package_dir"/"$mod_name"ClientGameTest.java
       rm -rf "$base"/src/client
       ;;
@@ -190,9 +187,6 @@ echo "Setting package dir to $package_dir"
       perl -0pi -e 's/common code in `src\/main`, client-only code in `src\/client`, and GameTests in `src\/gametest`/common code in `src\/main`, client-only code in `src\/client`, and client-side GameTests in `src\/gametest`/' "$base"/README.md
       sed -i '/launches the common\/server side/d' "$base"/README.md
       perl -0pi -e 's/For integration-style server tests, run:\n\n```shell\n\.\/gradlew runGameTest\n```\n\nThe template includes a separate `src\/gametest` source set with a minimal server GameTest that checks the example command was registered on the server\.\nServer GameTests also run automatically as part of `\.\/gradlew build`, which is what the included GitHub Actions workflow executes\.\n\n//' "$base"/README.md
-      sed -i \
-        -e 's/"client_side": "optional"/"client_side": "required"/' \
-        -e 's/"server_side": "optional"/"server_side": "unsupported"/' "$base"/.modrinth/project.json
       rm -f "$base"/src/gametest/java/"$package_dir"/"$mod_name"GameTest.java
       ;;
   esac

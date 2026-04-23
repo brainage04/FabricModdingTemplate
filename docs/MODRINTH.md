@@ -11,7 +11,7 @@ The workflow is skipped unless the repository has a `MODRINTH_TOKEN` secret conf
 
 ## Required secret
 
-Create a Modrinth personal access token and add it to the GitHub repository as `MODRINTH_TOKEN`.
+Create a Modrinth personal access token and add it as a repository secret to the GitHub repository as `MODRINTH_TOKEN`.
 
 Minimum useful scopes:
 
@@ -27,38 +27,65 @@ The workflow uses the Modrinth API directly:
 
 The workflow reads:
 
-- `.modrinth/project.json` for project and version metadata
-- `.modrinth/body.md` for the long project description
-- `gradle.properties` for `mod_id`, `mod_name`, `mod_description`, `mod_license`, and `minecraft_version`
+- `src/main/resources/fabric.mod.json` for the project slug, title, description, contact links, licence, and side support inference
+- `README.md` for the long project description
+- `.modrinth/project.json` for optional Modrinth-specific overrides
+- `gradle.properties` for `mod_version` and `minecraft_version`
 
 Defaults:
 
-- The Modrinth slug is `mod_id`
+- The Modrinth slug is `fabric.mod.json.id`
 - The project is created as `draft`
-- The GitHub repo URL is used for `source_url`
-- The GitHub issues URL is used for `issues_url`
-- `fabric` is used as the default loader/category
+- The GitHub repo URL is used when `fabric.mod.json.contact.sources` is absent
+- The GitHub issues URL is used when `fabric.mod.json.contact.issues` is absent
+- `fabric` is used as the default loader/category when no override is supplied
+- `discord_url` is always set to `https://discord.gg/N4zfhBx8Fm`
+
+In practice, `.modrinth/project.json` can be kept very small. The template only needs it when you want to override defaults such as:
+
+- `categories`
+- `additional_categories`
+
+Valid values for `categories` and `additional_categories` are as follows:
+
+- `adventure`
+- `cursed`
+- `decoration`
+- `economy`
+- `equipment`
+- `food`
+- `game-mechanics`
+- `library`
+- `magic`
+- `management`
+- `minigame`
+- `mobs`
+- `optimization`
+- `social`
+- `storage`
+- `technology`
+- `transportation`
+- `utility`
+- `worldgen`
+
+`additional_categories` uses the same values as `categories`; the difference is that they are searchable but not shown as primary display categories.
+
+If you do not need any overrides, you can remove `.modrinth/project.json` entirely and the workflow will fall back to defaults.
 
 ## Side support defaults
 
-The template adjusts `.modrinth/project.json` during `init.sh`:
+Side support is inferred from `fabric.mod.json`:
 
-- `--side=both`: `client_side=optional`, `server_side=optional`
-- `--side=server`: `client_side=unsupported`, `server_side=required`
-- `--side=client`: `client_side=required`, `server_side=unsupported`
+- `environment=client`: `client_side=required`, `server_side=unsupported`
+- `environment=server`: `client_side=unsupported`, `server_side=required`
+- `environment=*` with a client entrypoint: `client_side=optional`, `server_side=optional`
+- `environment=*` without a client entrypoint: `client_side=unsupported`, `server_side=required`
 
-You can edit these values after initialisation if your real compatibility story differs.
+You can still override the inferred values in `.modrinth/project.json` if needed.
 
 ## Release notes
 
-The Modrinth changelog is taken from the GitHub release body.
-
-With the current release flow, that means:
-
-1. Create an annotated git tag such as `git tag -a v1.2.3 -F RELEASE_NOTES.md`
-2. Push the tag
-3. Let the release workflow create the GitHub release
-4. Let the Modrinth workflow reuse the same notes as the version changelog
+The Modrinth changelog is taken from the GitHub release body. See [RELEASE.md](RELEASE.md) for more info.
 
 ## Notes
 
