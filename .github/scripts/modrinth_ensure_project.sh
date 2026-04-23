@@ -83,7 +83,8 @@ project_payload="$(
         license_id: ($config.license_id // $mod.license),
         license_url: ($config.license_url // null),
         project_type: ($config.project_type // "mod"),
-        initial_versions: []
+        initial_versions: [],
+        is_draft: true
       }
       | with_entries(select(.value != null))
     '
