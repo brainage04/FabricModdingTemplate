@@ -47,8 +47,10 @@ if [ -n "$icon_rel_path" ]; then
   icon_path="src/main/resources/${icon_rel_path}"
 fi
 
-project_links_payload="$(
+project_metadata_payload="$(
   jq -n \
+    --arg repo_url "$repo_url" \
+    --arg issues_url "$issues_url" \
     --arg default_wiki_url "$default_wiki_url" \
     --arg default_license_url "$default_license_url" \
     --slurpfile config "$config_file" \
@@ -57,6 +59,8 @@ project_links_payload="$(
       ($config[0]) as $config |
       ($mod[0]) as $mod |
       {
+        issues_url: ($config.issues_url // $mod.contact.issues // $issues_url),
+        source_url: ($config.source_url // $mod.contact.sources // $mod.contact.homepage // $repo_url),
         wiki_url: ($config.wiki_url // $mod.contact.wiki // $default_wiki_url),
         license_url: ($config.license_url // $default_license_url)
       }
@@ -141,10 +145,10 @@ fi
 response_file="$(mktemp)"
 status="$(modrinth_request PATCH "/project/${project_slug}" "$response_file" \
   -H "Content-Type: application/json" \
-  --data-binary "$project_links_payload")"
+  --data-binary "$project_metadata_payload")"
 
 if [ "$status" != "204" ]; then
-  echo "Failed to sync Modrinth project links for ${project_slug}: HTTP ${status}" >&2
+  echo "Failed to sync Modrinth project metadata for ${project_slug}: HTTP ${status}" >&2
   cat "$response_file" >&2
   exit 1
 fi

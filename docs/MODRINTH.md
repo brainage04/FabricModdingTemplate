@@ -43,7 +43,7 @@ Defaults:
 - The licence link points at `LICENSE` by default
 - `fabric` is used as the default loader/category when no override is supplied
 - `discord_url` is always set to `https://discord.gg/N4zfhBx8Fm`
-- The workflow syncs `wiki_url` and `license_url` on every release so existing Modrinth projects stay aligned with the repository
+- The workflow syncs `issues_url`, `source_url`, `wiki_url`, and `license_url` on every release so existing Modrinth projects stay aligned with the repository
 
 In practice, `.modrinth/project.json` can be kept very small. The template only needs it when you want to override defaults such as:
 

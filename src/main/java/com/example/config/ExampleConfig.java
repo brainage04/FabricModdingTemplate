@@ -1,6 +1,6 @@
 package com.example.config;
 
-import com.example.ExampleMod;
+import com.example.FabricTemplateServer;
 import me.fzzyhmstrs.fzzy_config.api.ConfigApi;
 import me.fzzyhmstrs.fzzy_config.api.RegisterType;
 import me.fzzyhmstrs.fzzy_config.config.Config;
@@ -38,7 +38,7 @@ public class ExampleConfig extends Config {
     public GameplaySection gameplay = new GameplaySection();
 
     public ExampleConfig() {
-        super(Identifier.fromNamespaceAndPath(ExampleMod.MOD_ID, "settings"));
+        super(Identifier.fromNamespaceAndPath(FabricTemplateServer.MOD_ID, "settings"));
     }
 
     public static void init() {

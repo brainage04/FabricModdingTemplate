@@ -6,9 +6,9 @@ import net.fabricmc.api.ModInitializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ExampleMod implements ModInitializer {
-    public static final String MOD_ID = "examplemod";
-    public static final String MOD_NAME = "ExampleMod";
+public class FabricTemplateServer implements ModInitializer {
+    public static final String MOD_ID = "fabrictemplateserver";
+    public static final String MOD_NAME = "FabricTemplateServer";
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_NAME);
 
 	@Override

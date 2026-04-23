@@ -8,22 +8,22 @@
 		"brainage04"
 	],
 	"contact": {
-		"homepage": "https://github.com/brainage04/ExampleMod",
-		"sources": "https://github.com/brainage04/ExampleMod"
+		"homepage": "https://github.com/brainage04/FabricTemplateServer",
+		"sources": "https://github.com/brainage04/FabricTemplateServer"
 	},
 	"license": "MIT",
-	"icon": "assets/examplemod/icon.png",
+	"icon": "assets/fabrictemplateserver/icon.png",
 	"environment": "*",
 	"entrypoints": {
 		"main": [
-			"com.example.ExampleMod"
+			"com.example.FabricTemplateServer"
 		],
 		"client": [
-			"com.example.ExampleModClient"
+			"com.example.FabricTemplateServerClient"
 		]
 	},
 	"mixins": [
-		"examplemod.mixins.json"
+		"fabrictemplateserver.mixins.json"
 	],
 	"depends": {
 		"fabricloader": ">=${loader_version}",
@@ -32,5 +32,5 @@
 		"fabric-api": "*",
 		"fzzy_config": ">=0.7.5"
 	},
-    "accessWidener": "examplemod.accesswidener"
+    "accessWidener": "fabrictemplateserver.accesswidener"
 }

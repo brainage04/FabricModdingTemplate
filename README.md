@@ -14,7 +14,7 @@ Use `--side=server` to generate a server-only repo and remove the client entrypo
 Use `--side=client` to generate a client-only repo and remove the dedicated-server GameTest path from the generated project.
 
 This script is designed to work both with GitHub Actions and manual usage, and will safely delete:
-  - Leftover unused folders that are not tracked by Git (such as `src/main/java/com/example`, `src/client/java/com/example`, and `src/main/resources/examplemod`).
+  - Leftover unused folders that are not tracked by Git (such as `src/main/java/com/example`, `src/client/java/com/example`, and `src/main/resources/fabrictemplateserver`).
   - The `init` workflow and script after successful execution.
 
 For local development after initialisation:

@@ -52,7 +52,7 @@ processResources {
 	inputs.property "minecraft_version", project.properties.minecraft_version
 
 	filesMatching("fabric.mod.json") {
-		expand([
+	expand([
 				"mod_id": inputs.properties.mod_id,
 				"mod_version": inputs.properties.mod_version,
 				"mod_name": inputs.properties.mod_name,
@@ -66,13 +66,13 @@ loom {
 	splitEnvironmentSourceSets()
 
 	mods {
-		examplemod {
+		fabrictemplateserver {
 			sourceSet sourceSets.main
 			sourceSet sourceSets.client
 		}
 	}
 
-	accessWidenerPath = file("src/main/resources/examplemod.accesswidener")
+	accessWidenerPath = file("src/main/resources/fabrictemplateserver.accesswidener")
 }
 
 fabricApi {

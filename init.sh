@@ -93,41 +93,45 @@ echo "Setting package dir to $package_dir"
   # as owner may or may not be in the package name string
   # which will cause issues if replaced
   find "${find_paths[@]}" -type f -exec sed -i \
-      -e "s/examplemod/$mod_id/g" \
-      -e "s/\"ExampleMod\"/\"$mod_name\"/g" \
-      -e "s/ExampleMod/$mod_name/g" \
+      -e "s/fabrictemplateserver/$mod_id/g" \
+      -e "s/FabricTemplateServer/$mod_name/g" \
       -e "s/brainage04/$owner/g" \
       -e "s/com\.example/$package_name/g" {} +
 
   sed -i \
-        -e "s/examplemod/$mod_id/g" \
-        -e "s/ExampleMod/$mod_name/g" \
+        -e "s/fabrictemplateserver/$mod_id/g" \
+        -e "s/FabricTemplateServer/$mod_name/g" \
         -e "s/brainage04/$owner/g" "$base/build.gradle"
 
   sed -i \
       -e "s/com\.example/$package_name/g" \
-      -e "s/examplemod/$mod_id/g" \
-      -e "s/ExampleMod/$mod_name/g" \
+      -e "s/fabrictemplateserver/$mod_id/g" \
+      -e "s/FabricTemplateServer/$mod_name/g" \
       -e "s/brainage04/$owner/g" "$base/gradle.properties"
+
+  sed -i \
+      -e "s/fabrictemplateserver/$mod_id/g" \
+      -e "s/FabricTemplateServer/$mod_name/g" \
+      -e "s/brainage04/$owner/g" "$base/README.md"
 
   sed -i \
         -e "s/brainage04/$owner/g" "$base/LICENSE"
 
   # refactor accesswidener and mixin file names
-  mv "$base"/src/main/resources/examplemod.accesswidener "$base"/src/main/resources/"$mod_id".accesswidener
-  mv "$base"/src/main/resources/examplemod.mixins.json "$base"/src/main/resources/"$mod_id".mixins.json
+  mv "$base"/src/main/resources/fabrictemplateserver.accesswidener "$base"/src/main/resources/"$mod_id".accesswidener
+  mv "$base"/src/main/resources/fabrictemplateserver.mixins.json "$base"/src/main/resources/"$mod_id".mixins.json
 
   # refactor assets directory
-  mv "$base"/src/main/resources/assets/examplemod "$base"/src/main/resources/assets/"$mod_id"
-  mv "$base"/src/client/resources/assets/examplemod "$base"/src/client/resources/assets/"$mod_id"
+  mv "$base"/src/main/resources/assets/fabrictemplateserver "$base"/src/main/resources/assets/"$mod_id"
+  mv "$base"/src/client/resources/assets/fabrictemplateserver "$base"/src/client/resources/assets/"$mod_id"
 
   # rename main class
-  mv "$base"/src/main/java/com/example/ExampleMod.java "$base"/src/main/java/com/example/"$mod_name".java
-  mv "$base"/src/test/java/com/example/ExampleModMetadataTest.java "$base"/src/test/java/com/example/"$mod_name"MetadataTest.java
-  mv "$base"/src/gametest/java/com/example/ExampleModGameTest.java "$base"/src/gametest/java/com/example/"$mod_name"GameTest.java
-  mv "$base"/src/gametest/java/com/example/ExampleModClientGameTest.java "$base"/src/gametest/java/com/example/"$mod_name"ClientGameTest.java
+  mv "$base"/src/main/java/com/example/FabricTemplateServer.java "$base"/src/main/java/com/example/"$mod_name".java
+  mv "$base"/src/test/java/com/example/FabricTemplateServerMetadataTest.java "$base"/src/test/java/com/example/"$mod_name"MetadataTest.java
+  mv "$base"/src/gametest/java/com/example/FabricTemplateServerGameTest.java "$base"/src/gametest/java/com/example/"$mod_name"GameTest.java
+  mv "$base"/src/gametest/java/com/example/FabricTemplateServerClientGameTest.java "$base"/src/gametest/java/com/example/"$mod_name"ClientGameTest.java
   if [ "$side" != "server" ]; then
-    mv "$base"/src/client/java/com/example/ExampleModClient.java "$base"/src/client/java/com/example/"$mod_name"Client.java
+    mv "$base"/src/client/java/com/example/FabricTemplateServerClient.java "$base"/src/client/java/com/example/"$mod_name"Client.java
   fi
 
   # lastly, refactor package directory

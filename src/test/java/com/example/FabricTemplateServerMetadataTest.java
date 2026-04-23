@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class ExampleModMetadataTest {
+class FabricTemplateServerMetadataTest {
     @Test
     void fabricLoaderBootsInServerModeForTests() {
         assertEquals(EnvType.SERVER, FabricLoader.getInstance().getEnvironmentType());
@@ -19,13 +19,13 @@ class ExampleModMetadataTest {
     @Test
     void fabricLoaderCanResolveTheTemplateModMetadata() {
         ModContainer mod = FabricLoader.getInstance()
-                .getModContainer(ExampleMod.MOD_ID)
+                .getModContainer(FabricTemplateServer.MOD_ID)
                 .orElseThrow(() -> new AssertionError("Expected the template mod to be loaded for tests."));
         ModMetadata metadata = mod.getMetadata();
 
         assertAll(
-                () -> assertEquals(ExampleMod.MOD_ID, metadata.getId()),
-                () -> assertEquals(ExampleMod.MOD_NAME, metadata.getName()),
+                () -> assertEquals(FabricTemplateServer.MOD_ID, metadata.getId()),
+                () -> assertEquals(FabricTemplateServer.MOD_NAME, metadata.getName()),
                 () -> assertTrue(metadata.getLicense().contains("MIT")),
                 () -> assertTrue(mod.findPath("fabric.mod.json").isPresent())
         );
