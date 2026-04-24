@@ -15,10 +15,11 @@ import me.fzzyhmstrs.fzzy_config.validation.number.ValidatedInt;
 import net.minecraft.resources.Identifier;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 public class ExampleConfig extends Config {
     public static final ExampleConfig CONFIG =
-            ConfigApi.registerAndLoadConfig(ExampleConfig::new, RegisterType.BOTH);
+            ConfigApi.registerAndLoadConfig((Supplier<ExampleConfig>) ExampleConfig::new, RegisterType.BOTH);
 
     // Bare values serialize, but validated wrappers are what drive correction and auto-GUI generation.
     public double fallbackDamageMultiplier = 1.25D;
