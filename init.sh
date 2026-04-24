@@ -1,7 +1,86 @@
-#!/bin/bash
+#!/usr/bin/env bash
+
+set -euo pipefail
 
 usage() {
   echo "Usage: $0 [--side=both|server|client] <owner> <mod_name>"
+}
+
+sanitize_mod_id() {
+  local value
+
+  value=$(
+    printf '%s\n' "$1" \
+    | tr '[:upper:]' '[:lower:]' \
+    | sed -E 's/[^a-z0-9]+/_/g; s/^_+//; s/_+$//; s/_+/_/g'
+  )
+
+  if [ -z "$value" ]; then
+    value="mod"
+  elif [[ ! "$value" =~ ^[a-z] ]]; then
+    value="mod_${value}"
+  fi
+
+  printf '%s\n' "$value"
+}
+
+sanitize_package_segment() {
+  local value
+
+  value=$(
+    printf '%s\n' "$1" \
+    | tr '[:upper:]' '[:lower:]' \
+    | sed -E 's/[^a-z0-9_]+/_/g; s/^_+//; s/_+$//; s/_+/_/g'
+  )
+
+  if [ -z "$value" ]; then
+    value="owner"
+  elif [[ "$value" =~ ^[0-9] ]]; then
+    value="_${value}"
+  fi
+
+  case "$value" in
+    abstract|assert|boolean|break|byte|case|catch|char|class|const|continue|default|do|double|else|enum|extends|final|finally|float|for|goto|if|implements|import|instanceof|int|interface|long|native|new|package|private|protected|public|return|short|static|strictfp|super|switch|synchronized|this|throw|throws|transient|try|void|volatile|while|true|false|null)
+      value="_${value}"
+      ;;
+  esac
+
+  printf '%s\n' "$value"
+}
+
+sanitize_class_name() {
+  local value
+
+  value=$(
+    printf '%s\n' "$1" \
+    | awk '
+      {
+        gsub(/[^[:alnum:]]+/, " ")
+        for (i = 1; i <= NF; i++) {
+          word = tolower($i)
+          out = out toupper(substr(word, 1, 1)) substr(word, 2)
+        }
+      }
+      END {
+        if (out == "") {
+          out = "Mod"
+        } else if (out ~ /^[0-9]/) {
+          out = "Mod" out
+        }
+        print out
+      }
+    '
+  )
+
+  printf '%s\n' "$value"
+}
+
+sed_escape_replacement() {
+  printf '%s\n' "$1" | sed -e 's/[\/&]/\\&/g'
+}
+
+sed_escape_path_replacement() {
+  printf '%s\n' "$1" | sed -e 's/[#&]/\\&/g'
 }
 
 side="both"
@@ -14,7 +93,7 @@ while [ "$#" -gt 0 ]; do
       shift
       ;;
     --side)
-      if [ -z "$2" ]; then
+      if [ "$#" -lt 2 ]; then
         usage
         exit 1
       fi
@@ -56,30 +135,38 @@ base=$(dirname "$(readlink -f "$0")")
 echo "Updating $base"
 
 owner="${positionals[0]}"
-mod_name="${positionals[1]}"
+mod_name_raw="${positionals[1]}"
 mod_name_spaces=$(
-  printf '%s\n' "$mod_name" \
+  printf '%s\n' "$mod_name_raw" \
   | sed -E 's/([A-Z])/ \1/g' \
+  | sed -E 's/[^[:alnum:]]+/ /g' \
   | sed -E 's/^ //'
 )
-mod_id=$(
-  printf '%s\n' "$mod_name_spaces" \
-  | tr 'A-Z' 'a-z' \
-  | tr ' ' '_'
-)
-package_name="io.github.${owner,,}.${mod_id,,}"
+mod_name="$(sanitize_class_name "$mod_name_raw")"
+mod_id="$(sanitize_mod_id "$mod_name_raw")"
+package_owner="$(sanitize_package_segment "$owner")"
+package_name="io.github.${package_owner}.${mod_id}"
 package_dir=$(echo "$package_name" | tr . /)
 
+owner_replacement="$(sed_escape_replacement "$owner")"
+mod_name_replacement="$(sed_escape_replacement "$mod_name")"
+mod_id_replacement="$(sed_escape_replacement "$mod_id")"
+package_name_replacement="$(sed_escape_replacement "$package_name")"
+package_dir_replacement="$(sed_escape_path_replacement "$package_dir")"
+repo_url_replacement="$(sed_escape_path_replacement "https://github.com/${owner}/${mod_name_raw}")"
+
 echo "Setting owner to $owner"
-echo "Setting mod name to $mod_name ($mod_name_spaces)"
+echo "Setting mod name to $mod_name_raw ($mod_name_spaces)"
+echo "Setting main class name to $mod_name"
 echo "Setting mod id to $mod_id"
 echo "Setting side to $side"
 echo "Setting package name to $package_name"
 echo "Setting package dir to $package_dir"
 
 (
-  # enable debug tracing
-  set -x
+  if [ "${INIT_TRACE:-false}" = "true" ]; then
+    set -x
+  fi
 
   move_package_tree() {
     local source_root="$1"
@@ -120,30 +207,34 @@ echo "Setting package dir to $package_dir"
   # as owner may or may not be in the package name string
   # which will cause issues if replaced
   find "${find_paths[@]}" -type f -exec sed -i \
-      -e "s/fabrictemplateserver/$mod_id/g" \
-      -e "s/FabricTemplateServer/$mod_name/g" \
-      -e "s/brainage04/$owner/g" \
-      -e "s/io\.github\.brainage04/$package_name/g" {} +
+      -e "s/fabrictemplateserver/$mod_id_replacement/g" \
+      -e "s/FabricTemplateServer/$mod_name_replacement/g" \
+      -e "s/brainage04/$owner_replacement/g" \
+      -e "s/io\.github\.brainage04/$package_name_replacement/g" {} +
 
   sed -i \
-        -e "s/fabrictemplateserver/$mod_id/g" \
-        -e "s/FabricTemplateServer/$mod_name/g" \
-        -e "s/brainage04/$owner/g" "$base/build.gradle"
+      -E "s#https://github.com/[^/]+/${mod_name_replacement}#${repo_url_replacement}#g" \
+      "$base/src/main/resources/fabric.mod.json"
 
   sed -i \
-      -e "s/io\.github\.brainage04/$package_name/g" \
-      -e "s/fabrictemplateserver/$mod_id/g" \
-      -e "s/FabricTemplateServer/$mod_name/g" \
-      -e "s/brainage04/$owner/g" "$base/gradle.properties"
+        -e "s/fabrictemplateserver/$mod_id_replacement/g" \
+        -e "s/FabricTemplateServer/$mod_name_replacement/g" \
+        -e "s/brainage04/$owner_replacement/g" "$base/build.gradle"
 
   sed -i \
-      -e "s#io/github/brainage04#$package_dir#g" \
-      -e "s/fabrictemplateserver/$mod_id/g" \
-      -e "s/FabricTemplateServer/$mod_name/g" \
-      -e "s/brainage04/$owner/g" "$base/README.md"
+      -e "s/io\.github\.brainage04/$package_name_replacement/g" \
+      -e "s/fabrictemplateserver/$mod_id_replacement/g" \
+      -e "s/FabricTemplateServer/$mod_name_replacement/g" \
+      -e "s/brainage04/$owner_replacement/g" "$base/gradle.properties"
 
   sed -i \
-        -e "s/brainage04/$owner/g" "$base/LICENSE"
+      -e "s#io/github/brainage04#$package_dir_replacement#g" \
+      -e "s/fabrictemplateserver/$mod_id_replacement/g" \
+      -e "s/FabricTemplateServer/$mod_name_replacement/g" \
+      -e "s/brainage04/$owner_replacement/g" "$base/README.md"
+
+  sed -i \
+        -e "s/brainage04/$owner_replacement/g" "$base/LICENSE"
 
   # refactor accesswidener and mixin file names
   mv "$base"/src/main/resources/fabrictemplateserver.accesswidener "$base"/src/main/resources/"$mod_id".accesswidener

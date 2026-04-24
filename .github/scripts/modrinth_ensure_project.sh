@@ -2,6 +2,7 @@
 
 set -euo pipefail
 
+# shellcheck source=.github/scripts/modrinth_common.sh
 . "$(dirname "$0")/modrinth_common.sh"
 
 require_command curl

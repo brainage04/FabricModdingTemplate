@@ -2,6 +2,7 @@
 
 set -euo pipefail
 
+# shellcheck source=.github/scripts/modrinth_common.sh
 . "$(dirname "$0")/modrinth_common.sh"
 
 require_command curl
@@ -53,10 +54,10 @@ if jq -e --arg version_number "$mod_version" '.[] | select(.version_number == $v
   exit 0
 fi
 
-mapfile -t release_jars < <(find build/libs -maxdepth 1 -type f -name '*.jar' ! -name '*-dev.jar' ! -name '*-sources.jar' | sort)
+mapfile -t release_jars < <(find "$MODRINTH_RELEASE_JAR_DIR" -maxdepth 1 -type f -name '*.jar' ! -name '*-dev.jar' ! -name '*-sources.jar' | sort)
 
 if [ "${#release_jars[@]}" -eq 0 ]; then
-  echo "No release jar found in build/libs" >&2
+  echo "No release jar found in ${MODRINTH_RELEASE_JAR_DIR}" >&2
   exit 1
 fi
 
