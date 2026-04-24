@@ -1,4 +1,4 @@
-package com.example.mixin;
+package io.github.brainage04.mixin;
 
 import net.minecraft.server.MinecraftServer;
 import org.spongepowered.asm.mixin.Mixin;

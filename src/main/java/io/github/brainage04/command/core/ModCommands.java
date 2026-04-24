@@ -1,6 +1,6 @@
-package com.example.command.core;
+package io.github.brainage04.command.core;
 
-import com.example.command.ExampleCommand;
+import io.github.brainage04.command.ExampleCommand;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 
 public class ModCommands {

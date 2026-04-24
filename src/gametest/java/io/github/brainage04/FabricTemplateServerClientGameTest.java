@@ -1,6 +1,6 @@
-package com.example;
+package io.github.brainage04;
 
-import com.example.command.ExampleCommand;
+import io.github.brainage04.command.ExampleCommand;
 import net.fabricmc.fabric.api.client.gametest.v1.FabricClientGameTest;
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
 import net.fabricmc.fabric.api.client.gametest.v1.context.TestSingleplayerContext;

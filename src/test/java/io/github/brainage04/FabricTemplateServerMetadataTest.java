@@ -1,4 +1,4 @@
-package com.example;
+package io.github.brainage04;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;

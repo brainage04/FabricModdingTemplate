@@ -1,6 +1,6 @@
-package com.example.config;
+package io.github.brainage04.config;
 
-import com.example.FabricTemplateServer;
+import io.github.brainage04.FabricTemplateServer;
 import me.fzzyhmstrs.fzzy_config.api.ConfigApi;
 import me.fzzyhmstrs.fzzy_config.api.RegisterType;
 import me.fzzyhmstrs.fzzy_config.config.Config;

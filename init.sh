@@ -67,7 +67,7 @@ mod_id=$(
   | tr 'A-Z' 'a-z' \
   | tr ' ' '_'
 )
-package_name="com.github.${owner,,}.${mod_id,,}"
+package_name="io.github.${owner,,}.${mod_id,,}"
 package_dir=$(echo "$package_name" | tr . /)
 
 echo "Setting owner to $owner"
@@ -80,6 +80,33 @@ echo "Setting package dir to $package_dir"
 (
   # enable debug tracing
   set -x
+
+  move_package_tree() {
+    local source_root="$1"
+    local target_root="$2"
+    local staging_root
+    local module_root
+    local current
+
+    if [ "$source_root" = "$target_root" ]; then
+      return
+    fi
+
+    staging_root=$(mktemp -d "$base"/.init-package-tree.XXXXXX)
+    shopt -s dotglob nullglob
+    mv "$source_root"/* "$staging_root"/
+    shopt -u dotglob nullglob
+
+    mkdir -p "$(dirname "$target_root")"
+    mv "$staging_root" "$target_root"
+
+    module_root=$(dirname "$(dirname "$(dirname "$source_root")")")
+    current="$source_root"
+    while [ "$current" != "$module_root" ]; do
+      rmdir --ignore-fail-on-non-empty "$current"
+      current=$(dirname "$current")
+    done
+  }
 
   find_paths=(
     "$base/src/main"
@@ -96,7 +123,7 @@ echo "Setting package dir to $package_dir"
       -e "s/fabrictemplateserver/$mod_id/g" \
       -e "s/FabricTemplateServer/$mod_name/g" \
       -e "s/brainage04/$owner/g" \
-      -e "s/com\.example/$package_name/g" {} +
+      -e "s/io\.github\.brainage04/$package_name/g" {} +
 
   sed -i \
         -e "s/fabrictemplateserver/$mod_id/g" \
@@ -104,12 +131,13 @@ echo "Setting package dir to $package_dir"
         -e "s/brainage04/$owner/g" "$base/build.gradle"
 
   sed -i \
-      -e "s/com\.example/$package_name/g" \
+      -e "s/io\.github\.brainage04/$package_name/g" \
       -e "s/fabrictemplateserver/$mod_id/g" \
       -e "s/FabricTemplateServer/$mod_name/g" \
       -e "s/brainage04/$owner/g" "$base/gradle.properties"
 
   sed -i \
+      -e "s#io/github/brainage04#$package_dir#g" \
       -e "s/fabrictemplateserver/$mod_id/g" \
       -e "s/FabricTemplateServer/$mod_name/g" \
       -e "s/brainage04/$owner/g" "$base/README.md"
@@ -126,35 +154,21 @@ echo "Setting package dir to $package_dir"
   mv "$base"/src/client/resources/assets/fabrictemplateserver "$base"/src/client/resources/assets/"$mod_id"
 
   # rename main class
-  mv "$base"/src/main/java/com/example/FabricTemplateServer.java "$base"/src/main/java/com/example/"$mod_name".java
-  mv "$base"/src/test/java/com/example/FabricTemplateServerMetadataTest.java "$base"/src/test/java/com/example/"$mod_name"MetadataTest.java
-  mv "$base"/src/gametest/java/com/example/FabricTemplateServerGameTest.java "$base"/src/gametest/java/com/example/"$mod_name"GameTest.java
-  mv "$base"/src/gametest/java/com/example/FabricTemplateServerClientGameTest.java "$base"/src/gametest/java/com/example/"$mod_name"ClientGameTest.java
+  mv "$base"/src/main/java/io/github/brainage04/FabricTemplateServer.java "$base"/src/main/java/io/github/brainage04/"$mod_name".java
+  mv "$base"/src/test/java/io/github/brainage04/FabricTemplateServerMetadataTest.java "$base"/src/test/java/io/github/brainage04/"$mod_name"MetadataTest.java
+  mv "$base"/src/gametest/java/io/github/brainage04/FabricTemplateServerGameTest.java "$base"/src/gametest/java/io/github/brainage04/"$mod_name"GameTest.java
+  mv "$base"/src/gametest/java/io/github/brainage04/FabricTemplateServerClientGameTest.java "$base"/src/gametest/java/io/github/brainage04/"$mod_name"ClientGameTest.java
   if [ "$side" != "server" ]; then
-    mv "$base"/src/client/java/com/example/FabricTemplateServerClient.java "$base"/src/client/java/com/example/"$mod_name"Client.java
+    mv "$base"/src/client/java/io/github/brainage04/FabricTemplateServerClient.java "$base"/src/client/java/io/github/brainage04/"$mod_name"Client.java
   fi
 
   # lastly, refactor package directory
-  mkdir -p "$base"/src/main/java/"$package_dir"
-  mv "$base"/src/main/java/com/example/* "$base"/src/main/java/"$package_dir"
-  rmdir "$base"/src/main/java/com/example
-  rmdir --ignore-fail-on-non-empty "$base"/src/main/java/com
-
-  mkdir -p "$base"/src/test/java/"$package_dir"
-  mv "$base"/src/test/java/com/example/* "$base"/src/test/java/"$package_dir"
-  rmdir "$base"/src/test/java/com/example
-  rmdir --ignore-fail-on-non-empty "$base"/src/test/java/com
-
-  mkdir -p "$base"/src/gametest/java/"$package_dir"
-  mv "$base"/src/gametest/java/com/example/* "$base"/src/gametest/java/"$package_dir"
-  rmdir "$base"/src/gametest/java/com/example
-  rmdir --ignore-fail-on-non-empty "$base"/src/gametest/java/com
+  move_package_tree "$base"/src/main/java/io/github/brainage04 "$base"/src/main/java/"$package_dir"
+  move_package_tree "$base"/src/test/java/io/github/brainage04 "$base"/src/test/java/"$package_dir"
+  move_package_tree "$base"/src/gametest/java/io/github/brainage04 "$base"/src/gametest/java/"$package_dir"
 
   if [ "$side" != "server" ]; then
-    mkdir -p "$base"/src/client/java/"$package_dir"
-    mv "$base"/src/client/java/com/example/* "$base"/src/client/java/"$package_dir"
-    rmdir "$base"/src/client/java/com/example
-    rmdir --ignore-fail-on-non-empty "$base"/src/client/java/com
+    move_package_tree "$base"/src/client/java/io/github/brainage04 "$base"/src/client/java/"$package_dir"
   fi
 
   case "$side" in

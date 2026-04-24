@@ -1,6 +1,6 @@
-package com.example;
+package io.github.brainage04;
 
-import com.example.command.ExampleCommand;
+import io.github.brainage04.command.ExampleCommand;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 

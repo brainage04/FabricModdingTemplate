@@ -16,10 +16,10 @@
 	"environment": "*",
 	"entrypoints": {
 		"main": [
-			"com.example.FabricTemplateServer"
+			"io.github.brainage04.FabricTemplateServer"
 		],
 		"client": [
-			"com.example.FabricTemplateServerClient"
+			"io.github.brainage04.FabricTemplateServerClient"
 		]
 	},
 	"mixins": [
