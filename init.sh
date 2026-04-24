@@ -202,15 +202,13 @@ echo "Setting package dir to $package_dir"
     "$base/src/client"
   )
 
-  # refactor mod id, mod name, owner and package name strings
-  # important that owner is done before package name
-  # as owner may or may not be in the package name string
-  # which will cause issues if replaced
+  # Refactor the package before the raw owner, otherwise hyphenated owners can
+  # turn Java package declarations into invalid identifiers.
   find "${find_paths[@]}" -type f -exec sed -i \
+      -e "s/io\.github\.brainage04/$package_name_replacement/g" \
       -e "s/fabrictemplateserver/$mod_id_replacement/g" \
       -e "s/FabricTemplateServer/$mod_name_replacement/g" \
-      -e "s/brainage04/$owner_replacement/g" \
-      -e "s/io\.github\.brainage04/$package_name_replacement/g" {} +
+      -e "s/brainage04/$owner_replacement/g" {} +
 
   sed -i \
       -E "s#https://github.com/[^/]+/${mod_name_replacement}#${repo_url_replacement}#g" \
