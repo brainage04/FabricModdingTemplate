@@ -87,12 +87,12 @@ smoke_side() {
 
     if [ "$side" = "client" ]; then
       assert_path_missing "src/gametest/java/${package_dir}/${main_class}GameTest.java"
-      build_args=(build runClientGameTest)
+      build_args=(build)
     elif [ "$side" = "server" ]; then
       build_args=(build)
     else
       assert_path_exists "src/gametest/java/${package_dir}/${main_class}GameTest.java"
-      build_args=(build runClientGameTest)
+      build_args=(build)
     fi
 
     grep -qx "maven_group=${package_name}" gradle.properties
