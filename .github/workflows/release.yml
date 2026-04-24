@@ -105,6 +105,12 @@ jobs:
           fetch-depth: 0
           ref: ${{ github.ref_name }}
 
+      - name: install Modrinth publishing tools
+        if: steps.config.outputs.enabled == 'true'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y curl jq
+
       - name: validate gradle wrapper
         if: steps.config.outputs.enabled == 'true'
         uses: gradle/actions/wrapper-validation@v4

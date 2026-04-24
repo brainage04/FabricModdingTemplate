@@ -12,10 +12,10 @@ jobs:
     steps:
       - name: checkout repository
         uses: actions/checkout@v4
-      - name: install shellcheck
+      - name: install workflow tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y shellcheck
+          sudo apt-get install -y curl jq perl ripgrep shellcheck tar
       - name: shellcheck scripts
         run: |
           scripts=(.github/scripts/*.sh)

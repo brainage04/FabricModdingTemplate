@@ -8,18 +8,22 @@ permissions:
 jobs:
   cleanup:
     name: "Initialize template repository"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     if: ${{ !github.event.repository.is_template }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4.1.1
+      - name: Install init tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y perl
       - name: Initialize Repo
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           
-          owner=$(echo $GITHUB_REPOSITORY | cut -d/ -f1)
-          mod_name=$(echo $GITHUB_REPOSITORY | cut -d/ -f2 | tr -d "-" | tr -d ".")
+          owner=$(echo "$GITHUB_REPOSITORY" | cut -d/ -f1)
+          mod_name=$(echo "$GITHUB_REPOSITORY" | cut -d/ -f2)
           ./init.sh --side=both "$owner" "$mod_name"
           
           git add .
