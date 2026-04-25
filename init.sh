@@ -154,6 +154,8 @@ mod_id_replacement="$(sed_escape_replacement "$mod_id")"
 package_name_replacement="$(sed_escape_replacement "$package_name")"
 package_dir_replacement="$(sed_escape_path_replacement "$package_dir")"
 repo_url_replacement="$(sed_escape_path_replacement "https://github.com/${owner}/${mod_name_raw}")"
+package_name_placeholder="__INIT_PACKAGE_NAME__"
+package_dir_placeholder="__INIT_PACKAGE_DIR__"
 
 echo "Setting owner to $owner"
 echo "Setting mod name to $mod_name_raw ($mod_name_spaces)"
@@ -202,13 +204,15 @@ echo "Setting package dir to $package_dir"
     "$base/src/client"
   )
 
-  # Refactor the package before the raw owner, otherwise hyphenated owners can
-  # turn Java package declarations into invalid identifiers.
+  # Use placeholders so later replacements cannot rewrite text inserted by
+  # earlier replacements. This matters when the new mod id contains the
+  # template mod id as a prefix.
   find "${find_paths[@]}" -type f -exec sed -i \
-      -e "s/io\.github\.brainage04/$package_name_replacement/g" \
+      -e "s/io\.github\.brainage04/$package_name_placeholder/g" \
       -e "s/fabricmoddingtemplate/$mod_id_replacement/g" \
       -e "s/FabricModdingTemplate/$mod_name_replacement/g" \
-      -e "s/brainage04/$owner_replacement/g" {} +
+      -e "s/brainage04/$owner_replacement/g" \
+      -e "s/$package_name_placeholder/$package_name_replacement/g" {} +
 
   sed -i \
       -E "s#https://github.com/[^/]+/${mod_name_replacement}#${repo_url_replacement}#g" \
@@ -220,16 +224,18 @@ echo "Setting package dir to $package_dir"
         -e "s/brainage04/$owner_replacement/g" "$base/build.gradle"
 
   sed -i \
-      -e "s/io\.github\.brainage04/$package_name_replacement/g" \
+      -e "s/io\.github\.brainage04/$package_name_placeholder/g" \
       -e "s/fabricmoddingtemplate/$mod_id_replacement/g" \
       -e "s/FabricModdingTemplate/$mod_name_replacement/g" \
-      -e "s/brainage04/$owner_replacement/g" "$base/gradle.properties"
+      -e "s/brainage04/$owner_replacement/g" \
+      -e "s/$package_name_placeholder/$package_name_replacement/g" "$base/gradle.properties"
 
   sed -i \
-      -e "s#io/github/brainage04#$package_dir_replacement#g" \
+      -e "s#io/github/brainage04#$package_dir_placeholder#g" \
       -e "s/fabricmoddingtemplate/$mod_id_replacement/g" \
       -e "s/FabricModdingTemplate/$mod_name_replacement/g" \
-      -e "s/brainage04/$owner_replacement/g" "$base/README.md"
+      -e "s/brainage04/$owner_replacement/g" \
+      -e "s#$package_dir_placeholder#$package_dir_replacement#g" "$base/README.md"
 
   sed -i \
         -e "s/brainage04/$owner_replacement/g" "$base/LICENSE"

@@ -52,12 +52,48 @@ assert_no_match() {
   fi
 }
 
+assert_json_string() {
+  local file="$1"
+  local filter="$2"
+  local expected="$3"
+  local actual
+
+  actual=$(jq -r "$filter" "$file")
+  if [ "$actual" != "$expected" ]; then
+    echo "Expected $file $filter to be '$expected', got '$actual'" >&2
+    exit 1
+  fi
+}
+
+assert_json_has_key() {
+  local file="$1"
+  local filter="$2"
+  local key="$3"
+
+  if ! jq -e "$filter | has(\"$key\")" "$file" >/dev/null; then
+    echo "Expected $file $filter to contain key '$key'" >&2
+    exit 1
+  fi
+}
+
+assert_json_missing_key() {
+  local file="$1"
+  local filter="$2"
+  local key="$3"
+
+  if jq -e "$filter | has(\"$key\")" "$file" >/dev/null; then
+    echo "Expected $file $filter not to contain key '$key'" >&2
+    exit 1
+  fi
+}
+
 smoke_side() {
   local side="$1"
-  local target="$tmp_root/$side/Smoke-Template.${side}_42"
-  local package_dir="io/github/brain_age_04/smoke_template_${side}_42"
-  local package_name="io.github.brain_age_04.smoke_template_${side}_42"
-  local main_class="SmokeTemplate${side^}42"
+  local target="$tmp_root/$side/FabricModdingTemplate-${side}_42"
+  local package_dir="io/github/brain_age_04/fabricmoddingtemplate_${side}_42"
+  local package_name="io.github.brain_age_04.fabricmoddingtemplate_${side}_42"
+  local main_class="Fabricmoddingtemplate${side^}42"
+  local mod_id="fabricmoddingtemplate_${side}_42"
   local -a build_args
 
   echo "Testing init.sh --side=${side}"
@@ -66,25 +102,41 @@ smoke_side() {
   (
     cd "$target"
 
-    ./init.sh --side="$side" "brain-age-04" "Smoke-Template.${side}_42"
+    ./init.sh --side="$side" "brain-age-04" "FabricModdingTemplate-${side}_42"
 
     assert_path_missing "init.sh"
     assert_path_missing ".github/workflows/init.yml"
     assert_path_exists "src/main/java/${package_dir}/${main_class}.java"
     assert_path_exists "src/test/java/${package_dir}/${main_class}MetadataTest.java"
-    assert_path_exists "src/main/resources/smoke_template_${side}_42.accesswidener"
-    assert_path_exists "src/main/resources/smoke_template_${side}_42.mixins.json"
-    assert_path_exists "src/main/resources/assets/smoke_template_${side}_42/icon.png"
+    assert_path_exists "src/main/resources/${mod_id}.accesswidener"
+    assert_path_exists "src/main/resources/${mod_id}.mixins.json"
+    assert_path_exists "src/main/resources/assets/${mod_id}/icon.png"
+
+    assert_json_string src/main/resources/fabric.mod.json '.environment' "$(if [ "$side" = "client" ]; then printf client; else printf '*'; fi)"
+    assert_json_string src/main/resources/fabric.mod.json '.entrypoints.main[0]' "${package_name}.${main_class}"
+    assert_json_string src/main/resources/fabric.mod.json '.icon' "assets/${mod_id}/icon.png"
+    assert_json_string src/main/resources/fabric.mod.json '.mixins[0]' "${mod_id}.mixins.json"
+    assert_json_string src/main/resources/fabric.mod.json '.accessWidener' "${mod_id}.accesswidener"
+    assert_json_string src/gametest/resources/fabric.mod.json '.environment' "$(if [ "$side" = "client" ]; then printf client; else printf '*'; fi)"
+    assert_json_string src/gametest/resources/fabric.mod.json '.icon' "assets/${mod_id}/icon.png"
 
     if [ "$side" = "server" ]; then
       assert_path_missing "src/client"
       assert_path_missing "src/gametest/java/${package_dir}/${main_class}ClientGameTest.java"
+      assert_json_missing_key src/main/resources/fabric.mod.json '.entrypoints' client
+      assert_json_has_key src/gametest/resources/fabric.mod.json '.entrypoints' fabric-gametest
+      assert_json_missing_key src/gametest/resources/fabric.mod.json '.entrypoints' fabric-client-gametest
+      assert_json_string src/gametest/resources/fabric.mod.json '.entrypoints["fabric-gametest"][0]' "${package_name}.${main_class}GameTest"
     else
       assert_path_exists "src/client/java/${package_dir}/${main_class}Client.java"
       assert_path_exists "src/client/java/${package_dir}/command/ExampleClientCommand.java"
       assert_path_exists "src/client/java/${package_dir}/command/core/ClientModCommands.java"
       assert_path_exists "src/gametest/java/${package_dir}/${main_class}ClientGameTest.java"
-      assert_path_exists "src/client/resources/assets/smoke_template_${side}_42/lang/en_us.json"
+      assert_path_exists "src/client/resources/assets/${mod_id}/lang/en_us.json"
+      assert_json_has_key src/main/resources/fabric.mod.json '.entrypoints' client
+      assert_json_string src/main/resources/fabric.mod.json '.entrypoints.client[0]' "${package_name}.${main_class}Client"
+      assert_json_has_key src/gametest/resources/fabric.mod.json '.entrypoints' fabric-client-gametest
+      assert_json_string src/gametest/resources/fabric.mod.json '.entrypoints["fabric-client-gametest"][0]' "${package_name}.${main_class}ClientGameTest"
     fi
 
     if [ "$side" = "client" ]; then
@@ -92,6 +144,7 @@ smoke_side() {
       assert_path_missing "src/main/java/${package_dir}/command/core/ModCommands.java"
       assert_path_missing "src/test/java/${package_dir}/command/ExampleCommandTest.java"
       assert_path_missing "src/gametest/java/${package_dir}/${main_class}GameTest.java"
+      assert_json_missing_key src/gametest/resources/fabric.mod.json '.entrypoints' fabric-gametest
       build_args=(build)
     elif [ "$side" = "server" ]; then
       assert_path_exists "src/main/java/${package_dir}/command/ExampleCommand.java"
@@ -99,11 +152,13 @@ smoke_side() {
     else
       assert_path_exists "src/main/java/${package_dir}/command/ExampleCommand.java"
       assert_path_exists "src/gametest/java/${package_dir}/${main_class}GameTest.java"
+      assert_json_has_key src/gametest/resources/fabric.mod.json '.entrypoints' fabric-gametest
+      assert_json_string src/gametest/resources/fabric.mod.json '.entrypoints["fabric-gametest"][0]' "${package_name}.${main_class}GameTest"
       build_args=(build)
     fi
 
     grep -qx "maven_group=${package_name}" gradle.properties
-    assert_no_match 'com\.example|FabricModdingTemplate|fabricmoddingtemplate' README.md build.gradle gradle.properties LICENSE src
+    assert_no_match 'com\.example|io\.github\.brainage04|io/github/brainage04|fabricmoddingtemplate\.(accesswidener|mixins\.json)|assets/fabricmoddingtemplate/icon\.png' README.md build.gradle gradle.properties LICENSE src
     assert_no_match 'io\.github\.brain-age-04|package [^;]*-' src
 
     if [ "${TEMPLATE_SMOKE_SKIP_BUILD:-false}" = "true" ]; then
@@ -115,6 +170,7 @@ smoke_side() {
 }
 
 require_command rg
+require_command jq
 require_command tar
 
 template_root="$(cd "$(dirname "$0")/../.." && pwd)"
