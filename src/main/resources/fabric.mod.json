@@ -15,11 +15,11 @@
 	"icon": "assets/fabricmoddingtemplate/icon.png",
 	"environment": "*",
 	"entrypoints": {
-		"main": [
-			"io.github.brainage04.FabricModdingTemplate"
-		],
 		"client": [
 			"io.github.brainage04.FabricModdingTemplateClient"
+		],
+		"main": [
+			"io.github.brainage04.FabricModdingTemplate"
 		]
 	},
 	"mixins": [

@@ -65,6 +65,19 @@ assert_json_string() {
   fi
 }
 
+assert_json_compact() {
+  local file="$1"
+  local filter="$2"
+  local expected="$3"
+  local actual
+
+  actual=$(jq -c "$filter" "$file")
+  if [ "$actual" != "$expected" ]; then
+    echo "Expected $file $filter to be '$expected', got '$actual'" >&2
+    exit 1
+  fi
+}
+
 assert_json_has_key() {
   local file="$1"
   local filter="$2"
@@ -123,6 +136,8 @@ smoke_side() {
     if [ "$side" = "server" ]; then
       assert_path_missing "src/client"
       assert_path_missing "src/gametest/java/${package_dir}/${main_class}ClientGameTest.java"
+      assert_json_compact src/main/resources/fabric.mod.json '.entrypoints | keys_unsorted' '["main"]'
+      assert_json_compact src/gametest/resources/fabric.mod.json '.entrypoints | keys_unsorted' '["fabric-gametest"]'
       assert_json_missing_key src/main/resources/fabric.mod.json '.entrypoints' client
       assert_json_has_key src/gametest/resources/fabric.mod.json '.entrypoints' fabric-gametest
       assert_json_missing_key src/gametest/resources/fabric.mod.json '.entrypoints' fabric-client-gametest
@@ -133,6 +148,7 @@ smoke_side() {
       assert_path_exists "src/client/java/${package_dir}/command/core/ClientModCommands.java"
       assert_path_exists "src/gametest/java/${package_dir}/${main_class}ClientGameTest.java"
       assert_path_exists "src/client/resources/assets/${mod_id}/lang/en_us.json"
+      assert_json_compact src/main/resources/fabric.mod.json '.entrypoints | keys_unsorted' '["client","main"]'
       assert_json_has_key src/main/resources/fabric.mod.json '.entrypoints' client
       assert_json_string src/main/resources/fabric.mod.json '.entrypoints.client[0]' "${package_name}.${main_class}Client"
       assert_json_has_key src/gametest/resources/fabric.mod.json '.entrypoints' fabric-client-gametest
@@ -144,6 +160,7 @@ smoke_side() {
       assert_path_missing "src/main/java/${package_dir}/command/core/ModCommands.java"
       assert_path_missing "src/test/java/${package_dir}/command/ExampleCommandTest.java"
       assert_path_missing "src/gametest/java/${package_dir}/${main_class}GameTest.java"
+      assert_json_compact src/gametest/resources/fabric.mod.json '.entrypoints | keys_unsorted' '["fabric-client-gametest"]'
       assert_json_missing_key src/gametest/resources/fabric.mod.json '.entrypoints' fabric-gametest
       build_args=(build)
     elif [ "$side" = "server" ]; then
@@ -152,6 +169,7 @@ smoke_side() {
     else
       assert_path_exists "src/main/java/${package_dir}/command/ExampleCommand.java"
       assert_path_exists "src/gametest/java/${package_dir}/${main_class}GameTest.java"
+      assert_json_compact src/gametest/resources/fabric.mod.json '.entrypoints | keys_unsorted' '["fabric-client-gametest","fabric-gametest"]'
       assert_json_has_key src/gametest/resources/fabric.mod.json '.entrypoints' fabric-gametest
       assert_json_string src/gametest/resources/fabric.mod.json '.entrypoints["fabric-gametest"][0]' "${package_name}.${main_class}GameTest"
       build_args=(build)

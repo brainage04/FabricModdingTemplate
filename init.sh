@@ -270,8 +270,8 @@ echo "Setting package dir to $package_dir"
     both)
       ;;
     server)
-      perl -0pi -e 's/,\n\t\t"client": \[\n\t\t\t"[^"]+"\n\t\t\]//s' "$base"/src/main/resources/fabric.mod.json
-      perl -0pi -e 's/,\n\t\t"fabric-client-gametest": \[\n\t\t\t"[^"]+"\n\t\t\]//s' "$base"/src/gametest/resources/fabric.mod.json
+      perl -0pi -e 's/\n\t\t"client": \[\n\t\t\t"[^"]+"\n\t\t\],//s; s/,\n\t\t"client": \[\n\t\t\t"[^"]+"\n\t\t\]//s' "$base"/src/main/resources/fabric.mod.json
+      perl -0pi -e 's/\n\t\t"fabric-client-gametest": \[\n\t\t\t"[^"]+"\n\t\t\],//s; s/,\n\t\t"fabric-client-gametest": \[\n\t\t\t"[^"]+"\n\t\t\]//s' "$base"/src/gametest/resources/fabric.mod.json
       sed -i \
         -e '/splitEnvironmentSourceSets()/d' \
         -e '/sourceSet sourceSets.client/d' \
@@ -289,8 +289,8 @@ echo "Setting package dir to $package_dir"
         -e 's/"environment": "\*"/"environment": "client"/' "$base"/src/main/resources/fabric.mod.json
       sed -i \
         -e 's/"environment": "\\*"/"environment": "client"/' \
-        -e 's/"environment": "\*"/"environment": "client"/' "$base"/src/gametest/resources/fabric.mod.json \
-        -e '/"fabric-gametest": \[/,/\]/d' "$base"/src/gametest/resources/fabric.mod.json
+        -e 's/"environment": "\*"/"environment": "client"/' "$base"/src/gametest/resources/fabric.mod.json
+      perl -0pi -e 's/\n\t\t"fabric-gametest": \[\n\t\t\t"[^"]+"\n\t\t\],//s; s/,\n\t\t"fabric-gametest": \[\n\t\t\t"[^"]+"\n\t\t\]//s' "$base"/src/gametest/resources/fabric.mod.json
       sed -i \
         -e 's/enableGameTests = true/enableGameTests = false/' \
         -e 's/systemProperty "fabric.side", "server"/systemProperty "fabric.side", "client"/' "$base"/build.gradle
