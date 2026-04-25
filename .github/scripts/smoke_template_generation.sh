@@ -22,6 +22,11 @@ copy_template() {
     -C "$template_root" \
     -cf - . \
     | tar -C "$target" -xf -
+
+  if [ -f "$template_root/run/options.txt" ]; then
+    mkdir -p "$target/run"
+    cp "$template_root/run/options.txt" "$target/run/options.txt"
+  fi
 }
 
 assert_path_exists() {
@@ -134,6 +139,7 @@ smoke_side() {
     assert_json_string src/gametest/resources/fabric.mod.json '.icon' "assets/${mod_id}/icon.png"
 
     if [ "$side" = "server" ]; then
+      assert_path_missing "run/options.txt"
       assert_path_missing "src/client"
       assert_path_missing "src/gametest/java/${package_dir}/${main_class}ClientGameTest.java"
       assert_json_compact src/main/resources/fabric.mod.json '.entrypoints | keys_unsorted' '["main"]'
@@ -143,6 +149,7 @@ smoke_side() {
       assert_json_missing_key src/gametest/resources/fabric.mod.json '.entrypoints' fabric-client-gametest
       assert_json_string src/gametest/resources/fabric.mod.json '.entrypoints["fabric-gametest"][0]' "${package_name}.${main_class}GameTest"
     else
+      assert_path_exists "run/options.txt"
       assert_path_exists "src/client/java/${package_dir}/${main_class}Client.java"
       assert_path_exists "src/client/java/${package_dir}/command/ExampleClientCommand.java"
       assert_path_exists "src/client/java/${package_dir}/command/core/ClientModCommands.java"
