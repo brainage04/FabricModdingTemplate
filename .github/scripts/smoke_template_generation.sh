@@ -96,7 +96,7 @@ smoke_side() {
     fi
 
     grep -qx "maven_group=${package_name}" gradle.properties
-    assert_no_match 'com\.example|FabricTemplateServer|fabrictemplateserver' README.md build.gradle gradle.properties LICENSE src
+    assert_no_match 'com\.example|FabricModdingTemplate|fabricmoddingtemplate' README.md build.gradle gradle.properties LICENSE src
     assert_no_match 'io\.github\.brain-age-04|package [^;]*-' src
 
     if [ "${TEMPLATE_SMOKE_SKIP_BUILD:-false}" = "true" ]; then

@@ -206,8 +206,8 @@ echo "Setting package dir to $package_dir"
   # turn Java package declarations into invalid identifiers.
   find "${find_paths[@]}" -type f -exec sed -i \
       -e "s/io\.github\.brainage04/$package_name_replacement/g" \
-      -e "s/fabrictemplateserver/$mod_id_replacement/g" \
-      -e "s/FabricTemplateServer/$mod_name_replacement/g" \
+      -e "s/fabricmoddingtemplate/$mod_id_replacement/g" \
+      -e "s/FabricModdingTemplate/$mod_name_replacement/g" \
       -e "s/brainage04/$owner_replacement/g" {} +
 
   sed -i \
@@ -215,40 +215,40 @@ echo "Setting package dir to $package_dir"
       "$base/src/main/resources/fabric.mod.json"
 
   sed -i \
-        -e "s/fabrictemplateserver/$mod_id_replacement/g" \
-        -e "s/FabricTemplateServer/$mod_name_replacement/g" \
+        -e "s/fabricmoddingtemplate/$mod_id_replacement/g" \
+        -e "s/FabricModdingTemplate/$mod_name_replacement/g" \
         -e "s/brainage04/$owner_replacement/g" "$base/build.gradle"
 
   sed -i \
       -e "s/io\.github\.brainage04/$package_name_replacement/g" \
-      -e "s/fabrictemplateserver/$mod_id_replacement/g" \
-      -e "s/FabricTemplateServer/$mod_name_replacement/g" \
+      -e "s/fabricmoddingtemplate/$mod_id_replacement/g" \
+      -e "s/FabricModdingTemplate/$mod_name_replacement/g" \
       -e "s/brainage04/$owner_replacement/g" "$base/gradle.properties"
 
   sed -i \
       -e "s#io/github/brainage04#$package_dir_replacement#g" \
-      -e "s/fabrictemplateserver/$mod_id_replacement/g" \
-      -e "s/FabricTemplateServer/$mod_name_replacement/g" \
+      -e "s/fabricmoddingtemplate/$mod_id_replacement/g" \
+      -e "s/FabricModdingTemplate/$mod_name_replacement/g" \
       -e "s/brainage04/$owner_replacement/g" "$base/README.md"
 
   sed -i \
         -e "s/brainage04/$owner_replacement/g" "$base/LICENSE"
 
   # refactor accesswidener and mixin file names
-  mv "$base"/src/main/resources/fabrictemplateserver.accesswidener "$base"/src/main/resources/"$mod_id".accesswidener
-  mv "$base"/src/main/resources/fabrictemplateserver.mixins.json "$base"/src/main/resources/"$mod_id".mixins.json
+  mv "$base"/src/main/resources/fabricmoddingtemplate.accesswidener "$base"/src/main/resources/"$mod_id".accesswidener
+  mv "$base"/src/main/resources/fabricmoddingtemplate.mixins.json "$base"/src/main/resources/"$mod_id".mixins.json
 
   # refactor assets directory
-  mv "$base"/src/main/resources/assets/fabrictemplateserver "$base"/src/main/resources/assets/"$mod_id"
-  mv "$base"/src/client/resources/assets/fabrictemplateserver "$base"/src/client/resources/assets/"$mod_id"
+  mv "$base"/src/main/resources/assets/fabricmoddingtemplate "$base"/src/main/resources/assets/"$mod_id"
+  mv "$base"/src/client/resources/assets/fabricmoddingtemplate "$base"/src/client/resources/assets/"$mod_id"
 
   # rename main class
-  mv "$base"/src/main/java/io/github/brainage04/FabricTemplateServer.java "$base"/src/main/java/io/github/brainage04/"$mod_name".java
-  mv "$base"/src/test/java/io/github/brainage04/FabricTemplateServerMetadataTest.java "$base"/src/test/java/io/github/brainage04/"$mod_name"MetadataTest.java
-  mv "$base"/src/gametest/java/io/github/brainage04/FabricTemplateServerGameTest.java "$base"/src/gametest/java/io/github/brainage04/"$mod_name"GameTest.java
-  mv "$base"/src/gametest/java/io/github/brainage04/FabricTemplateServerClientGameTest.java "$base"/src/gametest/java/io/github/brainage04/"$mod_name"ClientGameTest.java
+  mv "$base"/src/main/java/io/github/brainage04/FabricModdingTemplate.java "$base"/src/main/java/io/github/brainage04/"$mod_name".java
+  mv "$base"/src/test/java/io/github/brainage04/FabricModdingTemplateMetadataTest.java "$base"/src/test/java/io/github/brainage04/"$mod_name"MetadataTest.java
+  mv "$base"/src/gametest/java/io/github/brainage04/FabricModdingTemplateGameTest.java "$base"/src/gametest/java/io/github/brainage04/"$mod_name"GameTest.java
+  mv "$base"/src/gametest/java/io/github/brainage04/FabricModdingTemplateClientGameTest.java "$base"/src/gametest/java/io/github/brainage04/"$mod_name"ClientGameTest.java
   if [ "$side" != "server" ]; then
-    mv "$base"/src/client/java/io/github/brainage04/FabricTemplateServerClient.java "$base"/src/client/java/io/github/brainage04/"$mod_name"Client.java
+    mv "$base"/src/client/java/io/github/brainage04/FabricModdingTemplateClient.java "$base"/src/client/java/io/github/brainage04/"$mod_name"Client.java
   fi
 
   # lastly, refactor package directory

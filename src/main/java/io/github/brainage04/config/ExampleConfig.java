@@ -1,6 +1,6 @@
 package io.github.brainage04.config;
 
-import io.github.brainage04.FabricTemplateServer;
+import io.github.brainage04.FabricModdingTemplate;
 import me.fzzyhmstrs.fzzy_config.api.ConfigApi;
 import me.fzzyhmstrs.fzzy_config.api.RegisterType;
 import me.fzzyhmstrs.fzzy_config.config.Config;
@@ -39,7 +39,7 @@ public class ExampleConfig extends Config {
     public GameplaySection gameplay = new GameplaySection();
 
     public ExampleConfig() {
-        super(Identifier.fromNamespaceAndPath(FabricTemplateServer.MOD_ID, "settings"));
+        super(Identifier.fromNamespaceAndPath(FabricModdingTemplate.MOD_ID, "settings"));
     }
 
     public static void init() {

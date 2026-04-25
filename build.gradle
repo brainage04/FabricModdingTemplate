@@ -66,13 +66,13 @@ loom {
 	splitEnvironmentSourceSets()
 
 	mods {
-		fabrictemplateserver {
+		fabricmoddingtemplate {
 			sourceSet sourceSets.main
 			sourceSet sourceSets.client
 		}
 	}
 
-	accessWidenerPath = file("src/main/resources/fabrictemplateserver.accesswidener")
+	accessWidenerPath = file("src/main/resources/fabricmoddingtemplate.accesswidener")
 }
 
 fabricApi {

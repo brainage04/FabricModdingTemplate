@@ -159,7 +159,7 @@ chmod +x "$fake_bin/curl"
   minecraft_version="$(gradle_property minecraft_version)"
   loader_version="$(gradle_property loader_version)"
   archives_base_name="$(gradle_property archives_base_name)"
-  repo_for_test="${GITHUB_REPOSITORY:-brainage04/FabricTemplateServer}"
+  repo_for_test="${GITHUB_REPOSITORY:-brainage04/FabricModdingTemplate}"
   project_id_for_test="${mod_id}-project"
 
   mkdir -p build/resources/main

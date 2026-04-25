@@ -8,22 +8,22 @@
 		"brainage04"
 	],
 	"contact": {
-		"homepage": "https://github.com/brainage04/FabricTemplateServer",
-		"sources": "https://github.com/brainage04/FabricTemplateServer"
+		"homepage": "https://github.com/brainage04/FabricModdingTemplate",
+		"sources": "https://github.com/brainage04/FabricModdingTemplate"
 	},
 	"license": "MIT",
-	"icon": "assets/fabrictemplateserver/icon.png",
+	"icon": "assets/fabricmoddingtemplate/icon.png",
 	"environment": "*",
 	"entrypoints": {
 		"main": [
-			"io.github.brainage04.FabricTemplateServer"
+			"io.github.brainage04.FabricModdingTemplate"
 		],
 		"client": [
-			"io.github.brainage04.FabricTemplateServerClient"
+			"io.github.brainage04.FabricModdingTemplateClient"
 		]
 	},
 	"mixins": [
-		"fabrictemplateserver.mixins.json"
+		"fabricmoddingtemplate.mixins.json"
 	],
 	"depends": {
 		"fabricloader": ">=${loader_version}",
@@ -32,5 +32,5 @@
 		"fabric-api": "*",
 		"fzzy_config": ">=0.7.5"
 	},
-    "accessWidener": "fabrictemplateserver.accesswidener"
+    "accessWidener": "fabricmoddingtemplate.accesswidener"
 }
