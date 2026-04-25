@@ -248,6 +248,7 @@ echo "Setting package dir to $package_dir"
       rm -f "$base"/src/gametest/java/"$package_dir"/"$mod_name"ClientGameTest.java
       rm -rf "$base"/src/client
       rm -f "$base"/run/options.txt
+      perl -0pi -e 's/\n  client-gametests:\n.*\z/\n/s' "$base"/.github/workflows/build.yml
       ;;
     client)
       sed -i \
