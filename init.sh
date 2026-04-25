@@ -293,7 +293,14 @@ echo "Setting package dir to $package_dir"
         -e 's/assertEquals(EnvType.SERVER/assertEquals(EnvType.CLIENT/' "$base"/src/test/java/"$package_dir"/"$mod_name"MetadataTest.java
       perl -0pi -e 's/common code in `src\/main`, client-only code in `src\/client`, and GameTests in `src\/gametest`/common code in `src\/main`, client-only code in `src\/client`, and client-side GameTests in `src\/gametest`/' "$base"/README.md
       sed -i '/launches the common\/server side/d' "$base"/README.md
+      sed -i '/server command example/d' "$base"/README.md
+      sed -i '/Plain unit tests for your own code, such as command registration/d' "$base"/README.md
       perl -0pi -e 's/For integration-style server tests, run:\n\n```shell\n\.\/gradlew runGameTest\n```\n\nThe template includes a separate `src\/gametest` source set with a minimal server GameTest that checks the example command was registered on the server\.\nServer GameTests also run automatically as part of `\.\/gradlew build`, which is what the included GitHub Actions workflow executes\.\n\n//' "$base"/README.md
+      sed -i \
+        -e '/import .*command\.core\.ModCommands;/d' \
+        -e '/ModCommands\.initialize();/d' "$base"/src/main/java/"$package_dir"/"$mod_name".java
+      rm -rf "$base"/src/main/java/"$package_dir"/command
+      rm -rf "$base"/src/test/java/"$package_dir"/command
       rm -f "$base"/src/gametest/java/"$package_dir"/"$mod_name"GameTest.java
       ;;
   esac

@@ -81,16 +81,23 @@ smoke_side() {
       assert_path_missing "src/gametest/java/${package_dir}/${main_class}ClientGameTest.java"
     else
       assert_path_exists "src/client/java/${package_dir}/${main_class}Client.java"
+      assert_path_exists "src/client/java/${package_dir}/command/ExampleClientCommand.java"
+      assert_path_exists "src/client/java/${package_dir}/command/core/ClientModCommands.java"
       assert_path_exists "src/gametest/java/${package_dir}/${main_class}ClientGameTest.java"
       assert_path_exists "src/client/resources/assets/smoke_template_${side}_42/lang/en_us.json"
     fi
 
     if [ "$side" = "client" ]; then
+      assert_path_missing "src/main/java/${package_dir}/command/ExampleCommand.java"
+      assert_path_missing "src/main/java/${package_dir}/command/core/ModCommands.java"
+      assert_path_missing "src/test/java/${package_dir}/command/ExampleCommandTest.java"
       assert_path_missing "src/gametest/java/${package_dir}/${main_class}GameTest.java"
       build_args=(build)
     elif [ "$side" = "server" ]; then
+      assert_path_exists "src/main/java/${package_dir}/command/ExampleCommand.java"
       build_args=(build)
     else
+      assert_path_exists "src/main/java/${package_dir}/command/ExampleCommand.java"
       assert_path_exists "src/gametest/java/${package_dir}/${main_class}GameTest.java"
       build_args=(build)
     fi

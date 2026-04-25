@@ -21,6 +21,7 @@ For local development after initialisation:
   - `./gradlew runServer` launches the common/server side when you keep `--side=both` or choose `--side=server`.
   - `./gradlew runClient` launches the client side when you keep `--side=both` or choose `--side=client`.
   - Mod Menu is included as a development dependency and a minimal `modmenu` entrypoint is kept in the generated mod metadata so you can test the integration during local client development without having to re-add it by hand.
+  - The template includes both a server command example in `src/main` and a client command example in `src/client`.
 
 # Testing
 
