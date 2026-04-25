@@ -1,6 +1,6 @@
 {
 	"required": true,
-	"package": "io.github.brainage04.mixin",
+	"package": "io.github.brainage04.fabricmoddingtemplate.mixin",
 	"compatibilityLevel": "JAVA_21",
 	"mixins": [
 		"ExampleMixin"

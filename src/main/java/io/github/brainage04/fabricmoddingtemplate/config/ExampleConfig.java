@@ -1,6 +1,6 @@
-package io.github.brainage04.config;
+package io.github.brainage04.fabricmoddingtemplate.config;
 
-import io.github.brainage04.FabricModdingTemplate;
+import io.github.brainage04.fabricmoddingtemplate.FabricModdingTemplate;
 import me.fzzyhmstrs.fzzy_config.api.ConfigApi;
 import me.fzzyhmstrs.fzzy_config.api.RegisterType;
 import me.fzzyhmstrs.fzzy_config.config.Config;

@@ -1,6 +1,6 @@
-package io.github.brainage04;
+package io.github.brainage04.fabricmoddingtemplate;
 
-import io.github.brainage04.command.ExampleCommand;
+import io.github.brainage04.fabricmoddingtemplate.command.ExampleCommand;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 

@@ -1,4 +1,4 @@
-package io.github.brainage04.command;
+package io.github.brainage04.fabricmoddingtemplate.command;
 
 import com.mojang.brigadier.CommandDispatcher;
 import net.minecraft.commands.CommandSourceStack;

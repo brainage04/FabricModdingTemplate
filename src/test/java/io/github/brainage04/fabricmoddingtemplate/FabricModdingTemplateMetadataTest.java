@@ -1,4 +1,4 @@
-package io.github.brainage04;
+package io.github.brainage04.fabricmoddingtemplate;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;

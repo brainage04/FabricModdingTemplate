@@ -1,4 +1,4 @@
-package io.github.brainage04.command;
+package io.github.brainage04.fabricmoddingtemplate.command;
 
 import com.mojang.brigadier.CommandDispatcher;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;

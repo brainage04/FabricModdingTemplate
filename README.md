@@ -5,16 +5,17 @@ My template for Minecraft Fabric mods, with common code in `src/main`, client-on
 However, if you are using a Linux-based operating system, it is possible to clone this repository, and perform a refactor by triggering the `init.sh` script like so:
 
 ```shell
-./init.sh [--side=both|server|client] <owner> <mod_name>
+./init.sh [--side=both|server|client] <mod_name>
 ```
 
-Where `<owner>` is your GitHub username and `<mod_name>` is your GitHub repository name/mod name.
+Where `<mod_name>` is your GitHub repository name/mod name.
 The optional `--side` flag defaults to `both`.
 Use `--side=server` to generate a server-only repo and remove the client entrypoint/source set from the generated project.
 Use `--side=client` to generate a client-only repo and remove the dedicated-server GameTest path from the generated project.
+Generated packages always use `io.github.brainage04.<mod_id>`.
 
 This script is designed to work both with GitHub Actions and manual usage, and will safely delete:
-  - Leftover unused folders that are not tracked by Git (such as `src/main/java/io/github/brainage04`, `src/client/java/io/github/brainage04`, and `src/main/resources/fabricmoddingtemplate`).
+  - Leftover unused folders that are not tracked by Git (such as `src/main/java/io/github/brainage04/fabricmoddingtemplate`, `src/client/java/io/github/brainage04/fabricmoddingtemplate`, and `src/main/resources/fabricmoddingtemplate`).
   - The `init` workflow and script after successful execution.
 
 For local development after initialisation:

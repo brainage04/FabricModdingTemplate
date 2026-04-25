@@ -7,10 +7,10 @@
 	"environment": "*",
 	"entrypoints": {
 		"fabric-client-gametest": [
-			"io.github.brainage04.FabricModdingTemplateClientGameTest"
+			"io.github.brainage04.fabricmoddingtemplate.FabricModdingTemplateClientGameTest"
 		],
 		"fabric-gametest": [
-			"io.github.brainage04.FabricModdingTemplateGameTest"
+			"io.github.brainage04.fabricmoddingtemplate.FabricModdingTemplateGameTest"
 		]
 	}
 }

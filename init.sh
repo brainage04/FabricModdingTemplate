@@ -3,7 +3,7 @@
 set -euo pipefail
 
 usage() {
-  echo "Usage: $0 [--side=both|server|client] <owner> <mod_name>"
+  echo "Usage: $0 [--side=both|server|client] <mod_name>"
 }
 
 sanitize_mod_id() {
@@ -20,30 +20,6 @@ sanitize_mod_id() {
   elif [[ ! "$value" =~ ^[a-z] ]]; then
     value="mod_${value}"
   fi
-
-  printf '%s\n' "$value"
-}
-
-sanitize_package_segment() {
-  local value
-
-  value=$(
-    printf '%s\n' "$1" \
-    | tr '[:upper:]' '[:lower:]' \
-    | sed -E 's/[^a-z0-9_]+/_/g; s/^_+//; s/_+$//; s/_+/_/g'
-  )
-
-  if [ -z "$value" ]; then
-    value="owner"
-  elif [[ "$value" =~ ^[0-9] ]]; then
-    value="_${value}"
-  fi
-
-  case "$value" in
-    abstract|assert|boolean|break|byte|case|catch|char|class|const|continue|default|do|double|else|enum|extends|final|finally|float|for|goto|if|implements|import|instanceof|int|interface|long|native|new|package|private|protected|public|return|short|static|strictfp|super|switch|synchronized|this|throw|throws|transient|try|void|volatile|while|true|false|null)
-      value="_${value}"
-      ;;
-  esac
 
   printf '%s\n' "$value"
 }
@@ -116,7 +92,7 @@ while [ "$#" -gt 0 ]; do
   esac
 done
 
-if [ "${#positionals[@]}" -ne 2 ]; then
+if [ "${#positionals[@]}" -ne 1 ]; then
   usage
   exit 1
 fi
@@ -134,8 +110,7 @@ esac
 base=$(dirname "$(readlink -f "$0")")
 echo "Updating $base"
 
-owner="${positionals[0]}"
-mod_name_raw="${positionals[1]}"
+mod_name_raw="${positionals[0]}"
 mod_name_spaces=$(
   printf '%s\n' "$mod_name_raw" \
   | sed -E 's/([A-Z])/ \1/g' \
@@ -144,20 +119,17 @@ mod_name_spaces=$(
 )
 mod_name="$(sanitize_class_name "$mod_name_raw")"
 mod_id="$(sanitize_mod_id "$mod_name_raw")"
-package_owner="$(sanitize_package_segment "$owner")"
-package_name="io.github.${package_owner}.${mod_id}"
+package_name="io.github.brainage04.${mod_id}"
 package_dir=$(echo "$package_name" | tr . /)
 
-owner_replacement="$(sed_escape_replacement "$owner")"
 mod_name_replacement="$(sed_escape_replacement "$mod_name")"
 mod_id_replacement="$(sed_escape_replacement "$mod_id")"
 package_name_replacement="$(sed_escape_replacement "$package_name")"
 package_dir_replacement="$(sed_escape_path_replacement "$package_dir")"
-repo_url_replacement="$(sed_escape_path_replacement "https://github.com/${owner}/${mod_name_raw}")"
+repo_url_replacement="$(sed_escape_path_replacement "https://github.com/brainage04/${mod_name_raw}")"
 package_name_placeholder="__INIT_PACKAGE_NAME__"
 package_dir_placeholder="__INIT_PACKAGE_DIR__"
 
-echo "Setting owner to $owner"
 echo "Setting mod name to $mod_name_raw ($mod_name_spaces)"
 echo "Setting main class name to $mod_name"
 echo "Setting mod id to $mod_id"
@@ -208,37 +180,30 @@ echo "Setting package dir to $package_dir"
   # earlier replacements. This matters when the new mod id contains the
   # template mod id as a prefix.
   find "${find_paths[@]}" -type f -exec sed -i \
-      -e "s/io\.github\.brainage04/$package_name_placeholder/g" \
+      -e "s/io\.github\.brainage04\.fabricmoddingtemplate/$package_name_placeholder/g" \
       -e "s/fabricmoddingtemplate/$mod_id_replacement/g" \
       -e "s/FabricModdingTemplate/$mod_name_replacement/g" \
-      -e "s/brainage04/$owner_replacement/g" \
       -e "s/$package_name_placeholder/$package_name_replacement/g" {} +
 
   sed -i \
-      -E "s#https://github.com/[^/]+/${mod_name_replacement}#${repo_url_replacement}#g" \
+      -E "s#https://github.com/brainage04/${mod_name_replacement}#${repo_url_replacement}#g" \
       "$base/src/main/resources/fabric.mod.json"
 
   sed -i \
         -e "s/fabricmoddingtemplate/$mod_id_replacement/g" \
-        -e "s/FabricModdingTemplate/$mod_name_replacement/g" \
-        -e "s/brainage04/$owner_replacement/g" "$base/build.gradle"
+        -e "s/FabricModdingTemplate/$mod_name_replacement/g" "$base/build.gradle"
 
   sed -i \
-      -e "s/io\.github\.brainage04/$package_name_placeholder/g" \
+      -e "s/io\.github\.brainage04\.fabricmoddingtemplate/$package_name_placeholder/g" \
       -e "s/fabricmoddingtemplate/$mod_id_replacement/g" \
       -e "s/FabricModdingTemplate/$mod_name_replacement/g" \
-      -e "s/brainage04/$owner_replacement/g" \
       -e "s/$package_name_placeholder/$package_name_replacement/g" "$base/gradle.properties"
 
   sed -i \
-      -e "s#io/github/brainage04#$package_dir_placeholder#g" \
+      -e "s#io/github/brainage04/fabricmoddingtemplate#$package_dir_placeholder#g" \
       -e "s/fabricmoddingtemplate/$mod_id_replacement/g" \
       -e "s/FabricModdingTemplate/$mod_name_replacement/g" \
-      -e "s/brainage04/$owner_replacement/g" \
       -e "s#$package_dir_placeholder#$package_dir_replacement#g" "$base/README.md"
-
-  sed -i \
-        -e "s/brainage04/$owner_replacement/g" "$base/LICENSE"
 
   # refactor accesswidener and mixin file names
   mv "$base"/src/main/resources/fabricmoddingtemplate.accesswidener "$base"/src/main/resources/"$mod_id".accesswidener
@@ -249,21 +214,21 @@ echo "Setting package dir to $package_dir"
   mv "$base"/src/client/resources/assets/fabricmoddingtemplate "$base"/src/client/resources/assets/"$mod_id"
 
   # rename main class
-  mv "$base"/src/main/java/io/github/brainage04/FabricModdingTemplate.java "$base"/src/main/java/io/github/brainage04/"$mod_name".java
-  mv "$base"/src/test/java/io/github/brainage04/FabricModdingTemplateMetadataTest.java "$base"/src/test/java/io/github/brainage04/"$mod_name"MetadataTest.java
-  mv "$base"/src/gametest/java/io/github/brainage04/FabricModdingTemplateGameTest.java "$base"/src/gametest/java/io/github/brainage04/"$mod_name"GameTest.java
-  mv "$base"/src/gametest/java/io/github/brainage04/FabricModdingTemplateClientGameTest.java "$base"/src/gametest/java/io/github/brainage04/"$mod_name"ClientGameTest.java
+  mv "$base"/src/main/java/io/github/brainage04/fabricmoddingtemplate/FabricModdingTemplate.java "$base"/src/main/java/io/github/brainage04/fabricmoddingtemplate/"$mod_name".java
+  mv "$base"/src/test/java/io/github/brainage04/fabricmoddingtemplate/FabricModdingTemplateMetadataTest.java "$base"/src/test/java/io/github/brainage04/fabricmoddingtemplate/"$mod_name"MetadataTest.java
+  mv "$base"/src/gametest/java/io/github/brainage04/fabricmoddingtemplate/FabricModdingTemplateGameTest.java "$base"/src/gametest/java/io/github/brainage04/fabricmoddingtemplate/"$mod_name"GameTest.java
+  mv "$base"/src/gametest/java/io/github/brainage04/fabricmoddingtemplate/FabricModdingTemplateClientGameTest.java "$base"/src/gametest/java/io/github/brainage04/fabricmoddingtemplate/"$mod_name"ClientGameTest.java
   if [ "$side" != "server" ]; then
-    mv "$base"/src/client/java/io/github/brainage04/FabricModdingTemplateClient.java "$base"/src/client/java/io/github/brainage04/"$mod_name"Client.java
+    mv "$base"/src/client/java/io/github/brainage04/fabricmoddingtemplate/FabricModdingTemplateClient.java "$base"/src/client/java/io/github/brainage04/fabricmoddingtemplate/"$mod_name"Client.java
   fi
 
   # lastly, refactor package directory
-  move_package_tree "$base"/src/main/java/io/github/brainage04 "$base"/src/main/java/"$package_dir"
-  move_package_tree "$base"/src/test/java/io/github/brainage04 "$base"/src/test/java/"$package_dir"
-  move_package_tree "$base"/src/gametest/java/io/github/brainage04 "$base"/src/gametest/java/"$package_dir"
+  move_package_tree "$base"/src/main/java/io/github/brainage04/fabricmoddingtemplate "$base"/src/main/java/"$package_dir"
+  move_package_tree "$base"/src/test/java/io/github/brainage04/fabricmoddingtemplate "$base"/src/test/java/"$package_dir"
+  move_package_tree "$base"/src/gametest/java/io/github/brainage04/fabricmoddingtemplate "$base"/src/gametest/java/"$package_dir"
 
   if [ "$side" != "server" ]; then
-    move_package_tree "$base"/src/client/java/io/github/brainage04 "$base"/src/client/java/"$package_dir"
+    move_package_tree "$base"/src/client/java/io/github/brainage04/fabricmoddingtemplate "$base"/src/client/java/"$package_dir"
   fi
 
   case "$side" in

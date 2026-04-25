@@ -1,6 +1,6 @@
-package io.github.brainage04;
+package io.github.brainage04.fabricmoddingtemplate;
 
-import io.github.brainage04.command.ExampleCommand;
+import io.github.brainage04.fabricmoddingtemplate.command.ExampleCommand;
 import net.fabricmc.fabric.api.client.gametest.v1.FabricClientGameTest;
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
 import net.fabricmc.fabric.api.client.gametest.v1.context.TestSingleplayerContext;

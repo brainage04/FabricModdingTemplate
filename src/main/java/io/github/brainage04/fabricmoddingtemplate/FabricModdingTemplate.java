@@ -1,7 +1,7 @@
-package io.github.brainage04;
+package io.github.brainage04.fabricmoddingtemplate;
 
-import io.github.brainage04.command.core.ModCommands;
-import io.github.brainage04.config.ExampleConfig;
+import io.github.brainage04.fabricmoddingtemplate.command.core.ModCommands;
+import io.github.brainage04.fabricmoddingtemplate.config.ExampleConfig;
 import net.fabricmc.api.ModInitializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

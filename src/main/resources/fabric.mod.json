@@ -16,10 +16,10 @@
 	"environment": "*",
 	"entrypoints": {
 		"client": [
-			"io.github.brainage04.FabricModdingTemplateClient"
+			"io.github.brainage04.fabricmoddingtemplate.FabricModdingTemplateClient"
 		],
 		"main": [
-			"io.github.brainage04.FabricModdingTemplate"
+			"io.github.brainage04.fabricmoddingtemplate.FabricModdingTemplate"
 		]
 	},
 	"mixins": [

@@ -103,8 +103,8 @@ assert_json_missing_key() {
 smoke_side() {
   local side="$1"
   local target="$tmp_root/$side/FabricModdingTemplate-${side}_42"
-  local package_dir="io/github/brain_age_04/fabricmoddingtemplate_${side}_42"
-  local package_name="io.github.brain_age_04.fabricmoddingtemplate_${side}_42"
+  local package_dir="io/github/brainage04/fabricmoddingtemplate_${side}_42"
+  local package_name="io.github.brainage04.fabricmoddingtemplate_${side}_42"
   local main_class="Fabricmoddingtemplate${side^}42"
   local mod_id="fabricmoddingtemplate_${side}_42"
   local -a build_args
@@ -115,7 +115,7 @@ smoke_side() {
   (
     cd "$target"
 
-    ./init.sh --side="$side" "brain-age-04" "FabricModdingTemplate-${side}_42"
+    ./init.sh --side="$side" "FabricModdingTemplate-${side}_42"
 
     assert_path_missing "init.sh"
     assert_path_missing ".github/workflows/init.yml"
@@ -176,8 +176,8 @@ smoke_side() {
     fi
 
     grep -qx "maven_group=${package_name}" gradle.properties
-    assert_no_match 'com\.example|io\.github\.brainage04|io/github/brainage04|fabricmoddingtemplate\.(accesswidener|mixins\.json)|assets/fabricmoddingtemplate/icon\.png' README.md build.gradle gradle.properties LICENSE src
-    assert_no_match 'io\.github\.brain-age-04|package [^;]*-' src
+    assert_no_match 'com\.example|io\.github\.brainage04\.fabricmoddingtemplate([^_a-z0-9]|$)|io/github/brainage04/fabricmoddingtemplate([^_a-z0-9]|$)|fabricmoddingtemplate\.(accesswidener|mixins\.json)|assets/fabricmoddingtemplate/icon\.png' README.md build.gradle gradle.properties LICENSE src
+    assert_no_match 'package [^;]*-' src
 
     if [ "${TEMPLATE_SMOKE_SKIP_BUILD:-false}" = "true" ]; then
       echo "Skipping generated ${side} Gradle build."
