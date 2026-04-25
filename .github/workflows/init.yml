@@ -12,7 +12,7 @@ jobs:
     if: ${{ !github.event.repository.is_template }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4.1.1
+        uses: actions/checkout@v5
       - name: Install init tools
         run: |
           sudo apt-get update
@@ -33,7 +33,7 @@ jobs:
           Set mod side to both
           EOF
       - name: Push changes
-        uses: ad-m/github-push-action@v0.8.0
+        uses: ad-m/github-push-action@v1
         with:
           branch: ${{ github.ref }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
