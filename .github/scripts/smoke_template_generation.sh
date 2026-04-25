@@ -154,6 +154,7 @@ smoke_side() {
       assert_path_missing "src/client"
       assert_path_missing "src/gametest/java/${package_dir}/${main_class}ClientGameTest.java"
       assert_no_match 'client-gametests:|runClientGameTest' .github/workflows/build.yml
+      assert_no_match 'prepareClientGameTestRun|CLIENT GAMETEST RUN SETUP' build.gradle
       assert_json_compact src/main/resources/fabric.mod.json '.entrypoints | keys_unsorted' '["main"]'
       assert_json_compact src/gametest/resources/fabric.mod.json '.entrypoints | keys_unsorted' '["fabric-gametest"]'
       assert_json_missing_key src/main/resources/fabric.mod.json '.entrypoints' client
@@ -169,6 +170,7 @@ smoke_side() {
       assert_path_exists "src/client/resources/assets/${mod_id}/lang/en_us.json"
       assert_match 'client-gametests:' .github/workflows/build.yml
       assert_match 'runClientGameTest' .github/workflows/build.yml
+      assert_match 'prepareClientGameTestRun' build.gradle
       assert_json_compact src/main/resources/fabric.mod.json '.entrypoints | keys_unsorted' '["client","main"]'
       assert_json_has_key src/main/resources/fabric.mod.json '.entrypoints' client
       assert_json_string src/main/resources/fabric.mod.json '.entrypoints.client[0]' "${package_name}.${main_class}Client"

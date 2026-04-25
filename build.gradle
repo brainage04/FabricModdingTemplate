@@ -99,6 +99,45 @@ tasks.named("processGametestResources") {
 	}
 }
 
+def clientGameTestRunDir = layout.buildDirectory.dir("run/clientGameTest")
+
+// BEGIN CLIENT GAMETEST RUN SETUP
+tasks.register("prepareClientGameTestRun") {
+	def optionsFile = clientGameTestRunDir.map { it.file("options.txt") }
+
+	outputs.file(optionsFile)
+	mustRunAfter(tasks.named("deleteGameTestRunDir"))
+
+	doLast {
+		def settings = [
+				version              : "4671",
+				autoJump             : "false",
+				enableVsync          : "false",
+				graphicsPreset       : '"fast"',
+				guiScale             : "3",
+				maxFps               : "30",
+				narrator             : "0",
+				narratorHotkey       : "false",
+				particles            : "2",
+				renderClouds         : '"false"',
+				renderDistance       : "5",
+				simulationDistance   : "5",
+				soundCategory_master : "0.0",
+				soundCategory_music  : "0.0",
+				toggleSprint         : "true"
+		]
+		def file = optionsFile.get().asFile
+
+		file.parentFile.mkdirs()
+		file.text = settings.collect { key, value -> "${key}:${value}" }.join(System.lineSeparator()) + System.lineSeparator()
+	}
+}
+
+tasks.matching { it.name == "runClientGameTest" }.configureEach {
+	dependsOn(tasks.named("prepareClientGameTestRun"))
+}
+// END CLIENT GAMETEST RUN SETUP
+
 tasks.withType(JavaCompile).configureEach {
 	it.options.release = 21
 }

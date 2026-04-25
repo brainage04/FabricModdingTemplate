@@ -242,6 +242,7 @@ echo "Setting package dir to $package_dir"
         -e '/sourceSet sourceSets.client/d' \
         -e 's/enableClientGameTests = true/enableClientGameTests = false/' "$base"/build.gradle
       perl -0pi -e 's/\n\tloom\.runs\.named\("clientGameTest"\) \{\n\t\trunDir = "build\/run\/clientGameTest"\n\t\}//s' "$base"/build.gradle
+      perl -0pi -e 's/\n\/\/ BEGIN CLIENT GAMETEST RUN SETUP\n.*?\/\/ END CLIENT GAMETEST RUN SETUP\n//s' "$base"/build.gradle
       perl -0pi -e 's/common code in `src\/main`, client-only code in `src\/client`, and GameTests in `src\/gametest`/common code in `src\/main` and GameTests in `src\/gametest`/' "$base"/README.md
       sed -i '/launches the client side/d' "$base"/README.md
       perl -0pi -e 's/For client-side GameTests, run:\n\n```shell\n\.\/gradlew runClientGameTest\n```\n\nThe template also includes a minimal client GameTest that opens a singleplayer world and checks that the client and integrated server are both reachable from the test context\.\nWhen you initialise with `--side=client`, the generated repo keeps this client GameTest path and removes the dedicated-server GameTest path\.\n\n//' "$base"/README.md

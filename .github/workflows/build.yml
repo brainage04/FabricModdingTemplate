@@ -73,7 +73,7 @@ jobs:
       - name: install client test tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y xvfb mesa-utils libgl1-mesa-dri libglx-mesa0 libxi6 libxrandr2 libxrender1 libxtst6 libxinerama1 libxcursor1 libxxf86vm1
+          sudo apt-get install -y xvfb mesa-utils libflite1 libgl1-mesa-dri libglx-mesa0 libxi6 libxrandr2 libxrender1 libxtst6 libxinerama1 libxcursor1 libxxf86vm1
       - name: validate gradle wrapper
         uses: gradle/actions/wrapper-validation@v4
       - name: setup jdk
@@ -86,7 +86,9 @@ jobs:
       - name: make gradle wrapper executable
         run: chmod +x ./gradlew
       - name: run client GameTests
-        run: xvfb-run -a ./gradlew --no-daemon runClientGameTest
+        env:
+          LIBGL_ALWAYS_SOFTWARE: "1"
+        run: xvfb-run -a --server-args="-screen 0 1280x720x24" ./gradlew --no-daemon runClientGameTest
       - name: store client GameTest reports
         if: failure()
         uses: actions/upload-artifact@v4
