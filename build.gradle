@@ -1,5 +1,5 @@
 plugins {
-	id 'net.fabricmc.fabric-loom-remap' version "${loom_version}"
+	id 'net.fabricmc.fabric-loom' version "${loom_version}"
 	id 'maven-publish'
 }
 
@@ -29,19 +29,18 @@ repositories {
 
 dependencies {
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-	mappings loom.officialMojangMappings()
-	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+	implementation "net.fabricmc:fabric-loader:${project.loader_version}"
+	implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
 	testImplementation "net.fabricmc:fabric-loader-junit:${project.loader_version}"
 
 	// DevAuth
-	modRuntimeOnly("me.djtheredstoner:DevAuth-fabric:1.2.2")
+	runtimeOnly("me.djtheredstoner:DevAuth-fabric:1.2.2")
 
 	// ModMenu
-	modImplementation "com.terraformersmc:modmenu:${project.modmenu_version}"
+	implementation "com.terraformersmc:modmenu:${project.modmenu_version}"
 
 	// Fzzy Config
-	modImplementation "me.fzzyhmstrs:fzzy_config:${project.fzzy_config_version}"
+	implementation "me.fzzyhmstrs:fzzy_config:${project.fzzy_config_version}"
 }
 
 processResources {
@@ -151,14 +150,14 @@ tasks.matching { it.name == "runClientGameTest" }.configureEach {
 // END CLIENT GAMETEST RUN SETUP
 
 tasks.withType(JavaCompile).configureEach {
-	it.options.release = 21
+	it.options.release = 25
 }
 
 java {
 	withSourcesJar()
 
-	sourceCompatibility = JavaVersion.VERSION_21
-	targetCompatibility = JavaVersion.VERSION_21
+	sourceCompatibility = JavaVersion.VERSION_25
+	targetCompatibility = JavaVersion.VERSION_25
 }
 
 jar {
