@@ -51,7 +51,7 @@ For client-side GameTests, run:
 ./gradlew runClientGameTest
 ```
 
-The template also includes a minimal client GameTest that boots the client and checks that the client initializer ran.
+The template also includes a minimal client GameTest that boots the client, connects to an in-process dedicated server, and checks that the client initializer ran in an in-world context.
 When you initialise with `--side=client`, the generated repo keeps this client GameTest path and removes the dedicated-server GameTest path.
 
 # Publishing
