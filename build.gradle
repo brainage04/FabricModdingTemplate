@@ -115,6 +115,7 @@ tasks.register("prepareClientGameTestRun") {
 				enableVsync          : "false",
 				graphicsPreset       : '"fast"',
 				guiScale             : "3",
+				maxAnisotropyBit     : "2",
 				maxFps               : "30",
 				narrator             : "0",
 				narratorHotkey       : "false",

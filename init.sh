@@ -245,7 +245,7 @@ echo "Setting package dir to $package_dir"
       perl -0pi -e 's/\n\/\/ BEGIN CLIENT GAMETEST RUN SETUP\n.*?\/\/ END CLIENT GAMETEST RUN SETUP\n//s' "$base"/build.gradle
       perl -0pi -e 's/common code in `src\/main`, client-only code in `src\/client`, and GameTests in `src\/gametest`/common code in `src\/main` and GameTests in `src\/gametest`/' "$base"/README.md
       sed -i '/launches the client side/d' "$base"/README.md
-      perl -0pi -e 's/For client-side GameTests, run:\n\n```shell\n\.\/gradlew runClientGameTest\n```\n\nThe template also includes a minimal client GameTest that opens a singleplayer world and checks that the client and integrated server are both reachable from the test context\.\nWhen you initialise with `--side=client`, the generated repo keeps this client GameTest path and removes the dedicated-server GameTest path\.\n\n//' "$base"/README.md
+      perl -0pi -e 's/For client-side GameTests, run:\n\n```shell\n\.\/gradlew runClientGameTest\n```\n\nThe template also includes a minimal client GameTest that boots the client and checks that the client initializer ran\.\nWhen you initialise with `--side=client`, the generated repo keeps this client GameTest path and removes the dedicated-server GameTest path\.\n\n//' "$base"/README.md
       rm -f "$base"/src/gametest/java/"$package_dir"/"$mod_name"ClientGameTest.java
       rm -rf "$base"/src/client
       rm -f "$base"/run/options.txt
