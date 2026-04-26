@@ -154,9 +154,10 @@ smoke_side() {
 	    if [ "$side" = "server" ]; then
 	      assert_path_exists "src/main/java/${package_dir}/${main_class}.java"
 	      assert_path_missing "run/options.txt"
-      assert_path_missing "src/client"
-      assert_path_missing "src/gametest/java/${package_dir}/${main_class}ClientGameTest.java"
-      assert_path_exists "src/main/resources/${mod_id}.mixins.json"
+	      assert_path_missing "src/client"
+	      assert_path_missing "src/gametest/java/${package_dir}/${main_class}ClientGameTest.java"
+	      assert_path_exists "src/main/resources/${mod_id}.mixins.json"
+	      assert_match '^on: \[pull_request, push, workflow_dispatch\]$' .github/workflows/build.yml
 	      assert_no_match 'client-gametests:|runClientGameTest|run_client_gametests' .github/workflows/build.yml
 	      assert_no_match 'prepareClientGameTestRun|CLIENT GAMETEST RUN SETUP|clientGameTestRunDir|splitEnvironmentSourceSets|sourceSets\.client|enableClientGameTests' build.gradle
 	      assert_json_compact src/main/resources/fabric.mod.json '.entrypoints | keys_unsorted' '["main"]'
@@ -193,36 +194,36 @@ smoke_side() {
 	    else
 	      assert_path_exists "run/options.txt"
 	      assert_path_missing "src/client"
-	      assert_path_missing "src/main/java/${package_dir}/${main_class}.java"
+	      assert_path_exists "src/main/java/${package_dir}/${main_class}.java"
+	      assert_path_missing "src/main/java/${package_dir}/${main_class}Client.java"
 	      assert_path_missing "src/main/resources/${mod_id}.mixins.json"
 	      assert_path_exists "src/main/resources/${mod_id}.client.mixins.json"
-	      assert_path_exists "src/main/java/${package_dir}/${main_class}Client.java"
-      assert_path_exists "src/main/java/${package_dir}/command/ExampleClientCommand.java"
-      assert_path_exists "src/main/java/${package_dir}/command/core/ClientModCommands.java"
-      assert_path_exists "src/main/java/${package_dir}/mixin/client/ExampleClientMixin.java"
-      assert_path_exists "src/gametest/java/${package_dir}/${main_class}ClientGameTest.java"
-      assert_path_exists "src/main/resources/assets/${mod_id}/lang/en_us.json"
-      assert_match 'client-gametests:' .github/workflows/build.yml
+	      assert_path_exists "src/main/java/${package_dir}/command/ExampleCommand.java"
+	      assert_path_exists "src/main/java/${package_dir}/command/core/ModCommands.java"
+	      assert_path_exists "src/main/java/${package_dir}/mixin/ExampleMixin.java"
+	      assert_path_missing "src/main/java/${package_dir}/command/ExampleClientCommand.java"
+	      assert_path_missing "src/main/java/${package_dir}/command/core/ClientModCommands.java"
+	      assert_path_missing "src/main/java/${package_dir}/mixin/client/ExampleClientMixin.java"
+	      assert_path_exists "src/gametest/java/${package_dir}/${main_class}GameTest.java"
+	      assert_path_missing "src/gametest/java/${package_dir}/${main_class}ClientGameTest.java"
+	      assert_path_exists "src/main/resources/assets/${mod_id}/lang/en_us.json"
+	      assert_match 'client-gametests:' .github/workflows/build.yml
 	      assert_match 'runClientGameTest' .github/workflows/build.yml
 	      assert_match 'prepareClientGameTestRun' build.gradle
 	      assert_no_match 'splitEnvironmentSourceSets|sourceSets\.client' build.gradle
 	      assert_json_compact src/main/resources/fabric.mod.json '.entrypoints | keys_unsorted' '["client"]'
 	      assert_json_compact src/main/resources/fabric.mod.json '.mixins' "[\"${mod_id}.client.mixins.json\"]"
 	      assert_json_has_key src/main/resources/fabric.mod.json '.entrypoints' client
-	      assert_json_string src/main/resources/fabric.mod.json '.entrypoints.client[0]' "${package_name}.${main_class}Client"
-      assert_json_has_key src/gametest/resources/fabric.mod.json '.entrypoints' fabric-client-gametest
-      assert_json_string src/gametest/resources/fabric.mod.json '.entrypoints["fabric-client-gametest"][0]' "${package_name}.${main_class}ClientGameTest"
-    fi
+	      assert_json_string src/main/resources/fabric.mod.json '.entrypoints.client[0]' "${package_name}.${main_class}"
+	      assert_json_has_key src/gametest/resources/fabric.mod.json '.entrypoints' fabric-client-gametest
+	      assert_json_string src/gametest/resources/fabric.mod.json '.entrypoints["fabric-client-gametest"][0]' "${package_name}.${main_class}GameTest"
+	    fi
 
 	    if [ "$side" = "client" ]; then
-	      assert_path_missing "src/main/java/${package_dir}/command/ExampleCommand.java"
-	      assert_path_missing "src/main/java/${package_dir}/command/core/ModCommands.java"
-	      assert_path_missing "src/main/java/${package_dir}/mixin/ExampleMixin.java"
-	      assert_no_match 'ExampleConfig|entrypoints\.main|\.entrypoints \| keys_unsorted.*main' src build.gradle README.md
+	      assert_no_match "ExampleConfig|entrypoints\\.main|\\.entrypoints \\| keys_unsorted.*main|ExampleClientCommand|ClientModCommands|ExampleClientMixin|${main_class}Client" src build.gradle README.md
 	      assert_path_missing "src/test/java/${package_dir}/command/ExampleCommandTest.java"
-	      assert_path_missing "src/gametest/java/${package_dir}/${main_class}GameTest.java"
 	      assert_json_compact src/gametest/resources/fabric.mod.json '.entrypoints | keys_unsorted' '["fabric-client-gametest"]'
-      assert_json_missing_key src/gametest/resources/fabric.mod.json '.entrypoints' fabric-gametest
+	      assert_json_missing_key src/gametest/resources/fabric.mod.json '.entrypoints' fabric-gametest
       build_args=(build)
     elif [ "$side" = "server" ]; then
       assert_path_exists "src/main/java/${package_dir}/command/ExampleCommand.java"

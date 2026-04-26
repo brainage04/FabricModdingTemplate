@@ -262,12 +262,13 @@ echo "Setting package dir to $package_dir"
       perl -0pi -e 's/common code in `src\/main`, client-only code in `src\/client`, and GameTests in `src\/gametest`/common code in `src\/main` and GameTests in `src\/gametest`/' "$base"/README.md
       sed -i '/launches the client side/d' "$base"/README.md
       perl -0pi -e 's/For client-side GameTests, run:\n\n```shell\n\.\/gradlew runClientGameTest\n```\n\nThe template also includes a minimal client GameTest that boots the client, connects to an in-process dedicated server, and checks that the client initializer ran in an in-world context\.\nWhen you initialise with `--side=client`, the generated repo keeps this client GameTest path and removes the dedicated-server GameTest path\.\n\n//' "$base"/README.md
-      rm -f "$base"/src/gametest/java/"$package_dir"/"$mod_name"ClientGameTest.java
-      rm -rf "$base"/src/client
-      rm -f "$base"/run/options.txt
-      perl -0pi -e 's/\n  workflow_dispatch:\n    inputs:\n      run_client_gametests:\n        description: Run headless client GameTests\n        required: false\n        type: boolean\n        default: true/\n  workflow_dispatch:/s' "$base"/.github/workflows/build.yml
-      perl -0pi -e 's/\n  client-gametests:\n.*\z/\n/s' "$base"/.github/workflows/build.yml
-      ;;
+	      rm -f "$base"/src/gametest/java/"$package_dir"/"$mod_name"ClientGameTest.java
+	      rm -rf "$base"/src/client
+	      rm -f "$base"/run/options.txt
+	      perl -0pi -e 's/\n  workflow_dispatch:\n    inputs:\n      run_client_gametests:\n        description: Run headless client GameTests\n        required: false\n        type: boolean\n        default: true/\n  workflow_dispatch:/s' "$base"/.github/workflows/build.yml
+	      perl -0pi -e 's/\n  client-gametests:\n.*\z/\n/s' "$base"/.github/workflows/build.yml
+	      perl -0pi -e 's/on:\n  pull_request:\n  push:\n  workflow_dispatch:/on: [pull_request, push, workflow_dispatch]/s' "$base"/.github/workflows/build.yml
+	      ;;
     client)
       sed -i \
         -e 's/"environment": "\\*"/"environment": "client"/' \
@@ -279,6 +280,10 @@ echo "Setting package dir to $package_dir"
 	      perl -0pi -e 's/\n\t\t"[^"]+\.mixins\.json",//s' "$base"/src/main/resources/fabric.mod.json
 	      perl -0pi -e 's/\{\n\t\t\t"config": "([^"]+\.client\.mixins\.json)",\n\t\t\t"environment": "client"\n\t\t\}/"$1"/s' "$base"/src/main/resources/fabric.mod.json
 	      perl -0pi -e 's/\n\t\t"main": \[\n\t\t\t"[^"]+"\n\t\t\],//s; s/,\n\t\t"main": \[\n\t\t\t"[^"]+"\n\t\t\]//s' "$base"/src/main/resources/fabric.mod.json
+	      sed -i \
+	        -e "s/${mod_name_replacement}Client/${mod_name_replacement}/g" \
+	        "$base"/src/main/resources/fabric.mod.json \
+	        "$base"/src/gametest/resources/fabric.mod.json
 	      sed -i \
 	        -e '/splitEnvironmentSourceSets()/d' \
 	        -e '/sourceSet sourceSets.client/d' \
@@ -298,16 +303,16 @@ echo "Setting package dir to $package_dir"
 	      sed -i \
 	        -e '/import .*command\.core\.ModCommands;/d' \
 	        -e '/ModCommands\.initialize();/d' "$base"/src/main/java/"$package_dir"/"$mod_name".java
-	      cat > "$base"/src/client/java/"$package_dir"/"$mod_name"Client.java <<EOF
+	      cat > "$base"/src/client/java/"$package_dir"/"$mod_name".java <<EOF
 package $package_name;
 
-import $package_name.command.core.ClientModCommands;
+import $package_name.command.core.ModCommands;
 import $package_name.config.ModConfig;
 import net.fabricmc.api.ClientModInitializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ${mod_name}Client implements ClientModInitializer {
+public class ${mod_name} implements ClientModInitializer {
     public static final String MOD_ID = "$mod_id";
     public static final String MOD_NAME = "$mod_name";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_NAME);
@@ -318,7 +323,7 @@ public class ${mod_name}Client implements ClientModInitializer {
     public void onInitializeClient() {
         LOGGER.info("{} client initialising...", MOD_NAME);
 
-        ClientModCommands.initialize();
+        ModCommands.initialize();
         ModConfig.init();
 
         if (ModConfig.CONFIG.logConfigOnStartup.get()) {
@@ -341,23 +346,44 @@ public class ${mod_name}Client implements ClientModInitializer {
     }
 }
 EOF
-	      sed -i \
-	        -e "s/import ${package_name_replacement}\\.${mod_name_replacement};/import ${package_name_replacement}.${mod_name_replacement}Client;/" \
-	        -e "s/${mod_name_replacement}\\.MOD_ID/${mod_name_replacement}Client.MOD_ID/g" \
-	        -e "s/${mod_name_replacement}\\.MOD_NAME/${mod_name_replacement}Client.MOD_NAME/g" \
-	        "$base"/src/main/java/"$package_dir"/config/ModConfig.java \
-	        "$base"/src/test/java/"$package_dir"/"$mod_name"MetadataTest.java
 	      rm -f "$base"/src/main/java/"$package_dir"/command/ExampleCommand.java
 	      rm -f "$base"/src/main/java/"$package_dir"/command/core/ModCommands.java
 	      rm -f "$base"/src/main/java/"$package_dir"/mixin/ExampleMixin.java
 	      rmdir --ignore-fail-on-non-empty "$base"/src/main/java/"$package_dir"/command/core "$base"/src/main/java/"$package_dir"/command
 	      rm -rf "$base"/src/test/java/"$package_dir"/command
 	      rm -f "$base"/src/main/java/"$package_dir"/"$mod_name".java
+	      rm -f "$base"/src/client/java/"$package_dir"/"$mod_name"Client.java
 	      rm -f "$base"/src/gametest/java/"$package_dir"/"$mod_name"GameTest.java
 	      rm -f "$base"/src/main/resources/"$mod_id".mixins.json
 	      merge_tree "$base"/src/client/java "$base"/src/main/java
 	      merge_tree "$base"/src/client/resources "$base"/src/main/resources
 	      rm -rf "$base"/src/client
+	      mv "$base"/src/main/java/"$package_dir"/command/ExampleClientCommand.java "$base"/src/main/java/"$package_dir"/command/ExampleCommand.java
+	      sed -i \
+	        -e 's/ExampleClientCommand/ExampleCommand/g' \
+	        -e 's/"exampleclient"/"example"/g' \
+	        -e 's/example client command/example command/g' \
+	        "$base"/src/main/java/"$package_dir"/command/ExampleCommand.java
+	      mv "$base"/src/main/java/"$package_dir"/command/core/ClientModCommands.java "$base"/src/main/java/"$package_dir"/command/core/ModCommands.java
+	      sed -i \
+	        -e 's/ClientModCommands/ModCommands/g' \
+	        -e 's/ExampleClientCommand/ExampleCommand/g' \
+	        "$base"/src/main/java/"$package_dir"/command/core/ModCommands.java
+	      mv "$base"/src/main/java/"$package_dir"/mixin/client/ExampleClientMixin.java "$base"/src/main/java/"$package_dir"/mixin/ExampleMixin.java
+	      rmdir --ignore-fail-on-non-empty "$base"/src/main/java/"$package_dir"/mixin/client
+	      sed -i \
+	        -e "s/package ${package_name_replacement}\\.mixin\\.client;/package ${package_name_replacement}.mixin;/" \
+	        -e 's/ExampleClientMixin/ExampleMixin/g' \
+	        "$base"/src/main/java/"$package_dir"/mixin/ExampleMixin.java
+	      sed -i \
+	        -e "s/${package_name_replacement}\\.mixin\\.client/${package_name_replacement}.mixin/g" \
+	        -e 's/ExampleClientMixin/ExampleMixin/g' \
+	        "$base"/src/main/resources/"$mod_id".client.mixins.json
+	      mv "$base"/src/gametest/java/"$package_dir"/"$mod_name"ClientGameTest.java "$base"/src/gametest/java/"$package_dir"/"$mod_name"GameTest.java
+	      sed -i \
+	        -e "s/${mod_name_replacement}ClientGameTest/${mod_name_replacement}GameTest/g" \
+	        -e "s/${mod_name_replacement}Client\\.isInitialized()/${mod_name_replacement}.isInitialized()/g" \
+	        "$base"/src/gametest/java/"$package_dir"/"$mod_name"GameTest.java
 	      ;;
 	  esac
 
