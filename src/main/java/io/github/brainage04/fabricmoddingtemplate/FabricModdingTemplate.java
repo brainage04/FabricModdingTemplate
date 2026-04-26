@@ -1,7 +1,7 @@
 package io.github.brainage04.fabricmoddingtemplate;
 
 import io.github.brainage04.fabricmoddingtemplate.command.core.ModCommands;
-import io.github.brainage04.fabricmoddingtemplate.config.ExampleConfig;
+import io.github.brainage04.fabricmoddingtemplate.config.ModConfig;
 import net.fabricmc.api.ModInitializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,16 +15,16 @@ public class FabricModdingTemplate implements ModInitializer {
 	public void onInitialize() {
         LOGGER.info("{} initialising...", MOD_NAME);
 
-        ExampleConfig.init();
+        ModConfig.init();
         ModCommands.initialize();
 
-        if (ExampleConfig.CONFIG.logConfigOnStartup.get()) {
+        if (ModConfig.CONFIG.logConfigOnStartup.get()) {
             LOGGER.info(
                     "Loaded config: message='{}', mode={}, featuredItem={}, retries={}",
-                    ExampleConfig.CONFIG.welcomeMessage.get(),
-                    ExampleConfig.CONFIG.syncMode.get(),
-                    ExampleConfig.CONFIG.featuredItem.get(),
-                    ExampleConfig.CONFIG.startupRetries.get()
+                    ModConfig.CONFIG.welcomeMessage.get(),
+                    ModConfig.CONFIG.syncMode.get(),
+                    ModConfig.CONFIG.featuredItem.get(),
+                    ModConfig.CONFIG.startupRetries.get()
             );
         }
 

@@ -17,9 +17,9 @@ import net.minecraft.resources.Identifier;
 import java.util.List;
 import java.util.function.Supplier;
 
-public class ExampleConfig extends Config {
-    public static final ExampleConfig CONFIG =
-            ConfigApi.registerAndLoadConfig((Supplier<ExampleConfig>) ExampleConfig::new, RegisterType.BOTH);
+public class ModConfig extends Config {
+    public static final ModConfig CONFIG =
+            ConfigApi.registerAndLoadConfig((Supplier<ModConfig>) ModConfig::new, RegisterType.BOTH);
 
     // Bare values serialize, but validated wrappers are what drive correction and auto-GUI generation.
     public double fallbackDamageMultiplier = 1.25D;
@@ -38,7 +38,7 @@ public class ExampleConfig extends Config {
     public ValidatedIdentifier featuredItem = new ValidatedIdentifier("minecraft", "nether_star");
     public GameplaySection gameplay = new GameplaySection();
 
-    public ExampleConfig() {
+    public ModConfig() {
         super(Identifier.fromNamespaceAndPath(FabricModdingTemplate.MOD_ID, "settings"));
     }
 

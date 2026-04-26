@@ -222,9 +222,10 @@ echo "Setting package dir to $package_dir"
   mv "$base"/src/main/resources/fabricmoddingtemplate.mixins.json "$base"/src/main/resources/"$mod_id".mixins.json
   mv "$base"/src/client/resources/fabricmoddingtemplate.client.mixins.json "$base"/src/client/resources/"$mod_id".client.mixins.json
 
-  # refactor assets directory
-  mv "$base"/src/main/resources/assets/fabricmoddingtemplate "$base"/src/main/resources/assets/"$mod_id"
-  mv "$base"/src/client/resources/assets/fabricmoddingtemplate "$base"/src/client/resources/assets/"$mod_id"
+	  # refactor assets directory
+	  mv "$base"/src/main/resources/assets/fabricmoddingtemplate "$base"/src/main/resources/assets/"$mod_id"
+	  mv "$base"/src/client/resources/assets/fabricmoddingtemplate "$base"/src/client/resources/assets/"$mod_id"
+	  mv "$base"/src/gametest/resources/assets/fabricmoddingtemplate "$base"/src/gametest/resources/assets/"$mod_id"
 
   # rename main class
   mv "$base"/src/main/java/io/github/brainage04/fabricmoddingtemplate/FabricModdingTemplate.java "$base"/src/main/java/io/github/brainage04/fabricmoddingtemplate/"$mod_name".java
@@ -275,39 +276,96 @@ echo "Setting package dir to $package_dir"
         -e 's/"environment": "\\*"/"environment": "client"/' \
         -e 's/"environment": "\*"/"environment": "client"/' "$base"/src/gametest/resources/fabric.mod.json
       perl -0pi -e 's/\n\t\t"fabric-gametest": \[\n\t\t\t"[^"]+"\n\t\t\],//s; s/,\n\t\t"fabric-gametest": \[\n\t\t\t"[^"]+"\n\t\t\]//s' "$base"/src/gametest/resources/fabric.mod.json
-      perl -0pi -e 's/\n\t\t"[^"]+\.mixins\.json",//s' "$base"/src/main/resources/fabric.mod.json
-      sed -i \
-        -e '/splitEnvironmentSourceSets()/d' \
-        -e '/sourceSet sourceSets.client/d' \
+	      perl -0pi -e 's/\n\t\t"[^"]+\.mixins\.json",//s' "$base"/src/main/resources/fabric.mod.json
+	      perl -0pi -e 's/\{\n\t\t\t"config": "([^"]+\.client\.mixins\.json)",\n\t\t\t"environment": "client"\n\t\t\}/"$1"/s' "$base"/src/main/resources/fabric.mod.json
+	      perl -0pi -e 's/\n\t\t"main": \[\n\t\t\t"[^"]+"\n\t\t\],//s; s/,\n\t\t"main": \[\n\t\t\t"[^"]+"\n\t\t\]//s' "$base"/src/main/resources/fabric.mod.json
+	      sed -i \
+	        -e '/splitEnvironmentSourceSets()/d' \
+	        -e '/sourceSet sourceSets.client/d' \
         -e 's/enableGameTests = true/enableGameTests = false/' \
         -e 's/systemProperty "fabric.side", "server"/systemProperty "fabric.side", "client"/' "$base"/build.gradle
       perl -0pi -e 's/\n\tmods \{\n\t\t[^\n]+ \{\n\t\t\tsourceSet sourceSets\.main\n\t\t\}\n\t\}\n//s' "$base"/build.gradle
       perl -0pi -e 's/\n\tloom\.runs\.named\("gameTest"\) \{\n\t\trunDir = "build\/run\/gameTest"\n\t\}//s' "$base"/build.gradle
-      sed -i \
-        -e 's/assertEquals(EnvType.SERVER/assertEquals(EnvType.CLIENT/' "$base"/src/test/java/"$package_dir"/"$mod_name"MetadataTest.java
+	      sed -i \
+	        -e 's/assertEquals(EnvType.SERVER/assertEquals(EnvType.CLIENT/' \
+	        -e 's/fabricLoaderBootsInServerModeForTests/fabricLoaderBootsInClientModeForTests/' \
+	        "$base"/src/test/java/"$package_dir"/"$mod_name"MetadataTest.java
       perl -0pi -e 's/common code in `src\/main`, client-only code in `src\/client`, and GameTests in `src\/gametest`/client-only code in `src\/main` and client-side GameTests in `src\/gametest`/' "$base"/README.md
       sed -i '/launches the common\/server side/d' "$base"/README.md
       sed -i '/server command example/d' "$base"/README.md
       sed -i '/Plain unit tests for your own code, such as command registration/d' "$base"/README.md
       perl -0pi -e 's/For integration-style server tests, run:\n\n```shell\n\.\/gradlew runGameTest\n```\n\nThe template includes a separate `src\/gametest` source set with a minimal server GameTest that checks the example command was registered on the server\.\nServer GameTests also run automatically as part of `\.\/gradlew build`, which is what the included GitHub Actions workflow executes\.\n\n//' "$base"/README.md
-      sed -i \
-        -e '/import .*command\.core\.ModCommands;/d' \
-        -e '/ModCommands\.initialize();/d' "$base"/src/main/java/"$package_dir"/"$mod_name".java
+	      sed -i \
+	        -e '/import .*command\.core\.ModCommands;/d' \
+	        -e '/ModCommands\.initialize();/d' "$base"/src/main/java/"$package_dir"/"$mod_name".java
+	      cat > "$base"/src/client/java/"$package_dir"/"$mod_name"Client.java <<EOF
+package $package_name;
+
+import $package_name.command.core.ClientModCommands;
+import $package_name.config.ModConfig;
+import net.fabricmc.api.ClientModInitializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class ${mod_name}Client implements ClientModInitializer {
+    public static final String MOD_ID = "$mod_id";
+    public static final String MOD_NAME = "$mod_name";
+    public static final Logger LOGGER = LoggerFactory.getLogger(MOD_NAME);
+
+    private static volatile boolean initialized;
+
+    @Override
+    public void onInitializeClient() {
+        LOGGER.info("{} client initialising...", MOD_NAME);
+
+        ClientModCommands.initialize();
+        ModConfig.init();
+
+        if (ModConfig.CONFIG.logConfigOnStartup.get()) {
+            LOGGER.info(
+                    "Loaded config: message='{}', mode={}, featuredItem={}, retries={}",
+                    ModConfig.CONFIG.welcomeMessage.get(),
+                    ModConfig.CONFIG.syncMode.get(),
+                    ModConfig.CONFIG.featuredItem.get(),
+                    ModConfig.CONFIG.startupRetries.get()
+            );
+        }
+
+        initialized = true;
+
+        LOGGER.info("{} client initialised.", MOD_NAME);
+    }
+
+    public static boolean isInitialized() {
+        return initialized;
+    }
+}
+EOF
+	      sed -i \
+	        -e "s/import ${package_name_replacement}\\.${mod_name_replacement};/import ${package_name_replacement}.${mod_name_replacement}Client;/" \
+	        -e "s/${mod_name_replacement}\\.MOD_ID/${mod_name_replacement}Client.MOD_ID/g" \
+	        -e "s/${mod_name_replacement}\\.MOD_NAME/${mod_name_replacement}Client.MOD_NAME/g" \
+	        "$base"/src/main/java/"$package_dir"/config/ModConfig.java \
+	        "$base"/src/test/java/"$package_dir"/"$mod_name"MetadataTest.java
 	      rm -f "$base"/src/main/java/"$package_dir"/command/ExampleCommand.java
 	      rm -f "$base"/src/main/java/"$package_dir"/command/core/ModCommands.java
 	      rm -f "$base"/src/main/java/"$package_dir"/mixin/ExampleMixin.java
 	      rmdir --ignore-fail-on-non-empty "$base"/src/main/java/"$package_dir"/command/core "$base"/src/main/java/"$package_dir"/command
 	      rm -rf "$base"/src/test/java/"$package_dir"/command
+	      rm -f "$base"/src/main/java/"$package_dir"/"$mod_name".java
 	      rm -f "$base"/src/gametest/java/"$package_dir"/"$mod_name"GameTest.java
-      rm -f "$base"/src/main/resources/"$mod_id".mixins.json
-      merge_tree "$base"/src/client/java "$base"/src/main/java
-      merge_tree "$base"/src/client/resources "$base"/src/main/resources
-      rm -rf "$base"/src/client
-      ;;
-  esac
+	      rm -f "$base"/src/main/resources/"$mod_id".mixins.json
+	      merge_tree "$base"/src/client/java "$base"/src/main/java
+	      merge_tree "$base"/src/client/resources "$base"/src/main/resources
+	      rm -rf "$base"/src/client
+	      ;;
+	  esac
 
-  perl -0pi -e 's/\n      - name: test Modrinth scripts\n        run: bash \.github\/scripts\/test_modrinth_scripts\.sh//s' "$base"/.github/workflows/build.yml
-  perl -0pi -e "s/\n      - name: smoke test generated templates\n        if: \\\$\\{\\{ hashFiles\\('init\\.sh'\\) != '' \\}\\}\n        run: bash \\.github\\/scripts\\/smoke_template_generation\\.sh//s" "$base"/.github/workflows/build.yml
+	  perl -0pi -e 's/loom \{\n\n\taccessWidenerPath/loom {\n\taccessWidenerPath/s' "$base"/build.gradle
+	  perl -0pi -e 's/      - name: shellcheck scripts\n        run: \|\n          scripts=\(\.github\/scripts\/\*\.sh\)\n          if \[ -f init\.sh \]; then\n            scripts\+=\(init\.sh\)\n          fi\n          shellcheck "\$\{scripts\[@\]\}"/      - name: shellcheck scripts\n        run: shellcheck .github\/scripts\/*.sh/s' "$base"/.github/workflows/build.yml
+	  perl -0pi -e 's/\n      - name: test Modrinth scripts\n        run: bash \.github\/scripts\/test_modrinth_scripts\.sh//s' "$base"/.github/workflows/build.yml
+	  perl -0pi -e "s/\n      - name: smoke test generated templates\n        if: \\\$\\{\\{ hashFiles\\('init\\.sh'\\) != '' \\}\\}\n        run: bash \\.github\\/scripts\\/smoke_template_generation\\.sh//s" "$base"/.github/workflows/build.yml
+	  perl -0pi -e 's/\n{3,}/\n\n/g' "$base"/.github/workflows/build.yml
   rm -f "$base"/.github/scripts/smoke_template_generation.sh
   rm -f "$base"/.github/scripts/test_modrinth_scripts.sh
   rm "$base"/.github/workflows/init.yml
