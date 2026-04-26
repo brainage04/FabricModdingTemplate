@@ -23,7 +23,11 @@
 		]
 	},
 	"mixins": [
-		"fabricmoddingtemplate.mixins.json"
+		"fabricmoddingtemplate.mixins.json",
+		{
+			"config": "fabricmoddingtemplate.client.mixins.json",
+			"environment": "client"
+		}
 	],
 	"depends": {
 		"fabricloader": ">=${loader_version}",

@@ -169,6 +169,18 @@ echo "Setting package dir to $package_dir"
     done
   }
 
+  merge_tree() {
+    local source_root="$1"
+    local target_root="$2"
+
+    if [ ! -d "$source_root" ]; then
+      return
+    fi
+
+    mkdir -p "$target_root"
+    cp -a "$source_root"/. "$target_root"/
+  }
+
   find_paths=(
     "$base/src/main"
     "$base/src/test"
@@ -208,6 +220,7 @@ echo "Setting package dir to $package_dir"
   # refactor accesswidener and mixin file names
   mv "$base"/src/main/resources/fabricmoddingtemplate.accesswidener "$base"/src/main/resources/"$mod_id".accesswidener
   mv "$base"/src/main/resources/fabricmoddingtemplate.mixins.json "$base"/src/main/resources/"$mod_id".mixins.json
+  mv "$base"/src/client/resources/fabricmoddingtemplate.client.mixins.json "$base"/src/client/resources/"$mod_id".client.mixins.json
 
   # refactor assets directory
   mv "$base"/src/main/resources/assets/fabricmoddingtemplate "$base"/src/main/resources/assets/"$mod_id"
@@ -236,11 +249,13 @@ echo "Setting package dir to $package_dir"
       ;;
     server)
       perl -0pi -e 's/\n\t\t"client": \[\n\t\t\t"[^"]+"\n\t\t\],//s; s/,\n\t\t"client": \[\n\t\t\t"[^"]+"\n\t\t\]//s' "$base"/src/main/resources/fabric.mod.json
+      perl -0pi -e 's/,\n\t\t\{\n\t\t\t"config": "[^"]+\.client\.mixins\.json",\n\t\t\t"environment": "client"\n\t\t\}//s' "$base"/src/main/resources/fabric.mod.json
       perl -0pi -e 's/\n\t\t"fabric-client-gametest": \[\n\t\t\t"[^"]+"\n\t\t\],//s; s/,\n\t\t"fabric-client-gametest": \[\n\t\t\t"[^"]+"\n\t\t\]//s' "$base"/src/gametest/resources/fabric.mod.json
       sed -i \
         -e '/splitEnvironmentSourceSets()/d' \
         -e '/sourceSet sourceSets.client/d' \
-        -e 's/enableClientGameTests = true/enableClientGameTests = false/' "$base"/build.gradle
+        -e '/enableClientGameTests = true/d' "$base"/build.gradle
+      perl -0pi -e 's/\n\tmods \{\n\t\t[^\n]+ \{\n\t\t\tsourceSet sourceSets\.main\n\t\t\}\n\t\}\n//s' "$base"/build.gradle
       perl -0pi -e 's/\n\tloom\.runs\.named\("clientGameTest"\) \{\n\t\trunDir = "build\/run\/clientGameTest"\n\t\}//s' "$base"/build.gradle
       perl -0pi -e 's/\n\/\/ BEGIN CLIENT GAMETEST RUN SETUP\n.*?\/\/ END CLIENT GAMETEST RUN SETUP\n//s' "$base"/build.gradle
       perl -0pi -e 's/common code in `src\/main`, client-only code in `src\/client`, and GameTests in `src\/gametest`/common code in `src\/main` and GameTests in `src\/gametest`/' "$base"/README.md
@@ -249,6 +264,7 @@ echo "Setting package dir to $package_dir"
       rm -f "$base"/src/gametest/java/"$package_dir"/"$mod_name"ClientGameTest.java
       rm -rf "$base"/src/client
       rm -f "$base"/run/options.txt
+      perl -0pi -e 's/\n  workflow_dispatch:\n    inputs:\n      run_client_gametests:\n        description: Run headless client GameTests\n        required: false\n        type: boolean\n        default: true/\n  workflow_dispatch:/s' "$base"/.github/workflows/build.yml
       perl -0pi -e 's/\n  client-gametests:\n.*\z/\n/s' "$base"/.github/workflows/build.yml
       ;;
     client)
@@ -259,13 +275,17 @@ echo "Setting package dir to $package_dir"
         -e 's/"environment": "\\*"/"environment": "client"/' \
         -e 's/"environment": "\*"/"environment": "client"/' "$base"/src/gametest/resources/fabric.mod.json
       perl -0pi -e 's/\n\t\t"fabric-gametest": \[\n\t\t\t"[^"]+"\n\t\t\],//s; s/,\n\t\t"fabric-gametest": \[\n\t\t\t"[^"]+"\n\t\t\]//s' "$base"/src/gametest/resources/fabric.mod.json
+      perl -0pi -e 's/\n\t\t"[^"]+\.mixins\.json",//s' "$base"/src/main/resources/fabric.mod.json
       sed -i \
+        -e '/splitEnvironmentSourceSets()/d' \
+        -e '/sourceSet sourceSets.client/d' \
         -e 's/enableGameTests = true/enableGameTests = false/' \
         -e 's/systemProperty "fabric.side", "server"/systemProperty "fabric.side", "client"/' "$base"/build.gradle
+      perl -0pi -e 's/\n\tmods \{\n\t\t[^\n]+ \{\n\t\t\tsourceSet sourceSets\.main\n\t\t\}\n\t\}\n//s' "$base"/build.gradle
       perl -0pi -e 's/\n\tloom\.runs\.named\("gameTest"\) \{\n\t\trunDir = "build\/run\/gameTest"\n\t\}//s' "$base"/build.gradle
       sed -i \
         -e 's/assertEquals(EnvType.SERVER/assertEquals(EnvType.CLIENT/' "$base"/src/test/java/"$package_dir"/"$mod_name"MetadataTest.java
-      perl -0pi -e 's/common code in `src\/main`, client-only code in `src\/client`, and GameTests in `src\/gametest`/common code in `src\/main`, client-only code in `src\/client`, and client-side GameTests in `src\/gametest`/' "$base"/README.md
+      perl -0pi -e 's/common code in `src\/main`, client-only code in `src\/client`, and GameTests in `src\/gametest`/client-only code in `src\/main` and client-side GameTests in `src\/gametest`/' "$base"/README.md
       sed -i '/launches the common\/server side/d' "$base"/README.md
       sed -i '/server command example/d' "$base"/README.md
       sed -i '/Plain unit tests for your own code, such as command registration/d' "$base"/README.md
@@ -273,12 +293,23 @@ echo "Setting package dir to $package_dir"
       sed -i \
         -e '/import .*command\.core\.ModCommands;/d' \
         -e '/ModCommands\.initialize();/d' "$base"/src/main/java/"$package_dir"/"$mod_name".java
-      rm -rf "$base"/src/main/java/"$package_dir"/command
-      rm -rf "$base"/src/test/java/"$package_dir"/command
-      rm -f "$base"/src/gametest/java/"$package_dir"/"$mod_name"GameTest.java
+	      rm -f "$base"/src/main/java/"$package_dir"/command/ExampleCommand.java
+	      rm -f "$base"/src/main/java/"$package_dir"/command/core/ModCommands.java
+	      rm -f "$base"/src/main/java/"$package_dir"/mixin/ExampleMixin.java
+	      rmdir --ignore-fail-on-non-empty "$base"/src/main/java/"$package_dir"/command/core "$base"/src/main/java/"$package_dir"/command
+	      rm -rf "$base"/src/test/java/"$package_dir"/command
+	      rm -f "$base"/src/gametest/java/"$package_dir"/"$mod_name"GameTest.java
+      rm -f "$base"/src/main/resources/"$mod_id".mixins.json
+      merge_tree "$base"/src/client/java "$base"/src/main/java
+      merge_tree "$base"/src/client/resources "$base"/src/main/resources
+      rm -rf "$base"/src/client
       ;;
   esac
 
+  perl -0pi -e 's/\n      - name: test Modrinth scripts\n        run: bash \.github\/scripts\/test_modrinth_scripts\.sh//s' "$base"/.github/workflows/build.yml
+  perl -0pi -e "s/\n      - name: smoke test generated templates\n        if: \\\$\\{\\{ hashFiles\\('init\\.sh'\\) != '' \\}\\}\n        run: bash \\.github\\/scripts\\/smoke_template_generation\\.sh//s" "$base"/.github/workflows/build.yml
+  rm -f "$base"/.github/scripts/smoke_template_generation.sh
+  rm -f "$base"/.github/scripts/test_modrinth_scripts.sh
   rm "$base"/.github/workflows/init.yml
   rm "$(readlink -f "$0")"
 )
