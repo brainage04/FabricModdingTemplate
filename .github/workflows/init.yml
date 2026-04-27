@@ -16,7 +16,7 @@ permissions:
   contents: write
 
 jobs:
-  cleanup:
+  initialize:
     name: "Initialize template repository"
     runs-on: ubuntu-24.04
     if: ${{ !github.event.repository.is_template }}
