@@ -3,7 +3,7 @@
 	"id": "${mod_id}",
 	"version": "${mod_version}",
 	"name": "${mod_name}",
-	"description": "My Fabric modding template.",
+	"description": "My Minecraft Fabric modding template.",
 	"authors": [
 		"brainage04"
 	],
