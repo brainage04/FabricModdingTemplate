@@ -1,6 +1,14 @@
 # About
 
-My template for Minecraft Fabric mods, with common code in `src/main`, client-only code in `src/client`, and GameTests in `src/gametest`. The easiest way to use this is to click `Use this template` and GitHub Actions will take care of the rest for you.
+My template for Minecraft Fabric mods, with common code in `src/main`, client-only code in `src/client`, and GameTests in `src/gametest`.
+
+The easiest way to use this is:
+
+1. Click `Use this template` and create your new repository.
+2. Open the new repository's `Actions` tab.
+3. Run the `Initialize Template Repo` workflow.
+4. Choose `both`, `server`, or `client` for the mod side.
+5. Optionally enter a mod name; if you leave it blank, the repository name is used.
 
 However, if you are using a Linux-based operating system, it is possible to clone this repository, and perform a refactor by triggering the `init.sh` script like so:
 
@@ -14,7 +22,7 @@ Use `--side=server` to generate a server-only repo and remove the client entrypo
 Use `--side=client` to generate a client-only repo and remove the dedicated-server GameTest path from the generated project.
 Generated packages always use `io.github.brainage04.<mod_id>`.
 
-This script is designed to work both with GitHub Actions and manual usage, and will safely delete:
+The workflow and script are designed to be run once. After successful initialization, they safely delete:
   - Leftover unused folders that are not tracked by Git (such as `src/main/java/io/github/brainage04/fabricmoddingtemplate`, `src/client/java/io/github/brainage04/fabricmoddingtemplate`, and `src/main/resources/fabricmoddingtemplate`).
   - The `init` workflow and script after successful execution.
 

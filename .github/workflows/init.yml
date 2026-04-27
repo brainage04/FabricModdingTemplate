@@ -1,6 +1,20 @@
 name: Initialize Template Repo
 on:
-  - push
+  workflow_dispatch:
+    inputs:
+      side:
+        description: Mod side to generate
+        required: true
+        type: choice
+        default: both
+        options:
+          - both
+          - server
+          - client
+      mod_name:
+        description: Mod/repository name; leave blank to use the repository name
+        required: false
+        type: string
 
 permissions:
   contents: write
@@ -18,20 +32,27 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y perl
       - name: Initialize Repo
+        env:
+          INIT_SIDE: ${{ inputs.side }}
+          INIT_MOD_NAME: ${{ inputs.mod_name }}
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
 
-          mod_name=$(echo "$GITHUB_REPOSITORY" | cut -d/ -f2)
-          ./init.sh --side=both "$mod_name"
+          mod_name="${INIT_MOD_NAME}"
+          if [ -z "$mod_name" ]; then
+            mod_name=$(echo "$GITHUB_REPOSITORY" | cut -d/ -f2)
+          fi
+
+          ./init.sh --side="$INIT_SIDE" "$mod_name"
 
           git add .
           git commit \
             -m "Initialize template repository" \
             -m "Set mod name to $mod_name" \
-            -m "Set mod side to both"
+            -m "Set mod side to $INIT_SIDE"
       - name: Push changes
         uses: ad-m/github-push-action@v1
         with:
-          branch: ${{ github.ref }}
+          branch: ${{ github.ref_name }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
