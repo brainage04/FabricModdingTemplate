@@ -8,7 +8,6 @@ The easiest way to use this is:
 2. Open the new repository's `Actions` tab.
 3. Run the `Initialize Template Repo` workflow.
 4. Choose `both`, `server`, or `client` for the mod side.
-5. Optionally enter a mod name; if you leave it blank, the repository name is used.
 
 However, if you are using a Linux-based operating system, it is possible to clone this repository, and perform a refactor by triggering the `init.sh` script like so:
 
@@ -20,7 +19,8 @@ Where `<mod_name>` is your GitHub repository name/mod name.
 The optional `--side` flag defaults to `both`.
 Use `--side=server` to generate a server-only repo and remove the client entrypoint/source set from the generated project.
 Use `--side=client` to generate a client-only repo and remove the dedicated-server GameTest path from the generated project.
-Generated packages always use `io.github.brainage04.<mod_id>`.
+When the GitHub Actions workflow initializes a template repository, it uses the repository name as `<mod_name>`.
+Generated packages always use `io.github.brainage04.<mod_id>`, where `<mod_id>` is sanitized from `<mod_name>` so it is safe for Fabric mod IDs and Java package names.
 
 The workflow and script are designed to be run once. After successful initialization, they safely delete:
   - Leftover unused folders that are not tracked by Git (such as `src/main/java/io/github/brainage04/fabricmoddingtemplate`, `src/client/java/io/github/brainage04/fabricmoddingtemplate`, and `src/main/resources/fabricmoddingtemplate`).

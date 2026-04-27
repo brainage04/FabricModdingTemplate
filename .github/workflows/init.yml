@@ -11,10 +11,6 @@ on:
           - both
           - server
           - client
-      mod_name:
-        description: Mod/repository name; leave blank to use the repository name
-        required: false
-        type: string
 
 permissions:
   contents: write
@@ -34,16 +30,11 @@ jobs:
       - name: Initialize Repo
         env:
           INIT_SIDE: ${{ inputs.side }}
-          INIT_MOD_NAME: ${{ inputs.mod_name }}
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
 
-          mod_name="${INIT_MOD_NAME}"
-          if [ -z "$mod_name" ]; then
-            mod_name=$(echo "$GITHUB_REPOSITORY" | cut -d/ -f2)
-          fi
-
+          mod_name=$(echo "$GITHUB_REPOSITORY" | cut -d/ -f2)
           ./init.sh --side="$INIT_SIDE" "$mod_name"
 
           git add .
