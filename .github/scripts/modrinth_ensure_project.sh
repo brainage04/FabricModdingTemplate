@@ -59,11 +59,24 @@ project_metadata_payload="$(
     '
       ($config[0]) as $config |
       ($mod[0]) as $mod |
+      def inferred_support:
+        if ($mod.environment // "*") == "client" then
+          { client_side: "required", server_side: "unsupported" }
+        elif ($mod.environment // "*") == "server" then
+          { client_side: "unsupported", server_side: "required" }
+        elif (($mod.entrypoints.client // []) | length) > 0 then
+          { client_side: "required", server_side: "required" }
+        else
+          { client_side: "unsupported", server_side: "required" }
+        end;
+      inferred_support as $support |
       {
         issues_url: ($config.issues_url // $mod.contact.issues // $issues_url),
         source_url: ($config.source_url // $mod.contact.sources // $mod.contact.homepage // $repo_url),
         wiki_url: ($config.wiki_url // $mod.contact.wiki // $default_wiki_url),
-        license_url: ($config.license_url // $default_license_url)
+        license_url: ($config.license_url // $default_license_url),
+        client_side: ($config.client_side // $support.client_side),
+        server_side: ($config.server_side // $support.server_side)
       }
       | with_entries(select(.value != null))
     '
@@ -91,7 +104,7 @@ else
           elif ($mod.environment // "*") == "server" then
             { client_side: "unsupported", server_side: "required" }
           elif (($mod.entrypoints.client // []) | length) > 0 then
-            { client_side: "optional", server_side: "optional" }
+            { client_side: "required", server_side: "required" }
           else
             { client_side: "unsupported", server_side: "required" }
           end;

@@ -227,7 +227,9 @@ jq -e '
   .source_url == $repo_url and
   .issues_url == ($repo_url + "/issues") and
   .wiki_url == ($repo_url + "/wiki") and
-  .license_url == ($repo_url + "/blob/HEAD/LICENSE")
+  .license_url == ($repo_url + "/blob/HEAD/LICENSE") and
+  .client_side == "required" and
+  .server_side == "required"
 ' --arg repo_url "$repo_url" "$stub_state/patch-project.json" >/dev/null
 
 jq -e '
