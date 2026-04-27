@@ -127,7 +127,7 @@ Side support is inferred from `fabric.mod.json`:
 
 - `environment=client`: `client_side=required`, `server_side=unsupported`
 - `environment=server`: `client_side=unsupported`, `server_side=required`
-- `environment=*` with a client entrypoint: `client_side=optional`, `server_side=optional`
+- `environment=*` with a client entrypoint: `client_side=required`, `server_side=required`
 - `environment=*` without a client entrypoint: `client_side=unsupported`, `server_side=required`
 
 You can still override the inferred values in `.modrinth/project.json` if needed.

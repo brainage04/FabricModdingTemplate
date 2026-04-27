@@ -10,9 +10,9 @@ sanitize_mod_id() {
   local value
 
   value=$(
-    printf '%s\n' "$1" \
-    | tr '[:upper:]' '[:lower:]' \
-    | sed -E 's/[^a-z0-9]+/_/g; s/^_+//; s/_+$//; s/_+/_/g'
+    printf '%s\n' "$1" |
+      tr '[:upper:]' '[:lower:]' |
+      sed -E 's/[^a-z0-9]+/_/g; s/^_+//; s/_+$//; s/_+/_/g'
   )
 
   if [ -z "$value" ]; then
@@ -28,8 +28,8 @@ sanitize_class_name() {
   local value
 
   value=$(
-    printf '%s\n' "$1" \
-    | awk '
+    printf '%s\n' "$1" |
+      awk '
       {
         gsub(/[^[:alnum:]]+/, " ")
         for (i = 1; i <= NF; i++) {
@@ -76,7 +76,7 @@ while [ "$#" -gt 0 ]; do
       side="$2"
       shift 2
       ;;
-    -h|--help)
+    -h | --help)
       usage
       exit 0
       ;;
@@ -98,8 +98,7 @@ if [ "${#positionals[@]}" -ne 1 ]; then
 fi
 
 case "$side" in
-  both|server|client)
-    ;;
+  both | server | client) ;;
   *)
     echo "Invalid side: $side"
     usage
@@ -112,10 +111,10 @@ echo "Updating $base"
 
 mod_name_raw="${positionals[0]}"
 mod_name_spaces=$(
-  printf '%s\n' "$mod_name_raw" \
-  | sed -E 's/([A-Z])/ \1/g' \
-  | sed -E 's/[^[:alnum:]]+/ /g' \
-  | sed -E 's/^ //'
+  printf '%s\n' "$mod_name_raw" |
+    sed -E 's/([A-Z])/ \1/g' |
+    sed -E 's/[^[:alnum:]]+/ /g' |
+    sed -E 's/^ //'
 )
 mod_name="$(sanitize_class_name "$mod_name_raw")"
 mod_id="$(sanitize_mod_id "$mod_name_raw")"
@@ -192,40 +191,40 @@ echo "Setting package dir to $package_dir"
   # earlier replacements. This matters when the new mod id contains the
   # template mod id as a prefix.
   find "${find_paths[@]}" -type f -exec sed -i \
-      -e "s/io\.github\.brainage04\.fabricmoddingtemplate/$package_name_placeholder/g" \
-      -e "s/fabricmoddingtemplate/$mod_id_replacement/g" \
-      -e "s/FabricModdingTemplate/$mod_name_replacement/g" \
-      -e "s/$package_name_placeholder/$package_name_replacement/g" {} +
+    -e "s/io\.github\.brainage04\.fabricmoddingtemplate/$package_name_placeholder/g" \
+    -e "s/fabricmoddingtemplate/$mod_id_replacement/g" \
+    -e "s/FabricModdingTemplate/$mod_name_replacement/g" \
+    -e "s/$package_name_placeholder/$package_name_replacement/g" {} +
 
   sed -i \
-      -E "s#https://github.com/brainage04/${mod_name_replacement}#${repo_url_replacement}#g" \
-      "$base/src/main/resources/fabric.mod.json"
+    -E "s#https://github.com/brainage04/${mod_name_replacement}#${repo_url_replacement}#g" \
+    "$base/src/main/resources/fabric.mod.json"
 
   sed -i \
-        -e "s/fabricmoddingtemplate/$mod_id_replacement/g" \
-        -e "s/FabricModdingTemplate/$mod_name_replacement/g" "$base/build.gradle"
+    -e "s/fabricmoddingtemplate/$mod_id_replacement/g" \
+    -e "s/FabricModdingTemplate/$mod_name_replacement/g" "$base/build.gradle"
 
   sed -i \
-      -e "s/io\.github\.brainage04\.fabricmoddingtemplate/$package_name_placeholder/g" \
-      -e "s/fabricmoddingtemplate/$mod_id_replacement/g" \
-      -e "s/FabricModdingTemplate/$mod_name_replacement/g" \
-      -e "s/$package_name_placeholder/$package_name_replacement/g" "$base/gradle.properties"
+    -e "s/io\.github\.brainage04\.fabricmoddingtemplate/$package_name_placeholder/g" \
+    -e "s/fabricmoddingtemplate/$mod_id_replacement/g" \
+    -e "s/FabricModdingTemplate/$mod_name_replacement/g" \
+    -e "s/$package_name_placeholder/$package_name_replacement/g" "$base/gradle.properties"
 
   sed -i \
-      -e "s#io/github/brainage04/fabricmoddingtemplate#$package_dir_placeholder#g" \
-      -e "s/fabricmoddingtemplate/$mod_id_replacement/g" \
-      -e "s/FabricModdingTemplate/$mod_name_replacement/g" \
-      -e "s#$package_dir_placeholder#$package_dir_replacement#g" "$base/README.md"
+    -e "s#io/github/brainage04/fabricmoddingtemplate#$package_dir_placeholder#g" \
+    -e "s/fabricmoddingtemplate/$mod_id_replacement/g" \
+    -e "s/FabricModdingTemplate/$mod_name_replacement/g" \
+    -e "s#$package_dir_placeholder#$package_dir_replacement#g" "$base/README.md"
 
   # refactor accesswidener and mixin file names
   mv "$base"/src/main/resources/fabricmoddingtemplate.accesswidener "$base"/src/main/resources/"$mod_id".accesswidener
   mv "$base"/src/main/resources/fabricmoddingtemplate.mixins.json "$base"/src/main/resources/"$mod_id".mixins.json
   mv "$base"/src/client/resources/fabricmoddingtemplate.client.mixins.json "$base"/src/client/resources/"$mod_id".client.mixins.json
 
-	  # refactor assets directory
-	  mv "$base"/src/main/resources/assets/fabricmoddingtemplate "$base"/src/main/resources/assets/"$mod_id"
-	  mv "$base"/src/client/resources/assets/fabricmoddingtemplate "$base"/src/client/resources/assets/"$mod_id"
-	  mv "$base"/src/gametest/resources/assets/fabricmoddingtemplate "$base"/src/gametest/resources/assets/"$mod_id"
+  # refactor assets directory
+  mv "$base"/src/main/resources/assets/fabricmoddingtemplate "$base"/src/main/resources/assets/"$mod_id"
+  mv "$base"/src/client/resources/assets/fabricmoddingtemplate "$base"/src/client/resources/assets/"$mod_id"
+  mv "$base"/src/gametest/resources/assets/fabricmoddingtemplate "$base"/src/gametest/resources/assets/"$mod_id"
 
   # rename main class
   mv "$base"/src/main/java/io/github/brainage04/fabricmoddingtemplate/FabricModdingTemplate.java "$base"/src/main/java/io/github/brainage04/fabricmoddingtemplate/"$mod_name".java
@@ -246,8 +245,7 @@ echo "Setting package dir to $package_dir"
   fi
 
   case "$side" in
-    both)
-      ;;
+    both) ;;
     server)
       perl -0pi -e 's/\n\t\t"client": \[\n\t\t\t"[^"]+"\n\t\t\],//s; s/,\n\t\t"client": \[\n\t\t\t"[^"]+"\n\t\t\]//s' "$base"/src/main/resources/fabric.mod.json
       perl -0pi -e 's/,\n\t\t\{\n\t\t\t"config": "[^"]+\.client\.mixins\.json",\n\t\t\t"environment": "client"\n\t\t\}//s' "$base"/src/main/resources/fabric.mod.json
@@ -262,13 +260,13 @@ echo "Setting package dir to $package_dir"
       perl -0pi -e 's/common code in `src\/main`, client-only code in `src\/client`, and GameTests in `src\/gametest`/common code in `src\/main` and GameTests in `src\/gametest`/' "$base"/README.md
       sed -i '/launches the client side/d' "$base"/README.md
       perl -0pi -e 's/For client-side GameTests, run:\n\n```shell\n\.\/gradlew runClientGameTest\n```\n\nThe template also includes a minimal client GameTest that boots the client, connects to an in-process dedicated server, and checks that the client initializer ran in an in-world context\.\nWhen you initialise with `--side=client`, the generated repo keeps this client GameTest path and removes the dedicated-server GameTest path\.\n\n//' "$base"/README.md
-	      rm -f "$base"/src/gametest/java/"$package_dir"/"$mod_name"ClientGameTest.java
-	      rm -rf "$base"/src/client
-	      rm -f "$base"/run/options.txt
-	      perl -0pi -e 's/\n  workflow_dispatch:\n    inputs:\n      run_client_gametests:\n        description: Run headless client GameTests\n        required: false\n        type: boolean\n        default: true/\n  workflow_dispatch:/s' "$base"/.github/workflows/build.yml
-	      perl -0pi -e 's/\n  client-gametests:\n.*\z/\n/s' "$base"/.github/workflows/build.yml
-	      perl -0pi -e 's/on:\n  pull_request:\n  push:\n  workflow_dispatch:/on: [pull_request, push, workflow_dispatch]/s' "$base"/.github/workflows/build.yml
-	      ;;
+      rm -f "$base"/src/gametest/java/"$package_dir"/"$mod_name"ClientGameTest.java
+      rm -rf "$base"/src/client
+      rm -f "$base"/run/options.txt
+      perl -0pi -e 's/\n  workflow_dispatch:\n    inputs:\n      run_client_gametests:\n        description: Run headless client GameTests\n        required: false\n        type: boolean\n        default: true/\n  workflow_dispatch:/s' "$base"/.github/workflows/build.yml
+      perl -0pi -e 's/\n  client-gametests:\n.*\z/\n/s' "$base"/.github/workflows/build.yml
+      perl -0pi -e 's/on:\n  pull_request:\n  push:\n  workflow_dispatch:/on: [pull_request, push, workflow_dispatch]/s' "$base"/.github/workflows/build.yml
+      ;;
     client)
       sed -i \
         -e 's/"environment": "\\*"/"environment": "client"/' \
@@ -277,33 +275,33 @@ echo "Setting package dir to $package_dir"
         -e 's/"environment": "\\*"/"environment": "client"/' \
         -e 's/"environment": "\*"/"environment": "client"/' "$base"/src/gametest/resources/fabric.mod.json
       perl -0pi -e 's/\n\t\t"fabric-gametest": \[\n\t\t\t"[^"]+"\n\t\t\],//s; s/,\n\t\t"fabric-gametest": \[\n\t\t\t"[^"]+"\n\t\t\]//s' "$base"/src/gametest/resources/fabric.mod.json
-	      perl -0pi -e 's/\n\t\t"[^"]+\.mixins\.json",//s' "$base"/src/main/resources/fabric.mod.json
-	      perl -0pi -e 's/\{\n\t\t\t"config": "([^"]+\.client\.mixins\.json)",\n\t\t\t"environment": "client"\n\t\t\}/"$1"/s' "$base"/src/main/resources/fabric.mod.json
-	      perl -0pi -e 's/\n\t\t"main": \[\n\t\t\t"[^"]+"\n\t\t\],//s; s/,\n\t\t"main": \[\n\t\t\t"[^"]+"\n\t\t\]//s' "$base"/src/main/resources/fabric.mod.json
-	      sed -i \
-	        -e "s/${mod_name_replacement}Client/${mod_name_replacement}/g" \
-	        "$base"/src/main/resources/fabric.mod.json \
-	        "$base"/src/gametest/resources/fabric.mod.json
-	      sed -i \
-	        -e '/splitEnvironmentSourceSets()/d' \
-	        -e '/sourceSet sourceSets.client/d' \
+      perl -0pi -e 's/\n\t\t"[^"]+\.mixins\.json",//s' "$base"/src/main/resources/fabric.mod.json
+      perl -0pi -e 's/\{\n\t\t\t"config": "([^"]+\.client\.mixins\.json)",\n\t\t\t"environment": "client"\n\t\t\}/"$1"/s' "$base"/src/main/resources/fabric.mod.json
+      perl -0pi -e 's/\n\t\t"main": \[\n\t\t\t"[^"]+"\n\t\t\],//s; s/,\n\t\t"main": \[\n\t\t\t"[^"]+"\n\t\t\]//s' "$base"/src/main/resources/fabric.mod.json
+      sed -i \
+        -e "s/${mod_name_replacement}Client/${mod_name_replacement}/g" \
+        "$base"/src/main/resources/fabric.mod.json \
+        "$base"/src/gametest/resources/fabric.mod.json
+      sed -i \
+        -e '/splitEnvironmentSourceSets()/d' \
+        -e '/sourceSet sourceSets.client/d' \
         -e 's/enableGameTests = true/enableGameTests = false/' \
         -e 's/systemProperty "fabric.side", "server"/systemProperty "fabric.side", "client"/' "$base"/build.gradle
       perl -0pi -e 's/\n\tmods \{\n\t\t[^\n]+ \{\n\t\t\tsourceSet sourceSets\.main\n\t\t\}\n\t\}\n//s' "$base"/build.gradle
       perl -0pi -e 's/\n\tloom\.runs\.named\("gameTest"\) \{\n\t\trunDir = "build\/run\/gameTest"\n\t\}//s' "$base"/build.gradle
-	      sed -i \
-	        -e 's/assertEquals(EnvType.SERVER/assertEquals(EnvType.CLIENT/' \
-	        -e 's/fabricLoaderBootsInServerModeForTests/fabricLoaderBootsInClientModeForTests/' \
-	        "$base"/src/test/java/"$package_dir"/"$mod_name"MetadataTest.java
+      sed -i \
+        -e 's/assertEquals(EnvType.SERVER/assertEquals(EnvType.CLIENT/' \
+        -e 's/fabricLoaderBootsInServerModeForTests/fabricLoaderBootsInClientModeForTests/' \
+        "$base"/src/test/java/"$package_dir"/"$mod_name"MetadataTest.java
       perl -0pi -e 's/common code in `src\/main`, client-only code in `src\/client`, and GameTests in `src\/gametest`/client-only code in `src\/main` and client-side GameTests in `src\/gametest`/' "$base"/README.md
       sed -i '/launches the common\/server side/d' "$base"/README.md
       sed -i '/server command example/d' "$base"/README.md
       sed -i '/Plain unit tests for your own code, such as command registration/d' "$base"/README.md
       perl -0pi -e 's/For integration-style server tests, run:\n\n```shell\n\.\/gradlew runGameTest\n```\n\nThe template includes a separate `src\/gametest` source set with a minimal server GameTest that checks the example command was registered on the server\.\nServer GameTests also run automatically as part of `\.\/gradlew build`, which is what the included GitHub Actions workflow executes\.\n\n//' "$base"/README.md
-	      sed -i \
-	        -e '/import .*command\.core\.ModCommands;/d' \
-	        -e '/ModCommands\.initialize();/d' "$base"/src/main/java/"$package_dir"/"$mod_name".java
-	      cat > "$base"/src/client/java/"$package_dir"/"$mod_name".java <<EOF
+      sed -i \
+        -e '/import .*command\.core\.ModCommands;/d' \
+        -e '/ModCommands\.initialize();/d' "$base"/src/main/java/"$package_dir"/"$mod_name".java
+      cat >"$base"/src/client/java/"$package_dir"/"$mod_name".java <<EOF
 package $package_name;
 
 import $package_name.command.core.ModCommands;
@@ -346,52 +344,52 @@ public class ${mod_name} implements ClientModInitializer {
     }
 }
 EOF
-	      rm -f "$base"/src/main/java/"$package_dir"/command/ExampleCommand.java
-	      rm -f "$base"/src/main/java/"$package_dir"/command/core/ModCommands.java
-	      rm -f "$base"/src/main/java/"$package_dir"/mixin/ExampleMixin.java
-	      rmdir --ignore-fail-on-non-empty "$base"/src/main/java/"$package_dir"/command/core "$base"/src/main/java/"$package_dir"/command
-	      rm -rf "$base"/src/test/java/"$package_dir"/command
-	      rm -f "$base"/src/main/java/"$package_dir"/"$mod_name".java
-	      rm -f "$base"/src/client/java/"$package_dir"/"$mod_name"Client.java
-	      rm -f "$base"/src/gametest/java/"$package_dir"/"$mod_name"GameTest.java
-	      rm -f "$base"/src/main/resources/"$mod_id".mixins.json
-	      merge_tree "$base"/src/client/java "$base"/src/main/java
-	      merge_tree "$base"/src/client/resources "$base"/src/main/resources
-	      rm -rf "$base"/src/client
-	      mv "$base"/src/main/java/"$package_dir"/command/ExampleClientCommand.java "$base"/src/main/java/"$package_dir"/command/ExampleCommand.java
-	      sed -i \
-	        -e 's/ExampleClientCommand/ExampleCommand/g' \
-	        -e 's/"exampleclient"/"example"/g' \
-	        -e 's/example client command/example command/g' \
-	        "$base"/src/main/java/"$package_dir"/command/ExampleCommand.java
-	      mv "$base"/src/main/java/"$package_dir"/command/core/ClientModCommands.java "$base"/src/main/java/"$package_dir"/command/core/ModCommands.java
-	      sed -i \
-	        -e 's/ClientModCommands/ModCommands/g' \
-	        -e 's/ExampleClientCommand/ExampleCommand/g' \
-	        "$base"/src/main/java/"$package_dir"/command/core/ModCommands.java
-	      mv "$base"/src/main/java/"$package_dir"/mixin/client/ExampleClientMixin.java "$base"/src/main/java/"$package_dir"/mixin/ExampleMixin.java
-	      rmdir --ignore-fail-on-non-empty "$base"/src/main/java/"$package_dir"/mixin/client
-	      sed -i \
-	        -e "s/package ${package_name_replacement}\\.mixin\\.client;/package ${package_name_replacement}.mixin;/" \
-	        -e 's/ExampleClientMixin/ExampleMixin/g' \
-	        "$base"/src/main/java/"$package_dir"/mixin/ExampleMixin.java
-	      sed -i \
-	        -e "s/${package_name_replacement}\\.mixin\\.client/${package_name_replacement}.mixin/g" \
-	        -e 's/ExampleClientMixin/ExampleMixin/g' \
-	        "$base"/src/main/resources/"$mod_id".client.mixins.json
-	      mv "$base"/src/gametest/java/"$package_dir"/"$mod_name"ClientGameTest.java "$base"/src/gametest/java/"$package_dir"/"$mod_name"GameTest.java
-	      sed -i \
-	        -e "s/${mod_name_replacement}ClientGameTest/${mod_name_replacement}GameTest/g" \
-	        -e "s/${mod_name_replacement}Client\\.isInitialized()/${mod_name_replacement}.isInitialized()/g" \
-	        "$base"/src/gametest/java/"$package_dir"/"$mod_name"GameTest.java
-	      ;;
-	  esac
+      rm -f "$base"/src/main/java/"$package_dir"/command/ExampleCommand.java
+      rm -f "$base"/src/main/java/"$package_dir"/command/core/ModCommands.java
+      rm -f "$base"/src/main/java/"$package_dir"/mixin/ExampleMixin.java
+      rmdir --ignore-fail-on-non-empty "$base"/src/main/java/"$package_dir"/command/core "$base"/src/main/java/"$package_dir"/command
+      rm -rf "$base"/src/test/java/"$package_dir"/command
+      rm -f "$base"/src/main/java/"$package_dir"/"$mod_name".java
+      rm -f "$base"/src/client/java/"$package_dir"/"$mod_name"Client.java
+      rm -f "$base"/src/gametest/java/"$package_dir"/"$mod_name"GameTest.java
+      rm -f "$base"/src/main/resources/"$mod_id".mixins.json
+      merge_tree "$base"/src/client/java "$base"/src/main/java
+      merge_tree "$base"/src/client/resources "$base"/src/main/resources
+      rm -rf "$base"/src/client
+      mv "$base"/src/main/java/"$package_dir"/command/ExampleClientCommand.java "$base"/src/main/java/"$package_dir"/command/ExampleCommand.java
+      sed -i \
+        -e 's/ExampleClientCommand/ExampleCommand/g' \
+        -e 's/"exampleclient"/"example"/g' \
+        -e 's/example client command/example command/g' \
+        "$base"/src/main/java/"$package_dir"/command/ExampleCommand.java
+      mv "$base"/src/main/java/"$package_dir"/command/core/ClientModCommands.java "$base"/src/main/java/"$package_dir"/command/core/ModCommands.java
+      sed -i \
+        -e 's/ClientModCommands/ModCommands/g' \
+        -e 's/ExampleClientCommand/ExampleCommand/g' \
+        "$base"/src/main/java/"$package_dir"/command/core/ModCommands.java
+      mv "$base"/src/main/java/"$package_dir"/mixin/client/ExampleClientMixin.java "$base"/src/main/java/"$package_dir"/mixin/ExampleMixin.java
+      rmdir --ignore-fail-on-non-empty "$base"/src/main/java/"$package_dir"/mixin/client
+      sed -i \
+        -e "s/package ${package_name_replacement}\\.mixin\\.client;/package ${package_name_replacement}.mixin;/" \
+        -e 's/ExampleClientMixin/ExampleMixin/g' \
+        "$base"/src/main/java/"$package_dir"/mixin/ExampleMixin.java
+      sed -i \
+        -e "s/${package_name_replacement}\\.mixin\\.client/${package_name_replacement}.mixin/g" \
+        -e 's/ExampleClientMixin/ExampleMixin/g' \
+        "$base"/src/main/resources/"$mod_id".client.mixins.json
+      mv "$base"/src/gametest/java/"$package_dir"/"$mod_name"ClientGameTest.java "$base"/src/gametest/java/"$package_dir"/"$mod_name"GameTest.java
+      sed -i \
+        -e "s/${mod_name_replacement}ClientGameTest/${mod_name_replacement}GameTest/g" \
+        -e "s/${mod_name_replacement}Client\\.isInitialized()/${mod_name_replacement}.isInitialized()/g" \
+        "$base"/src/gametest/java/"$package_dir"/"$mod_name"GameTest.java
+      ;;
+  esac
 
-	  perl -0pi -e 's/loom \{\n\n\taccessWidenerPath/loom {\n\taccessWidenerPath/s' "$base"/build.gradle
-	  perl -0pi -e 's/      - name: shellcheck scripts\n        run: \|\n          scripts=\(\.github\/scripts\/\*\.sh\)\n          if \[ -f init\.sh \]; then\n            scripts\+=\(init\.sh\)\n          fi\n          shellcheck "\$\{scripts\[@\]\}"/      - name: shellcheck scripts\n        run: shellcheck .github\/scripts\/*.sh/s' "$base"/.github/workflows/build.yml
-	  perl -0pi -e 's/\n      - name: test Modrinth scripts\n        run: bash \.github\/scripts\/test_modrinth_scripts\.sh//s' "$base"/.github/workflows/build.yml
-	  perl -0pi -e "s/\n      - name: smoke test generated templates\n        if: \\\$\\{\\{ hashFiles\\('init\\.sh'\\) != '' \\}\\}\n        run: bash \\.github\\/scripts\\/smoke_template_generation\\.sh//s" "$base"/.github/workflows/build.yml
-	  perl -0pi -e 's/\n{3,}/\n\n/g' "$base"/.github/workflows/build.yml
+  perl -0pi -e 's/loom \{\n\n\taccessWidenerPath/loom {\n\taccessWidenerPath/s' "$base"/build.gradle
+  perl -0pi -e 's/      - name: shellcheck scripts\n        run: \|\n          scripts=\(\.github\/scripts\/\*\.sh\)\n          if \[ -f init\.sh \]; then\n            scripts\+=\(init\.sh\)\n          fi\n          shellcheck "\$\{scripts\[@\]\}"/      - name: shellcheck scripts\n        run: shellcheck .github\/scripts\/*.sh/s' "$base"/.github/workflows/build.yml
+  perl -0pi -e 's/\n      - name: test Modrinth scripts\n        run: bash \.github\/scripts\/test_modrinth_scripts\.sh//s' "$base"/.github/workflows/build.yml
+  perl -0pi -e "s/\n      - name: smoke test generated templates\n        if: \\\$\\{\\{ hashFiles\\('init\\.sh'\\) != '' \\}\\}\n        run: bash \\.github\\/scripts\\/smoke_template_generation\\.sh//s" "$base"/.github/workflows/build.yml
+  perl -0pi -e 's/\n{3,}/\n\n/g' "$base"/.github/workflows/build.yml
   rm -f "$base"/.github/scripts/smoke_template_generation.sh
   rm -f "$base"/.github/scripts/test_modrinth_scripts.sh
   rm "$base"/.github/workflows/init.yml

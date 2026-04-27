@@ -31,6 +31,7 @@ bin/
 # fabric
 
 .fabric/
+mods/
 run/*
 !run/options.txt
 logs/

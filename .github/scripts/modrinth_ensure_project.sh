@@ -23,7 +23,7 @@ config_file="$MODRINTH_PROJECT_CONFIG"
 
 if [ ! -f "$config_file" ]; then
   config_file="$(mktemp)"
-  printf '{}\n' > "$config_file"
+  printf '{}\n' >"$config_file"
 fi
 
 mod_id="$(jq -r '.id' "$MODRINTH_FABRIC_MOD_JSON")"
@@ -167,4 +167,4 @@ if [ "$status" != "204" ]; then
   exit 1
 fi
 
-echo "MODRINTH_PROJECT_ID=${project_id}" >> "$GITHUB_ENV"
+echo "MODRINTH_PROJECT_ID=${project_id}" >>"$GITHUB_ENV"

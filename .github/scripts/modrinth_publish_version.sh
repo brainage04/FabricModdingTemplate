@@ -18,7 +18,7 @@ config_file="$MODRINTH_PROJECT_CONFIG"
 
 if [ ! -f "$config_file" ]; then
   config_file="$(mktemp)"
-  printf '{}\n' > "$config_file"
+  printf '{}\n' >"$config_file"
 fi
 
 mod_id="$(gradle_property mod_id)"
@@ -73,7 +73,7 @@ case "${release_tag,,}" in
   *alpha*)
     version_type="alpha"
     ;;
-  *beta*|*rc*|*pre*)
+  *beta* | *rc* | *pre*)
     version_type="beta"
     ;;
   *)
@@ -107,16 +107,16 @@ jq -nc \
     | map(. as $dependency | select((["minecraft", "java", "fabricloader"] | index($dependency.mod_id)) | not))
     | unique_by([.mod_id, (.override.dependency_type // .dependency_type)])
     | .[]
-  ' > "$dependency_entries_file"
+  ' >"$dependency_entries_file"
 
 inferred_dependencies_file="$(mktemp)"
 
 while IFS= read -r dependency_entry; do
-  mod_dependency_id="$(jq -r '.mod_id' <<< "$dependency_entry")"
-  dependency_type="$(jq -r '.override.dependency_type // .dependency_type' <<< "$dependency_entry")"
-  project_id_override="$(jq -r '.override.project_id // empty' <<< "$dependency_entry")"
-  project_slug_override="$(jq -r '.override.project_slug // empty' <<< "$dependency_entry")"
-  skip_dependency="$(jq -r '.override.skip // false' <<< "$dependency_entry")"
+  mod_dependency_id="$(jq -r '.mod_id' <<<"$dependency_entry")"
+  dependency_type="$(jq -r '.override.dependency_type // .dependency_type' <<<"$dependency_entry")"
+  project_id_override="$(jq -r '.override.project_id // empty' <<<"$dependency_entry")"
+  project_slug_override="$(jq -r '.override.project_slug // empty' <<<"$dependency_entry")"
+  skip_dependency="$(jq -r '.override.skip // false' <<<"$dependency_entry")"
 
   if [ "$skip_dependency" = "true" ]; then
     continue
@@ -145,8 +145,8 @@ while IFS= read -r dependency_entry; do
   jq -nc \
     --arg project_id "$resolved_dependency_project_id" \
     --arg dependency_type "$dependency_type" \
-    '{project_id: $project_id, dependency_type: $dependency_type}' >> "$inferred_dependencies_file"
-done < "$dependency_entries_file"
+    '{project_id: $project_id, dependency_type: $dependency_type}' >>"$inferred_dependencies_file"
+done <"$dependency_entries_file"
 
 if [ -s "$inferred_dependencies_file" ]; then
   inferred_dependencies="$(jq -s 'unique_by([.project_id, .dependency_type])' "$inferred_dependencies_file")"

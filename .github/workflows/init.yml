@@ -21,17 +21,15 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          
+
           mod_name=$(echo "$GITHUB_REPOSITORY" | cut -d/ -f2)
           ./init.sh --side=both "$mod_name"
-          
+
           git add .
-          git commit -F- <<EOF
-          Initialize template repository
-          
-          Set mod name to $mod_name
-          Set mod side to both
-          EOF
+          git commit \
+            -m "Initialize template repository" \
+            -m "Set mod name to $mod_name" \
+            -m "Set mod side to both"
       - name: Push changes
         uses: ad-m/github-push-action@v1
         with:

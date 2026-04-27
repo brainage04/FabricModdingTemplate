@@ -34,7 +34,7 @@ trap 'rm -rf "$tmp_root"' EXIT
 
 mkdir -p "$fake_bin" "$stub_state" "$release_jar_dir"
 
-cat > "$fake_bin/curl" <<'STUB'
+cat >"$fake_bin/curl" <<'STUB'
 #!/usr/bin/env bash
 
 set -euo pipefail
@@ -169,18 +169,18 @@ chmod +x "$fake_bin/curl"
     -e "s/\${mod_name}/$(sed_escape_replacement "$mod_name")/g" \
     -e "s/\${minecraft_version}/$(sed_escape_replacement "$minecraft_version")/g" \
     -e "s/\${loader_version}/$(sed_escape_replacement "$loader_version")/g" \
-    src/main/resources/fabric.mod.json > build/resources/main/fabric.mod.json
+    src/main/resources/fabric.mod.json >build/resources/main/fabric.mod.json
 
   touch "$release_jar_dir/${archives_base_name}-${mod_version}.jar"
 
   PATH="$fake_bin:$PATH" \
-  MODRINTH_STUB_DIR="$stub_state" \
-  MODRINTH_STUB_PROJECT_SLUG="$mod_id" \
-  MODRINTH_STUB_PROJECT_ID="$project_id_for_test" \
-  MODRINTH_API="https://modrinth.test/v2" \
-  MODRINTH_TOKEN="stub-token" \
-  GITHUB_REPOSITORY="$repo_for_test" \
-  GITHUB_ENV="$github_env" \
+    MODRINTH_STUB_DIR="$stub_state" \
+    MODRINTH_STUB_PROJECT_SLUG="$mod_id" \
+    MODRINTH_STUB_PROJECT_ID="$project_id_for_test" \
+    MODRINTH_API="https://modrinth.test/v2" \
+    MODRINTH_TOKEN="stub-token" \
+    GITHUB_REPOSITORY="$repo_for_test" \
+    GITHUB_ENV="$github_env" \
     bash ./.github/scripts/modrinth_ensure_project.sh
 
   set -a
@@ -189,22 +189,22 @@ chmod +x "$fake_bin/curl"
   set +a
 
   PATH="$fake_bin:$PATH" \
-  MODRINTH_STUB_DIR="$stub_state" \
-  MODRINTH_STUB_PROJECT_SLUG="$mod_id" \
-  MODRINTH_STUB_PROJECT_ID="$project_id_for_test" \
-  MODRINTH_API="https://modrinth.test/v2" \
-  MODRINTH_RELEASE_JAR_DIR="$release_jar_dir" \
-  MODRINTH_TOKEN="stub-token" \
-  GITHUB_REPOSITORY="$repo_for_test" \
-  RELEASE_TAG="v${mod_version}" \
-  RELEASE_BODY="Smoke Modrinth release" \
-  RELEASE_PRERELEASE="false" \
+    MODRINTH_STUB_DIR="$stub_state" \
+    MODRINTH_STUB_PROJECT_SLUG="$mod_id" \
+    MODRINTH_STUB_PROJECT_ID="$project_id_for_test" \
+    MODRINTH_API="https://modrinth.test/v2" \
+    MODRINTH_RELEASE_JAR_DIR="$release_jar_dir" \
+    MODRINTH_TOKEN="stub-token" \
+    GITHUB_REPOSITORY="$repo_for_test" \
+    RELEASE_TAG="v${mod_version}" \
+    RELEASE_BODY="Smoke Modrinth release" \
+    RELEASE_PRERELEASE="false" \
     bash ./.github/scripts/modrinth_publish_version.sh
 
-  printf '%s\n' "$mod_id" > "$stub_state/expected-mod-id"
-  printf '%s\n' "$mod_version" > "$stub_state/expected-mod-version"
-  printf '%s\n' "$repo_for_test" > "$stub_state/expected-repo"
-  printf '%s\n' "$project_id_for_test" > "$stub_state/expected-project-id"
+  printf '%s\n' "$mod_id" >"$stub_state/expected-mod-id"
+  printf '%s\n' "$mod_version" >"$stub_state/expected-mod-version"
+  printf '%s\n' "$repo_for_test" >"$stub_state/expected-repo"
+  printf '%s\n' "$project_id_for_test" >"$stub_state/expected-project-id"
 )
 
 mod_id="$(cat "$stub_state/expected-mod-id")"
