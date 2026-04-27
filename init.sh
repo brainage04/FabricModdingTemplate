@@ -387,6 +387,7 @@ EOF
 
   perl -0pi -e 's/loom \{\n\n\taccessWidenerPath/loom {\n\taccessWidenerPath/s' "$base"/build.gradle
   perl -0pi -e 's/      - name: shellcheck scripts\n        run: \|\n          scripts=\(\.github\/scripts\/\*\.sh\)\n          if \[ -f init\.sh \]; then\n            scripts\+=\(init\.sh\)\n          fi\n          shellcheck "\$\{scripts\[@\]\}"/      - name: shellcheck scripts\n        run: shellcheck .github\/scripts\/*.sh/s' "$base"/.github/workflows/build.yml
+  perl -0pi -e 's/      - name: format check scripts\n        run: \|\n          scripts=\(\.github\/scripts\/\*\.sh\)\n          if \[ -f init\.sh \]; then\n            scripts\+=\(init\.sh\)\n          fi\n          shfmt -d -i 2 -ci "\$\{scripts\[@\]\}"/      - name: format check scripts\n        run: shfmt -d -i 2 -ci .github\/scripts\/*.sh/s' "$base"/.github/workflows/build.yml
   perl -0pi -e 's/\n      - name: test Modrinth scripts\n        run: bash \.github\/scripts\/test_modrinth_scripts\.sh//s' "$base"/.github/workflows/build.yml
   perl -0pi -e "s/\n      - name: smoke test generated templates\n        if: \\\$\\{\\{ hashFiles\\('init\\.sh'\\) != '' \\}\\}\n        run: bash \\.github\\/scripts\\/smoke_template_generation\\.sh//s" "$base"/.github/workflows/build.yml
   perl -0pi -e 's/\n{3,}/\n\n/g' "$base"/.github/workflows/build.yml

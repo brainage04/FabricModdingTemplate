@@ -55,6 +55,21 @@ For client-side GameTests, run:
 The template also includes a minimal client GameTest that boots the client, connects to an in-process dedicated server, and checks that the client initializer ran in an in-world context.
 When you initialise with `--side=client`, the generated repo keeps this client GameTest path and removes the dedicated-server GameTest path.
 
+On Ubuntu, local headless client GameTests need Xvfb and the same OpenGL/windowing libraries that the GitHub Actions workflow installs:
+
+```shell
+sudo apt-get update
+sudo apt-get install -y xvfb mesa-utils libflite1 libgl1-mesa-dri libglx-mesa0 libxi6 libxrandr2 libxrender1 libxtst6 libxinerama1 libxcursor1 libxxf86vm1
+```
+
+Run the client GameTest through Xvfb:
+
+```shell
+ALSOFT_DRIVERS=null LIBGL_ALWAYS_SOFTWARE=1 \
+xvfb-run -a --server-args="-screen 0 1280x720x24" \
+./gradlew --no-daemon runClientGameTest
+```
+
 # Publishing
 
 Release automation is documented in [docs/RELEASE.md](docs/RELEASE.md).

@@ -48,6 +48,20 @@ if [ -n "$icon_rel_path" ]; then
   icon_path="src/main/resources/${icon_rel_path}"
 fi
 
+# shellcheck disable=SC2016
+inferred_support_jq='
+  def inferred_support($mod):
+    if ($mod.environment // "*") == "client" then
+      { client_side: "required", server_side: "unsupported" }
+    elif ($mod.environment // "*") == "server" then
+      { client_side: "unsupported", server_side: "required" }
+    elif (($mod.entrypoints.client // []) | length) > 0 then
+      { client_side: "required", server_side: "required" }
+    else
+      { client_side: "unsupported", server_side: "required" }
+    end;
+'
+
 project_metadata_payload="$(
   jq -n \
     --arg repo_url "$repo_url" \
@@ -56,20 +70,10 @@ project_metadata_payload="$(
     --arg default_license_url "$default_license_url" \
     --slurpfile config "$config_file" \
     --slurpfile mod "$MODRINTH_FABRIC_MOD_JSON" \
-    '
+    "$inferred_support_jq"'
       ($config[0]) as $config |
       ($mod[0]) as $mod |
-      def inferred_support:
-        if ($mod.environment // "*") == "client" then
-          { client_side: "required", server_side: "unsupported" }
-        elif ($mod.environment // "*") == "server" then
-          { client_side: "unsupported", server_side: "required" }
-        elif (($mod.entrypoints.client // []) | length) > 0 then
-          { client_side: "required", server_side: "required" }
-        else
-          { client_side: "unsupported", server_side: "required" }
-        end;
-      inferred_support as $support |
+      inferred_support($mod) as $support |
       {
         issues_url: ($config.issues_url // $mod.contact.issues // $issues_url),
         source_url: ($config.source_url // $mod.contact.sources // $mod.contact.homepage // $repo_url),
@@ -95,20 +99,10 @@ else
       --rawfile body "$MODRINTH_PROJECT_BODY" \
       --slurpfile config "$config_file" \
       --slurpfile mod "$MODRINTH_FABRIC_MOD_JSON" \
-      '
+      "$inferred_support_jq"'
         ($config[0]) as $config |
         ($mod[0]) as $mod |
-        def inferred_support:
-          if ($mod.environment // "*") == "client" then
-            { client_side: "required", server_side: "unsupported" }
-          elif ($mod.environment // "*") == "server" then
-            { client_side: "unsupported", server_side: "required" }
-          elif (($mod.entrypoints.client // []) | length) > 0 then
-            { client_side: "required", server_side: "required" }
-          else
-            { client_side: "unsupported", server_side: "required" }
-          end;
-        inferred_support as $support |
+        inferred_support($mod) as $support |
         {
           slug: ($config.slug // $mod.id),
           title: ($config.title // $mod.name),
