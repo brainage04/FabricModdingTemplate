@@ -121,7 +121,7 @@ smoke_side() {
   local target="$tmp_root/$side/FabricModdingTemplate-${side}_42"
   local package_dir="io/github/brainage04/fabricmoddingtemplate_${side}_42"
   local package_name="io.github.brainage04.fabricmoddingtemplate_${side}_42"
-  local main_class="Fabricmoddingtemplate${side^}42"
+  local main_class="FabricModdingTemplate${side^}42"
   local mod_id="fabricmoddingtemplate_${side}_42"
   local -a build_args
 
@@ -250,6 +250,29 @@ smoke_side() {
   )
 }
 
+smoke_camel_case_name() {
+  local target="$tmp_root/camel/MinecraftDesignStudio"
+  local package_dir="io/github/brainage04/minecraftdesignstudio"
+  local package_name="io.github.brainage04.minecraftdesignstudio"
+  local main_class="MinecraftDesignStudio"
+
+  echo "Testing init.sh preserves camel-case class names"
+  copy_template "$target"
+
+  (
+    cd "$target"
+
+    ./init.sh --side=client "MinecraftDesignStudio"
+
+    assert_path_exists "src/main/java/${package_dir}/${main_class}.java"
+    assert_path_exists "src/test/java/${package_dir}/${main_class}MetadataTest.java"
+    assert_path_exists "src/gametest/java/${package_dir}/${main_class}GameTest.java"
+    assert_json_string src/main/resources/fabric.mod.json '.entrypoints.client[0]' "${package_name}.${main_class}"
+    assert_json_string src/gametest/resources/fabric.mod.json '.entrypoints["fabric-client-gametest"][0]' "${package_name}.${main_class}GameTest"
+    assert_no_match 'Minecraftdesignstudio' src build.gradle gradle.properties README.md
+  )
+}
+
 require_command rg
 require_command jq
 require_command tar
@@ -261,5 +284,6 @@ trap 'rm -rf "$tmp_root" /tmp/template-smoke-rg.out' EXIT
 smoke_side both
 smoke_side server
 smoke_side client
+smoke_camel_case_name
 
 echo "Template generation smoke tests passed."

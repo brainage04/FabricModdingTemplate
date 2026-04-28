@@ -33,7 +33,7 @@ sanitize_class_name() {
       {
         gsub(/[^[:alnum:]]+/, " ")
         for (i = 1; i <= NF; i++) {
-          word = tolower($i)
+          word = $i
           out = out toupper(substr(word, 1, 1)) substr(word, 2)
         }
       }
