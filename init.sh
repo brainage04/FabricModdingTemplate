@@ -61,6 +61,7 @@ sed_escape_path_replacement() {
 
 side="both"
 positionals=()
+preserve_workflows="${INIT_PRESERVE_WORKFLOWS:-false}"
 
 while [ "$#" -gt 0 ]; do
   case "$1" in
@@ -135,6 +136,9 @@ echo "Setting mod id to $mod_id"
 echo "Setting side to $side"
 echo "Setting package name to $package_name"
 echo "Setting package dir to $package_dir"
+if [ "$preserve_workflows" = "true" ]; then
+  echo "Preserving GitHub Actions workflow files"
+fi
 
 (
   if [ "${INIT_TRACE:-false}" = "true" ]; then
@@ -263,9 +267,11 @@ echo "Setting package dir to $package_dir"
       rm -f "$base"/src/gametest/java/"$package_dir"/"$mod_name"ClientGameTest.java
       rm -rf "$base"/src/client
       rm -f "$base"/run/options.txt
-      perl -0pi -e 's/\n  workflow_dispatch:\n    inputs:\n      run_client_gametests:\n        description: Run headless client GameTests\n        required: false\n        type: boolean\n        default: true/\n  workflow_dispatch:/s' "$base"/.github/workflows/build.yml
-      perl -0pi -e 's/\n  client-gametests:\n.*\z/\n/s' "$base"/.github/workflows/build.yml
-      perl -0pi -e 's/on:\n  pull_request:\n  push:\n  workflow_dispatch:/on: [pull_request, push, workflow_dispatch]/s' "$base"/.github/workflows/build.yml
+      if [ "$preserve_workflows" != "true" ]; then
+        perl -0pi -e 's/\n  workflow_dispatch:\n    inputs:\n      run_client_gametests:\n        description: Run headless client GameTests\n        required: false\n        type: boolean\n        default: true/\n  workflow_dispatch:/s' "$base"/.github/workflows/build.yml
+        perl -0pi -e 's/\n  client-gametests:\n.*\z/\n/s' "$base"/.github/workflows/build.yml
+        perl -0pi -e 's/on:\n  pull_request:\n  push:\n  workflow_dispatch:/on: [pull_request, push, workflow_dispatch]/s' "$base"/.github/workflows/build.yml
+      fi
       ;;
     client)
       sed -i \
@@ -386,14 +392,17 @@ EOF
   esac
 
   perl -0pi -e 's/loom \{\n\n\taccessWidenerPath/loom {\n\taccessWidenerPath/s' "$base"/build.gradle
-  perl -0pi -e 's/      - name: shellcheck scripts\n        run: \|\n          scripts=\(\.github\/scripts\/\*\.sh\)\n          if \[ -f init\.sh \]; then\n            scripts\+=\(init\.sh\)\n          fi\n          shellcheck "\$\{scripts\[@\]\}"/      - name: shellcheck scripts\n        run: shellcheck .github\/scripts\/*.sh/s' "$base"/.github/workflows/build.yml
-  perl -0pi -e 's/      - name: format check scripts\n        run: \|\n          scripts=\(\.github\/scripts\/\*\.sh\)\n          if \[ -f init\.sh \]; then\n            scripts\+=\(init\.sh\)\n          fi\n          shfmt -d -i 2 -ci "\$\{scripts\[@\]\}"/      - name: format check scripts\n        run: shfmt -d -i 2 -ci .github\/scripts\/*.sh/s' "$base"/.github/workflows/build.yml
-  perl -0pi -e 's/\n      - name: test Modrinth scripts\n        run: bash \.github\/scripts\/test_modrinth_scripts\.sh//s' "$base"/.github/workflows/build.yml
-  perl -0pi -e "s/\n      - name: smoke test generated templates\n        if: \\\$\\{\\{ hashFiles\\('init\\.sh'\\) != '' \\}\\}\n        run: bash \\.github\\/scripts\\/smoke_template_generation\\.sh//s" "$base"/.github/workflows/build.yml
-  perl -0pi -e 's/\n{3,}/\n\n/g' "$base"/.github/workflows/build.yml
+  if [ "$preserve_workflows" != "true" ]; then
+    perl -0pi -e 's/\n      # BEGIN TEMPLATE SCRIPT CHECKS\n.*?\n      # END TEMPLATE SCRIPT CHECKS\n//s' "$base"/.github/workflows/build.yml
+    perl -0pi -e 's/\n      # BEGIN TEMPLATE MODRINTH SCRIPT TESTS\n.*?\n      # END TEMPLATE MODRINTH SCRIPT TESTS\n//s' "$base"/.github/workflows/build.yml
+    perl -0pi -e 's/\n      # BEGIN TEMPLATE SMOKE TESTS\n.*?\n      # END TEMPLATE SMOKE TESTS\n//s' "$base"/.github/workflows/build.yml
+    perl -0pi -e 's/\n{3,}/\n\n/g' "$base"/.github/workflows/build.yml
+  fi
   rm -f "$base"/.github/scripts/smoke_template_generation.sh
   rm -f "$base"/.github/scripts/test_modrinth_scripts.sh
-  rm "$base"/.github/workflows/init.yml
+  if [ "$preserve_workflows" != "true" ]; then
+    rm "$base"/.github/workflows/init.yml
+  fi
   rm "$(readlink -f "$0")"
 )
 

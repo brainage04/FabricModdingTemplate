@@ -24,7 +24,12 @@ Generated packages always use `io.github.brainage04.<mod_id>`, where `<mod_id>` 
 
 The workflow and script are designed to be run once. After successful initialization, they safely delete:
   - Leftover unused folders that are not tracked by Git (such as `src/main/java/io/github/brainage04/fabricmoddingtemplate`, `src/client/java/io/github/brainage04/fabricmoddingtemplate`, and `src/main/resources/fabricmoddingtemplate`).
-  - The `init` workflow and script after successful execution.
+  - The `init` script after successful execution.
+
+GitHub Actions initialization preserves files under `.github/workflows`.
+The workflow uses GitHub's generated `GITHUB_TOKEN`, which can push normal repository content but cannot update workflow files.
+This means repositories initialized through Actions keep the one-shot `init` workflow file, but `init.sh` is deleted and the workflow should not be run again.
+If you run `init.sh` locally and push with your own Git credentials, the script also removes the one-shot `init` workflow and simplifies the build workflow for the generated project.
 
 For local development after initialisation:
   - Use the Java version configured by `java_version` in `gradle.properties` (`25` by default) or newer for Gradle and Minecraft.

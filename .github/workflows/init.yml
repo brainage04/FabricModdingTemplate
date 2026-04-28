@@ -30,6 +30,7 @@ jobs:
       - name: Initialize Repo
         env:
           INIT_SIDE: ${{ inputs.side }}
+          INIT_PRESERVE_WORKFLOWS: "true"
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
