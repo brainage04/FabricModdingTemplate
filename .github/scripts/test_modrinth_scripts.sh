@@ -27,12 +27,13 @@ repo_root="$(cd "$(dirname "$0")/../.." && pwd)"
 tmp_root="$(mktemp -d "${TMPDIR:-/tmp}/modrinth-script-test.XXXXXX")"
 fake_bin="$tmp_root/bin"
 stub_state="$tmp_root/state"
+default_stub_state="$tmp_root/default-state"
 github_env="$tmp_root/github-env"
 release_jar_dir="$tmp_root/build-libs"
 
 trap 'rm -rf "$tmp_root"' EXIT
 
-mkdir -p "$fake_bin" "$stub_state" "$release_jar_dir"
+mkdir -p "$fake_bin" "$stub_state" "$default_stub_state" "$release_jar_dir"
 
 cat >"$fake_bin/curl" <<'STUB'
 #!/usr/bin/env bash
@@ -183,6 +184,17 @@ chmod +x "$fake_bin/curl"
     GITHUB_ENV="$github_env" \
     bash ./.github/scripts/modrinth_ensure_project.sh
 
+  env -u GITHUB_ENV \
+    PATH="$fake_bin:$PATH" \
+    MODRINTH_STUB_DIR="$default_stub_state" \
+    MODRINTH_STUB_PROJECT_SLUG="$mod_id" \
+    MODRINTH_STUB_PROJECT_ID="$project_id_for_test" \
+    MODRINTH_API="https://modrinth.test/v2" \
+    MODRINTH_PROJECT_CONFIG="$tmp_root/missing-project.json" \
+    MODRINTH_TOKEN="stub-token" \
+    GITHUB_REPOSITORY="$repo_for_test" \
+    bash ./.github/scripts/modrinth_ensure_project.sh
+
   set -a
   # shellcheck disable=SC1090
   . "$github_env"
@@ -215,6 +227,7 @@ repo_url="https://github.com/${repo_for_test}"
 
 jq -e '
   .slug == $mod_id and
+  .categories == ["library"] and
   .source_url == $repo_url and
   .issues_url == ($repo_url + "/issues") and
   .wiki_url == ($repo_url + "/wiki") and
@@ -222,6 +235,11 @@ jq -e '
   .discord_url == "https://discord.gg/N4zfhBx8Fm" and
   .initial_versions == []
 ' --arg mod_id "$mod_id" --arg repo_url "$repo_url" "$stub_state/create-project.json" >/dev/null
+
+jq -e '
+  .slug == $mod_id and
+  .categories == ["utility"]
+' --arg mod_id "$mod_id" "$default_stub_state/create-project.json" >/dev/null
 
 jq -e '
   .source_url == $repo_url and
