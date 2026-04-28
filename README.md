@@ -27,7 +27,7 @@ The workflow and script are designed to be run once. After successful initializa
   - The `init` workflow and script after successful execution.
 
 For local development after initialisation:
-  - Use Java 25 or newer for Gradle and Minecraft.
+  - Use the Java version configured by `java_version` in `gradle.properties` (`25` by default) or newer for Gradle and Minecraft.
   - `./gradlew runServer` launches the common/server side when you keep `--side=both` or choose `--side=server`.
   - `./gradlew runClient` launches the client side when you keep `--side=both` or choose `--side=client`.
   - Mod Menu is included as a development dependency and a minimal `modmenu` entrypoint is kept in the generated mod metadata so you can test the integration during local client development without having to re-add it by hand.
