@@ -29,6 +29,7 @@ fi
 mod_id="$(jq -r '.id' "$MODRINTH_FABRIC_MOD_JSON")"
 project_slug="$(jq -r --arg mod_id "$mod_id" '.slug // $mod_id' "$config_file")"
 repo_url="https://github.com/${GITHUB_REPOSITORY}"
+repo_description="$(github_repository_description)"
 issues_url="${repo_url}/issues"
 default_wiki_url="${repo_url}/wiki"
 license_path="LICENSE"
@@ -68,6 +69,8 @@ project_metadata_payload="$(
     --arg issues_url "$issues_url" \
     --arg default_wiki_url "$default_wiki_url" \
     --arg default_license_url "$default_license_url" \
+    --arg repo_description "$repo_description" \
+    --rawfile body "$MODRINTH_PROJECT_BODY" \
     --slurpfile config "$config_file" \
     --slurpfile mod "$MODRINTH_FABRIC_MOD_JSON" \
     "$inferred_support_jq"'
@@ -75,6 +78,8 @@ project_metadata_payload="$(
       ($mod[0]) as $mod |
       inferred_support($mod) as $support |
       {
+        description: (if $repo_description != "" then $repo_description else ($config.description // $mod.description) end),
+        body: $body,
         issues_url: ($config.issues_url // $mod.contact.issues // $issues_url),
         source_url: ($config.source_url // $mod.contact.sources // $mod.contact.homepage // $repo_url),
         wiki_url: ($config.wiki_url // $mod.contact.wiki // $default_wiki_url),
@@ -87,8 +92,10 @@ project_metadata_payload="$(
 )"
 
 if project_id="$(resolve_project_id "$project_slug")"; then
+  project_created="false"
   echo "Modrinth project already exists: ${project_id}"
 else
+  project_created="true"
   project_payload="$(
     jq -n \
       --arg repo_url "$repo_url" \
@@ -96,6 +103,7 @@ else
       --arg default_wiki_url "$default_wiki_url" \
       --arg default_license_url "$default_license_url" \
       --arg discord_url "$MODRINTH_DISCORD_URL" \
+      --arg repo_description "$repo_description" \
       --rawfile body "$MODRINTH_PROJECT_BODY" \
       --slurpfile config "$config_file" \
       --slurpfile mod "$MODRINTH_FABRIC_MOD_JSON" \
@@ -106,7 +114,7 @@ else
         {
           slug: ($config.slug // $mod.id),
           title: ($config.title // $mod.name),
-          description: ($config.description // $mod.description),
+          description: (if $repo_description != "" then $repo_description else ($config.description // $mod.description) end),
           body: $body,
           categories: (if ($config.categories // [] | length) > 0 then $config.categories else ["utility"] end),
           client_side: ($config.client_side // $support.client_side),
@@ -163,4 +171,5 @@ fi
 
 if [ -n "${GITHUB_ENV:-}" ]; then
   echo "MODRINTH_PROJECT_ID=${project_id}" >>"$GITHUB_ENV"
+  echo "MODRINTH_PROJECT_CREATED=${project_created}" >>"$GITHUB_ENV"
 fi

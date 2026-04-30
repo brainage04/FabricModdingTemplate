@@ -157,6 +157,7 @@ jobs:
         if: steps.config.outputs.enabled == 'true'
         env:
           GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_REPOSITORY_DESCRIPTION: ${{ github.event.repository.description }}
           MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
         run: ./.github/scripts/modrinth_ensure_project.sh
 
@@ -165,7 +166,19 @@ jobs:
         env:
           GITHUB_REPOSITORY: ${{ github.repository }}
           MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
-        run: ./.github/scripts/modrinth_sync_project_icon.sh
+        run: |
+          if [ "${MODRINTH_PROJECT_CREATED:-false}" = "true" ]; then
+            echo "Skipping Modrinth project icon sync because the project was just created with the icon."
+            echo "MODRINTH_ICON_SYNC_FAILED=false" >> "$GITHUB_ENV"
+            exit 0
+          fi
+
+          if ./.github/scripts/modrinth_sync_project_icon.sh; then
+            echo "MODRINTH_ICON_SYNC_FAILED=false" >> "$GITHUB_ENV"
+          else
+            echo "::error::Modrinth project icon sync failed; continuing so version publishing can still run."
+            echo "MODRINTH_ICON_SYNC_FAILED=true" >> "$GITHUB_ENV"
+          fi
 
       - name: publish Modrinth version
         if: steps.config.outputs.enabled == 'true'
@@ -176,3 +189,11 @@ jobs:
           RELEASE_BODY: ${{ needs.release.outputs.release_body }}
           RELEASE_PRERELEASE: ${{ contains(github.ref_name, '-') }}
         run: ./.github/scripts/modrinth_publish_version.sh
+
+      - name: fail if Modrinth project icon sync failed
+        if: always() && steps.config.outputs.enabled == 'true'
+        run: |
+          if [ "${MODRINTH_ICON_SYNC_FAILED:-false}" = "true" ]; then
+            echo "Modrinth project icon sync failed earlier in this job. Metadata sync and version publishing were still allowed to run."
+            exit 1
+          fi

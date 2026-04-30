@@ -7,6 +7,7 @@ set -euo pipefail
 
 require_command curl
 require_command jq
+require_command sha1sum
 require_env GITHUB_REPOSITORY MODRINTH_TOKEN
 
 config_file="$MODRINTH_PROJECT_CONFIG"
@@ -81,10 +82,28 @@ if [ "$icon_size" -gt "$max_icon_bytes" ]; then
   exit 1
 fi
 
-if ! project_id="$(resolve_project_id "$project_slug")"; then
+project_response_file="$(mktemp)"
+project_status="$(modrinth_request GET "/project/${project_slug}" "$project_response_file")"
+
+if [ "$project_status" = "404" ]; then
   echo "Could not resolve Modrinth project for slug ${project_slug}." >&2
   exit 1
+elif [ "$project_status" != "200" ]; then
+  echo "Unexpected Modrinth response while fetching project ${project_slug}: HTTP ${project_status}" >&2
+  cat "$project_response_file" >&2
+  exit 1
 fi
+
+project_id="$(jq -r '.id' "$project_response_file")"
+current_icon_url="$(jq -r '.icon_url // empty' "$project_response_file")"
+icon_sha1="$(sha1sum "$upload_icon_path" | awk '{ print $1 }')"
+
+case "$current_icon_url" in
+  *"/${icon_sha1}_"* | *"/${icon_sha1}."*)
+    echo "Modrinth project icon already matches ${icon_path}; skipping icon sync."
+    exit 0
+    ;;
+esac
 
 response_file="$(mktemp)"
 status="$(modrinth_request PATCH "/project/${project_id}/icon?ext=${icon_ext}" "$response_file" \

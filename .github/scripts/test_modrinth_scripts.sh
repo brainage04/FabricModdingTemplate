@@ -98,7 +98,11 @@ version_path="${project_path}/version?include_changelog=false"
 if [ "${method} ${path}" = "GET ${project_path}" ]; then
     if [ -f "$MODRINTH_STUB_DIR/project-created" ]; then
       status="200"
-      body="{\"id\":\"${MODRINTH_STUB_PROJECT_ID}\"}"
+      if [ -n "${MODRINTH_STUB_PROJECT_ICON_URL:-}" ]; then
+        body="{\"id\":\"${MODRINTH_STUB_PROJECT_ID}\",\"icon_url\":\"${MODRINTH_STUB_PROJECT_ICON_URL}\"}"
+      else
+        body="{\"id\":\"${MODRINTH_STUB_PROJECT_ID}\"}"
+      fi
     else
       status="404"
       body='{"error":"not found"}'
@@ -112,6 +116,10 @@ elif [ "${method} ${path}" = "PATCH ${project_path}" ]; then
     status="204"
     body=""
     printf '%s\n' "$payload" > "$MODRINTH_STUB_DIR/patch-project.json"
+elif [ "${method} ${path}" = "PATCH /project/${MODRINTH_STUB_PROJECT_ID}/icon?ext=png" ]; then
+    status="204"
+    body=""
+    printf '%s\n' "$payload" > "$MODRINTH_STUB_DIR/patch-icon.txt"
 elif [ "${method} ${path}" = "GET ${version_path}" ]; then
     status="200"
     body='[]'
@@ -161,6 +169,7 @@ chmod +x "$fake_bin/curl"
   loader_version="$(gradle_property loader_version)"
   archives_base_name="$(gradle_property archives_base_name)"
   repo_for_test="${GITHUB_REPOSITORY:-brainage04/FabricModdingTemplate}"
+  repo_description_for_test="GitHub repository description for Modrinth"
   project_id_for_test="${mod_id}-project"
 
   mkdir -p build/resources/main
@@ -181,6 +190,7 @@ chmod +x "$fake_bin/curl"
     MODRINTH_API="https://modrinth.test/v2" \
     MODRINTH_TOKEN="stub-token" \
     GITHUB_REPOSITORY="$repo_for_test" \
+    GITHUB_REPOSITORY_DESCRIPTION="$repo_description_for_test" \
     GITHUB_ENV="$github_env" \
     bash ./.github/scripts/modrinth_ensure_project.sh
 
@@ -195,12 +205,17 @@ chmod +x "$fake_bin/curl"
     GITHUB_REPOSITORY="$repo_for_test" \
     bash ./.github/scripts/modrinth_ensure_project.sh
 
-  set -a
-  # shellcheck disable=SC1090
-  . "$github_env"
-  set +a
+set -a
+# shellcheck disable=SC1090
+. "$github_env"
+set +a
 
-  PATH="$fake_bin:$PATH" \
+if [ "${MODRINTH_PROJECT_CREATED:-}" != "true" ]; then
+  echo "Expected MODRINTH_PROJECT_CREATED=true in GITHUB_ENV" >&2
+  exit 1
+fi
+
+PATH="$fake_bin:$PATH" \
     MODRINTH_STUB_DIR="$stub_state" \
     MODRINTH_STUB_PROJECT_SLUG="$mod_id" \
     MODRINTH_STUB_PROJECT_ID="$project_id_for_test" \
@@ -213,20 +228,37 @@ chmod +x "$fake_bin/curl"
     RELEASE_PRERELEASE="false" \
     bash ./.github/scripts/modrinth_publish_version.sh
 
+  icon_path="src/main/resources/assets/${mod_id}/icon.png"
+  icon_sha1="$(sha1sum "$icon_path" | awk '{ print $1 }')"
+
+  PATH="$fake_bin:$PATH" \
+    MODRINTH_STUB_DIR="$stub_state" \
+    MODRINTH_STUB_PROJECT_SLUG="$mod_id" \
+    MODRINTH_STUB_PROJECT_ID="$project_id_for_test" \
+    MODRINTH_STUB_PROJECT_ICON_URL="https://cdn.modrinth.test/data/${project_id_for_test}/${icon_sha1}_96.webp" \
+    MODRINTH_API="https://modrinth.test/v2" \
+    MODRINTH_TOKEN="stub-token" \
+    GITHUB_REPOSITORY="$repo_for_test" \
+    bash ./.github/scripts/modrinth_sync_project_icon.sh
+
   printf '%s\n' "$mod_id" >"$stub_state/expected-mod-id"
   printf '%s\n' "$mod_version" >"$stub_state/expected-mod-version"
   printf '%s\n' "$repo_for_test" >"$stub_state/expected-repo"
+  printf '%s\n' "$repo_description_for_test" >"$stub_state/expected-repo-description"
   printf '%s\n' "$project_id_for_test" >"$stub_state/expected-project-id"
 )
 
 mod_id="$(cat "$stub_state/expected-mod-id")"
 mod_version="$(cat "$stub_state/expected-mod-version")"
 repo_for_test="$(cat "$stub_state/expected-repo")"
+repo_description_for_test="$(cat "$stub_state/expected-repo-description")"
 project_id_for_test="$(cat "$stub_state/expected-project-id")"
 repo_url="https://github.com/${repo_for_test}"
 
 jq -e '
   .slug == $mod_id and
+  .description == $repo_description and
+  .body == $readme_body and
   .categories == ["library"] and
   .source_url == $repo_url and
   .issues_url == ($repo_url + "/issues") and
@@ -234,7 +266,7 @@ jq -e '
   .license_url == ($repo_url + "/blob/HEAD/LICENSE") and
   .discord_url == "https://discord.gg/N4zfhBx8Fm" and
   .initial_versions == []
-' --arg mod_id "$mod_id" --arg repo_url "$repo_url" "$stub_state/create-project.json" >/dev/null
+' --arg mod_id "$mod_id" --arg repo_url "$repo_url" --arg repo_description "$repo_description_for_test" --rawfile readme_body README.md "$stub_state/create-project.json" >/dev/null
 
 jq -e '
   .slug == $mod_id and
@@ -242,13 +274,15 @@ jq -e '
 ' --arg mod_id "$mod_id" "$default_stub_state/create-project.json" >/dev/null
 
 jq -e '
+  .description == $repo_description and
+  .body == $readme_body and
   .source_url == $repo_url and
   .issues_url == ($repo_url + "/issues") and
   .wiki_url == ($repo_url + "/wiki") and
   .license_url == ($repo_url + "/blob/HEAD/LICENSE") and
   .client_side == "required" and
   .server_side == "required"
-' --arg repo_url "$repo_url" "$stub_state/patch-project.json" >/dev/null
+' --arg repo_url "$repo_url" --arg repo_description "$repo_description_for_test" --rawfile readme_body README.md "$stub_state/patch-project.json" >/dev/null
 
 jq -e '
   .project_id == $project_id and
@@ -257,5 +291,10 @@ jq -e '
   (.dependencies | any(.project_id == "fabric-api-project" and .dependency_type == "required")) and
   (.dependencies | any(.project_id == "fzzy-config-project" and .dependency_type == "required"))
 ' --arg project_id "$project_id_for_test" --arg mod_version "$mod_version" "$stub_state/create-version.json" >/dev/null
+
+if [ -f "$stub_state/patch-icon.txt" ]; then
+  echo "Expected Modrinth icon sync to skip when icon hash already matches" >&2
+  exit 1
+fi
 
 echo "Modrinth script tests passed."

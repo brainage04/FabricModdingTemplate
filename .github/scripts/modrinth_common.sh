@@ -45,6 +45,20 @@ release_field() {
   jq -r "$jq_filter // empty" "$GITHUB_EVENT_PATH"
 }
 
+github_repository_description() {
+  if [ -n "${GITHUB_REPOSITORY_DESCRIPTION:-}" ]; then
+    printf '%s\n' "$GITHUB_REPOSITORY_DESCRIPTION"
+    return 0
+  fi
+
+  if [ -n "${GITHUB_EVENT_PATH:-}" ] && [ -f "${GITHUB_EVENT_PATH}" ]; then
+    jq -r '.repository.description // empty' "$GITHUB_EVENT_PATH"
+    return 0
+  fi
+
+  echo ""
+}
+
 modrinth_request() {
   local method="$1"
   local path="$2"
