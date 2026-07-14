@@ -49,6 +49,11 @@ dependencies {
 		exclude group: "com.terraformersmc", module: "modmenu"
 	}
 
+	productionRuntimeMods("me.fzzyhmstrs:fzzy_config:${project.fzzy_config_version}") {
+		exclude group: "com.terraformersmc", module: "modmenu"
+	}
+	productionRuntimeMods "maven.modrinth:modmenu:${project.modmenu_version}"
+
 	// FabricModdingConventions
 	implementation "io.github.brainage04:fabricmoddingconventions:${project.fabricmoddingconventions_version}"
 }
@@ -78,7 +83,6 @@ fabricApi {
 
 productionGameTests {
 	enabled = true
-	runtimeModDependencies.add("me.fzzyhmstrs:fzzy_config:${project.fzzy_config_version}")
 }
 
 tasks.named("processGametestResources") {
