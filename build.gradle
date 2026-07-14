@@ -20,7 +20,7 @@ repositories {
 	maven { url = "https://pkgs.dev.azure.com/djtheredstoner/DevAuth/_packaging/public/maven/v1" }
 
 	// ModMenu
-	maven { url "https://maven.terraformersmc.com/" }
+	maven { url "https://api.modrinth.com/maven/" }
 
 	// Fzzy Config
 	maven { url = "https://maven.fzzyhmstrs.me/" }
@@ -42,10 +42,12 @@ dependencies {
 	runtimeOnly("me.djtheredstoner:DevAuth-fabric:1.2.2")
 
 	// ModMenu
-	implementation "com.terraformersmc:modmenu:${project.modmenu_version}"
+	implementation "maven.modrinth:modmenu:${project.modmenu_version}"
 
 	// Fzzy Config
-	implementation "me.fzzyhmstrs:fzzy_config:${project.fzzy_config_version}"
+	implementation("me.fzzyhmstrs:fzzy_config:${project.fzzy_config_version}") {
+		exclude group: "com.terraformersmc", module: "modmenu"
+	}
 
 	// FabricModdingConventions
 	implementation "io.github.brainage04:fabricmoddingconventions:${project.fabricmoddingconventions_version}"
