@@ -205,17 +205,17 @@ chmod +x "$fake_bin/curl"
     GITHUB_REPOSITORY="$repo_for_test" \
     bash ./.github/scripts/modrinth_ensure_project.sh
 
-set -a
-# shellcheck disable=SC1090
-. "$github_env"
-set +a
+  set -a
+  # shellcheck disable=SC1090
+  . "$github_env"
+  set +a
 
-if [ "${MODRINTH_PROJECT_CREATED:-}" != "true" ]; then
-  echo "Expected MODRINTH_PROJECT_CREATED=true in GITHUB_ENV" >&2
-  exit 1
-fi
+  if [ "${MODRINTH_PROJECT_CREATED:-}" != "true" ]; then
+    echo "Expected MODRINTH_PROJECT_CREATED=true in GITHUB_ENV" >&2
+    exit 1
+  fi
 
-PATH="$fake_bin:$PATH" \
+  PATH="$fake_bin:$PATH" \
     MODRINTH_STUB_DIR="$stub_state" \
     MODRINTH_STUB_PROJECT_SLUG="$mod_id" \
     MODRINTH_STUB_PROJECT_ID="$project_id_for_test" \
