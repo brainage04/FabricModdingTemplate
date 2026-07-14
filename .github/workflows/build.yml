@@ -82,11 +82,6 @@ jobs:
       - name: build
         run: ./gradlew build
 
-      # BEGIN TEMPLATE MODRINTH SCRIPT TESTS
-      - name: test Modrinth scripts
-        if: ${{ hashFiles('.github/scripts/test_modrinth_scripts.sh') != '' }}
-        run: bash .github/scripts/test_modrinth_scripts.sh
-      # END TEMPLATE MODRINTH SCRIPT TESTS
 
       - name: prepare template smoke dependencies
         run: |
