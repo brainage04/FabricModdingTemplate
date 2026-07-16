@@ -174,10 +174,10 @@ smoke_side() {
       assert_path_exists "src/main/resources/${mod_id}.mixins.json"
       assert_match '^on: \[pull_request, push, workflow_dispatch\]$' .github/workflows/build.yml
       assert_no_match 'client-gametests:|runClientGameTest|run_client_gametests' .github/workflows/build.yml
-      assert_match 'io.github.brainage04.fabric-mod-conventions' build.gradle
+      assert_no_match 'io\.github\.brainage04\.fabric-mod-conventions' build.gradle
       assert_match 'io.github.brainage04.production-gametests' build.gradle
-      assert_no_match "id 'io\.github\.brainage04\.fabric-conventions'|io\.github\.brainage04\.client-gametest-recorder" build.gradle
-      assert_no_match 'prepareClientGameTestRun|CLIENT GAMETEST RUN SETUP|clientGameTestRunDir|client-fabric-conventions|clientGameTestRecorder|splitEnvironmentSourceSets|sourceSets\.client|enableClientGameTests|workspaceDependencies|workspace-dependencies|siblingMaven' build.gradle
+      assert_no_match 'io\.github\.brainage04\.client-gametest-recorder' build.gradle
+      assert_no_match 'prepareClientGameTestRun|CLIENT GAMETEST RUN SETUP|clientGameTestRunDir|clientGameTestRecorder|splitEnvironmentSourceSets|sourceSets\.client|enableClientGameTests|workspaceDependencies|workspace-dependencies|siblingMaven' build.gradle
       assert_json_compact src/main/resources/fabric.mod.json '.entrypoints' "{\"main\":[\"${package_name}.${main_class}\"]}"
       assert_json_compact src/main/resources/fabric.mod.json '.mixins' "[\"${mod_id}.mixins.json\"]"
       assert_json_compact src/gametest/resources/fabric.mod.json '.entrypoints' "{\"fabric-gametest\":[\"${package_name}.${main_class}GameTest\"]}"
@@ -195,10 +195,9 @@ smoke_side() {
       assert_path_exists "src/client/resources/assets/${mod_id}/lang/en_us.json"
       assert_match 'client-gametests:' .github/workflows/build.yml
       assert_match 'runClientGameTest' .github/workflows/build.yml
-      assert_match 'io.github.brainage04.fabric-mod-conventions' build.gradle
+      assert_no_match 'io\.github\.brainage04\.fabric-mod-conventions' build.gradle
       assert_match 'io.github.brainage04.client-gametest-recorder' build.gradle
       assert_match 'io.github.brainage04.production-gametests' build.gradle
-      assert_no_match "id 'io\.github\.brainage04\.fabric-conventions'" build.gradle
       assert_match 'io.github.brainage04.workspace-dependencies' build.gradle
       assert_match 'siblingMaven\("FabricModdingConventions"\)' build.gradle
       assert_json_compact src/main/resources/fabric.mod.json '.entrypoints | to_entries | sort_by(.key) | from_entries' "{\"client\":[\"${package_name}.${main_class}Client\"],\"main\":[\"${package_name}.${main_class}\"]}"
@@ -222,10 +221,9 @@ smoke_side() {
       assert_path_exists "src/main/resources/assets/${mod_id}/lang/en_us.json"
       assert_match 'client-gametests:' .github/workflows/build.yml
       assert_match 'runClientGameTest' .github/workflows/build.yml
-      assert_match 'io.github.brainage04.fabric-mod-conventions' build.gradle
+      assert_no_match 'io\.github\.brainage04\.fabric-mod-conventions' build.gradle
       assert_match 'io.github.brainage04.client-gametest-recorder' build.gradle
       assert_match 'io.github.brainage04.production-gametests' build.gradle
-      assert_no_match "id 'io\.github\.brainage04\.fabric-conventions'" build.gradle
       assert_match 'io.github.brainage04.workspace-dependencies' build.gradle
       assert_match 'siblingMaven\("FabricModdingConventions"\)' build.gradle
       assert_no_match 'splitEnvironmentSourceSets|sourceSets\.client' build.gradle
