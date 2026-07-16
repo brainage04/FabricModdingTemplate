@@ -18,6 +18,7 @@ Local initialization requires `jq`; metadata changes are applied as validated JS
 
 Where `<mod_name>` is your GitHub repository name/mod name.
 The optional `--side` flag defaults to `both`.
+The script records the choice as `mod_side=both|client|server`; the convention plugins derive Loom source sets and GameTest tasks from that property.
 Use `--side=server` to generate a server-only repo and remove the client entrypoint/source set from the generated project.
 Use `--side=client` to generate a client-only repo and remove the dedicated-server GameTest path from the generated project.
 When the GitHub Actions workflow initializes a template repository, it uses the repository name as `<mod_name>`.
@@ -30,7 +31,7 @@ The workflow and script are designed to be run once. After successful initializa
 GitHub Actions initialization preserves files under `.github/workflows`.
 The workflow uses GitHub's generated `GITHUB_TOKEN`, which can push normal repository content but cannot update workflow files.
 This means repositories initialized through Actions keep the one-shot `init` workflow file, but `init.sh` is deleted and the workflow should not be run again.
-If you run `init.sh` locally and push with your own Git credentials, the script also removes the one-shot `init` workflow and simplifies the build workflow for the generated project.
+If you run `init.sh` locally and push with your own Git credentials, the script also removes the one-shot `init` workflow. The shared client-GameTest workflow remains in every generated repository and skips execution when `mod_side=server`.
 
 For local development after initialisation:
   - Use the Java version configured by `java_version` in `gradle.properties` (`25` by default) or newer for Gradle and Minecraft.

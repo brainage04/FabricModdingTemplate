@@ -1,16 +1,8 @@
 plugins {
-	id 'maven-publish'
 	id 'io.github.brainage04.client-gametest-recorder' version "${fabricmoddingconventions_version}"
 	id 'io.github.brainage04.production-gametests' version "${fabricmoddingconventions_version}"
 	id 'io.github.brainage04.workspace-dependencies' version "${fabricmoddingconventions_version}"
 	id 'io.github.brainage04.mod-publishing' version "${fabricmoddingconventions_version}"
-}
-
-version = project.mod_version
-group = project.maven_group
-
-base {
-	archivesName = project.archives_base_name
 }
 
 repositories {
@@ -33,11 +25,6 @@ workspaceDependencies {
 }
 
 dependencies {
-	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-	implementation "net.fabricmc:fabric-loader:${project.loader_version}"
-	implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
-	testImplementation "net.fabricmc:fabric-loader-junit:${project.loader_version}"
-
 	// DevAuth
 	runtimeOnly("me.djtheredstoner:DevAuth-fabric:1.2.2")
 
@@ -53,69 +40,11 @@ dependencies {
 		exclude group: "com.terraformersmc", module: "modmenu"
 	}
 	productionRuntimeMods "maven.modrinth:modmenu:${project.modmenu_version}"
-
-	// FabricModdingConventions
-	implementation "io.github.brainage04:fabricmoddingconventions:${project.fabricmoddingconventions_version}"
 }
 
-loom {
-	splitEnvironmentSourceSets()
-
-	mods {
-		fabricmoddingtemplate {
-			sourceSet sourceSets.main
-			sourceSet sourceSets.client
-		}
+pluginManager.withPlugin("io.github.brainage04.client-gametest-recorder") {
+	clientGameTestRecorder {
+		fullscreen.set("false")
+		guiScale.set("3")
 	}
-
-	accessWidenerPath = file("src/main/resources/fabricmoddingtemplate.accesswidener")
-}
-
-fabricApi {
-	configureTests {
-		createSourceSet = true
-		modId = "${project.mod_id}-gametest"
-		enableGameTests = true
-		enableClientGameTests = true
-		eula = true
-	}
-}
-
-productionGameTests {
-	enabled = true
-	runtimeModDependencies.add("io.github.brainage04:fabricmoddingconventions:${project.fabricmoddingconventions_version}")
-}
-
-tasks.named("processGametestResources") {
-	inputs.property "mod_id", project.properties.mod_id
-	inputs.property "mod_version", project.version
-	inputs.property "mod_name", project.properties.mod_name
-
-	filesMatching("fabric.mod.json") {
-		expand([
-				"mod_id": inputs.properties.mod_id,
-				"mod_version": inputs.properties.mod_version,
-				"mod_name": inputs.properties.mod_name,
-		])
-	}
-}
-
-
-clientGameTestRecorder {
-	fullscreen.set("false")
-	guiScale.set("3")
-}
-
-publishing {
-    publications {
-        create("mavenJava", MavenPublication) {
-            artifactId = project.archives_base_name
-            from components.java
-        }
-    }
-}
-
-test {
-	useJUnitPlatform()
-	systemProperty "fabric.side", "server"
 }

@@ -262,11 +262,9 @@ fi
     --arg package_name "$package_name" \
     --arg main_class "$mod_name"
 
-  sed -i \
-    -e "s/fabricmoddingtemplate/$mod_id_replacement/g" \
-    -e "s/FabricModdingTemplate/$mod_name_replacement/g" "$base/build.gradle"
 
   sed -i \
+    -e "s/^mod_side=.*/mod_side=$side/" \
     -e "s/io\.github\.brainage04\.fabricmoddingtemplate/$package_name_placeholder/g" \
     -e "s/fabricmoddingtemplate/$mod_id_replacement/g" \
     -e "s/FabricModdingTemplate/$mod_name_replacement/g" \
@@ -316,17 +314,7 @@ fi
       rewrite_json "$base"/src/gametest/resources/fabric.mod.json '
 			del(.entrypoints["fabric-client-gametest"])
 		'
-      sed -i \
-        -e '/splitEnvironmentSourceSets()/d' \
-        -e '/sourceSet sourceSets.client/d' \
-        -e '/enableClientGameTests = true/d' "$base"/build.gradle
-      sed -i '/io\.github\.brainage04\.client-gametest-recorder/d' "$base"/build.gradle
-      perl -0pi -e 's/\n\tmods \{\n\t\t[^\n]+ \{\n\t\t\tsourceSet sourceSets\.main\n\t\t\}\n\t\}\n//s' "$base"/build.gradle
-      perl -0pi -e 's/\n\tloom\.runs\.named\("clientGameTest"\) \{\n\t\trunDir = "build\/run\/clientGameTest"\n\t\}//s' "$base"/build.gradle
-      perl -0pi -e 's/\nclientGameTestRecorder \{\n.*?\n\}\n//s' "$base"/build.gradle
-      perl -0pi -e 's/\n\t\/\/ FabricModdingConventions\n\timplementation "[^"]*fabricmoddingconventions:[^"]+"\n//s' "$base"/build.gradle
-      sed -i '/io\.github\.brainage04\.workspace-dependencies/d' "$base"/build.gradle
-      perl -0pi -e 's/\nworkspaceDependencies \{\n\tsiblingMaven\("FabricModdingConventions"\) \{\n\t\tcoordinate\.set\("[^"]+"\)\n\t\}\n\}\n//s' "$base"/build.gradle
+      sed -i "/^[[:space:]]*id 'io\.github\.brainage04\.client-gametest-recorder' version/d" "$base"/build.gradle
       rm -f "$base"/scripts/run-client-gametest-recorded.sh
       rmdir --ignore-fail-on-non-empty "$base"/scripts 2>/dev/null || true
       perl -0pi -e 's/common code in `src\/main`, client-only code in `src\/client`, and GameTests in `src\/gametest`/common code in `src\/main` and GameTests in `src\/gametest`/' "$base"/README.md
@@ -335,11 +323,6 @@ fi
       rm -f "$base"/src/gametest/java/"$package_dir"/"$mod_name"ClientGameTest.java
       rm -rf "$base"/src/client
       rm -f "$base"/run/options.txt
-      if [ "$preserve_workflows" != "true" ]; then
-        perl -0pi -e 's/\n  workflow_dispatch:\n    inputs:\n      run_client_gametests:\n        description: Run headless client GameTests\n        required: false\n        type: boolean\n        default: true/\n  workflow_dispatch:/s' "$base"/.github/workflows/build.yml
-        perl -0pi -e 's/\n  client-gametests:\n.*\z/\n/s' "$base"/.github/workflows/build.yml
-        perl -0pi -e 's/on:\n  pull_request:\n  push:\n  workflow_dispatch:/on: [pull_request, push, workflow_dispatch]/s' "$base"/.github/workflows/build.yml
-      fi
       ;;
     client)
       rewrite_json "$base"/src/main/resources/fabric.mod.json '
@@ -357,13 +340,6 @@ fi
 			| .entrypoints["fabric-client-gametest"] |= map(sub("ClientGameTest$"; "GameTest"))
 			| del(.entrypoints["fabric-gametest"])
 		'
-      sed -i \
-        -e '/splitEnvironmentSourceSets()/d' \
-        -e '/sourceSet sourceSets.client/d' \
-        -e 's/enableGameTests = true/enableGameTests = false/' \
-        -e 's/systemProperty "fabric.side", "server"/systemProperty "fabric.side", "client"/' "$base"/build.gradle
-      perl -0pi -e 's/\n\tmods \{\n\t\t[^\n]+ \{\n\t\t\tsourceSet sourceSets\.main\n\t\t\}\n\t\}\n//s' "$base"/build.gradle
-      perl -0pi -e 's/\n\tloom\.runs\.named\("gameTest"\) \{\n\t\trunDir = "build\/run\/gameTest"\n\t\}//s' "$base"/build.gradle
       sed -i \
         -e 's/assertEquals(EnvType.SERVER/assertEquals(EnvType.CLIENT/' \
         -e 's/fabricLoaderBootsInServerModeForTests/fabricLoaderBootsInClientModeForTests/' \
@@ -460,7 +436,6 @@ EOF
       ;;
   esac
 
-  perl -0pi -e 's/loom \{\n\n\taccessWidenerPath/loom {\n\taccessWidenerPath/s' "$base"/build.gradle
   if [ "$preserve_workflows" != "true" ]; then
     perl -0pi -e 's/\n      # BEGIN TEMPLATE SCRIPT CHECKS\n.*?\n      # END TEMPLATE SCRIPT CHECKS\n//s' "$base"/.github/workflows/build.yml
     perl -0pi -e 's/\n      # BEGIN TEMPLATE MODRINTH SCRIPT TESTS\n.*?\n      # END TEMPLATE MODRINTH SCRIPT TESTS\n//s' "$base"/.github/workflows/build.yml

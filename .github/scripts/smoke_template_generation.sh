@@ -172,12 +172,13 @@ smoke_side() {
       assert_path_missing "scripts/run-client-gametest-recorded.sh"
       assert_path_missing "src/gametest/java/${package_dir}/${main_class}ClientGameTest.java"
       assert_path_exists "src/main/resources/${mod_id}.mixins.json"
-      assert_match '^on: \[pull_request, push, workflow_dispatch\]$' .github/workflows/build.yml
-      assert_no_match 'client-gametests:|runClientGameTest|run_client_gametests' .github/workflows/build.yml
+      assert_match 'reusable-client-gametests\.yml@' .github/workflows/build.yml
+      assert_no_match 'runClientGameTest' .github/workflows/build.yml
       assert_no_match 'io\.github\.brainage04\.fabric-mod-conventions' build.gradle
       assert_match 'io.github.brainage04.production-gametests' build.gradle
-      assert_no_match 'io\.github\.brainage04\.client-gametest-recorder' build.gradle
-      assert_no_match 'prepareClientGameTestRun|CLIENT GAMETEST RUN SETUP|clientGameTestRunDir|clientGameTestRecorder|splitEnvironmentSourceSets|sourceSets\.client|enableClientGameTests|workspaceDependencies|workspace-dependencies|siblingMaven' build.gradle
+      assert_no_match "^[[:space:]]*id 'io\.github\.brainage04\.client-gametest-recorder'" build.gradle
+      assert_match 'pluginManager\.withPlugin\("io\.github\.brainage04\.client-gametest-recorder"\)' build.gradle
+      assert_no_match 'prepareClientGameTestRun|CLIENT GAMETEST RUN SETUP|clientGameTestRunDir|splitEnvironmentSourceSets|sourceSets\.client|enableClientGameTests' build.gradle
       assert_json_compact src/main/resources/fabric.mod.json '.entrypoints' "{\"main\":[\"${package_name}.${main_class}\"]}"
       assert_json_compact src/main/resources/fabric.mod.json '.mixins' "[\"${mod_id}.mixins.json\"]"
       assert_json_compact src/gametest/resources/fabric.mod.json '.entrypoints' "{\"fabric-gametest\":[\"${package_name}.${main_class}GameTest\"]}"
@@ -193,8 +194,8 @@ smoke_side() {
       assert_path_exists "src/main/resources/${mod_id}.mixins.json"
       assert_path_exists "src/client/resources/${mod_id}.client.mixins.json"
       assert_path_exists "src/client/resources/assets/${mod_id}/lang/en_us.json"
-      assert_match 'client-gametests:' .github/workflows/build.yml
-      assert_match 'runClientGameTest' .github/workflows/build.yml
+      assert_match 'reusable-client-gametests\.yml@' .github/workflows/build.yml
+      assert_no_match 'runClientGameTest' .github/workflows/build.yml
       assert_no_match 'io\.github\.brainage04\.fabric-mod-conventions' build.gradle
       assert_match 'io.github.brainage04.client-gametest-recorder' build.gradle
       assert_match 'io.github.brainage04.production-gametests' build.gradle
@@ -219,8 +220,8 @@ smoke_side() {
       assert_path_missing "src/gametest/java/${package_dir}/${main_class}ClientGameTest.java"
       assert_path_missing "scripts/run-client-gametest-recorded.sh"
       assert_path_exists "src/main/resources/assets/${mod_id}/lang/en_us.json"
-      assert_match 'client-gametests:' .github/workflows/build.yml
-      assert_match 'runClientGameTest' .github/workflows/build.yml
+      assert_match 'reusable-client-gametests\.yml@' .github/workflows/build.yml
+      assert_no_match 'runClientGameTest' .github/workflows/build.yml
       assert_no_match 'io\.github\.brainage04\.fabric-mod-conventions' build.gradle
       assert_match 'io.github.brainage04.client-gametest-recorder' build.gradle
       assert_match 'io.github.brainage04.production-gametests' build.gradle
@@ -247,6 +248,8 @@ smoke_side() {
     fi
 
     grep -qx "maven_group=${package_name}" gradle.properties
+    grep -qx "mod_side=${side}" gradle.properties
+    assert_no_match 'splitEnvironmentSourceSets|sourceSets\.client|configureTests|processGametestResources|maven-publish|publishing[[:space:]]*\{' build.gradle
     assert_no_match 'ExampleConfig' README.md build.gradle gradle.properties LICENSE src
     assert_no_match 'com\.example|io\.github\.brainage04\.fabricmoddingtemplate([^_a-z0-9]|$)|io/github/brainage04/fabricmoddingtemplate([^_a-z0-9]|$)|fabricmoddingtemplate\.(accesswidener|mixins\.json)|assets/fabricmoddingtemplate/icon\.png' README.md build.gradle gradle.properties LICENSE src
     assert_no_match 'package [^;]*-' src
