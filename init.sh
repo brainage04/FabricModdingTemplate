@@ -262,7 +262,6 @@ fi
     --arg package_name "$package_name" \
     --arg main_class "$mod_name"
 
-
   sed -i \
     -e "s/^mod_side=.*/mod_side=$side/" \
     -e "s/io\.github\.brainage04\.fabricmoddingtemplate/$package_name_placeholder/g" \
