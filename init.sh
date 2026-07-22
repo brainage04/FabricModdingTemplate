@@ -439,6 +439,7 @@ EOF
     perl -0pi -e 's/\n      # BEGIN TEMPLATE SCRIPT CHECKS\n.*?\n      # END TEMPLATE SCRIPT CHECKS\n//s' "$base"/.github/workflows/build.yml
     perl -0pi -e 's/\n      # BEGIN TEMPLATE MODRINTH SCRIPT TESTS\n.*?\n      # END TEMPLATE MODRINTH SCRIPT TESTS\n//s' "$base"/.github/workflows/build.yml
     perl -0pi -e 's/\n      # BEGIN TEMPLATE SMOKE TESTS\n.*?\n      # END TEMPLATE SMOKE TESTS\n//s' "$base"/.github/workflows/build.yml
+    perl -0pi -e 's/\n    with:\n(?=\n)//g' "$base"/.github/workflows/build.yml
     perl -0pi -e 's/\n{3,}/\n\n/g' "$base"/.github/workflows/build.yml
   fi
   rm -f "$base"/.github/scripts/smoke_template_generation.sh

@@ -19,8 +19,12 @@ jobs:
   build:
     uses: brainage04/FabricModdingConventions/.github/workflows/reusable-mod-build.yml@v2.3.1
     with:
-      check_scripts: true
-      run_template_smoke: true
+      # BEGIN TEMPLATE SCRIPT CHECKS
+      check_scripts: ${{ github.repository == 'brainage04/FabricModdingTemplate' }}
+      # END TEMPLATE SCRIPT CHECKS
+      # BEGIN TEMPLATE SMOKE TESTS
+      run_template_smoke: ${{ github.repository == 'brainage04/FabricModdingTemplate' }}
+      # END TEMPLATE SMOKE TESTS
 
   client-gametests:
     if: ${{ vars.RUN_CLIENT_GAMETESTS != 'false' && (github.event_name != 'workflow_dispatch' || inputs.run_client_gametests) }}
