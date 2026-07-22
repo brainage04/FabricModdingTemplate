@@ -16,7 +16,9 @@ Create a Modrinth personal access token and add it as a repository secret to the
 Minimum useful scopes:
 
 - `PROJECT_CREATE`
+- `PROJECT_READ`
 - `PROJECT_WRITE`
+- `VERSION_READ`
 - `VERSION_CREATE`
 
 The release workflow uses the Modrinth API directly:
