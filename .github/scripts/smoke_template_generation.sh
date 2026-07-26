@@ -16,6 +16,11 @@ copy_template() {
   tar \
     --exclude=.git \
     --exclude=.gradle \
+    --exclude=.project \
+    --exclude=.classpath \
+    --exclude=.settings \
+    --exclude=.idea \
+    --exclude=bin \
     --exclude=build \
     --exclude=run \
     --exclude='.init-package-tree.*' \

@@ -269,6 +269,11 @@ fi
     -e "s/ModernMinecraftModTemplate/$mod_name_replacement/g" \
     -e "s/$package_name_placeholder/$package_name_replacement/g" "$base/gradle.properties"
 
+  if [ -f "$base/.project" ]; then
+    sed -i \
+      -e "s/ModernMinecraftModTemplate/$mod_name_replacement/g" "$base/.project"
+  fi
+
   sed -i \
     -e "s#io/github/brainage04/modernminecraftmodtemplate#$package_dir_placeholder#g" \
     -e "s/modernminecraftmodtemplate/$mod_id_replacement/g" \
