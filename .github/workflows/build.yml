@@ -20,10 +20,10 @@ jobs:
     uses: brainage04/FabricModdingConventions/.github/workflows/reusable-mod-build.yml@v2.3.5
     with:
       # BEGIN TEMPLATE SCRIPT CHECKS
-      check_scripts: ${{ github.repository == 'brainage04/FabricModdingTemplate' }}
+      check_scripts: ${{ github.repository == 'brainage04/ModernMinecraftModTemplate' }}
       # END TEMPLATE SCRIPT CHECKS
       # BEGIN TEMPLATE SMOKE TESTS
-      run_template_smoke: ${{ github.repository == 'brainage04/FabricModdingTemplate' }}
+      run_template_smoke: ${{ github.repository == 'brainage04/ModernMinecraftModTemplate' }}
       # END TEMPLATE SMOKE TESTS
 
   client-gametests:

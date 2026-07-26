@@ -1,14 +1,14 @@
-package io.github.brainage04.fabricmoddingtemplate;
+package io.github.brainage04.modernminecraftmodtemplate;
 
-import io.github.brainage04.fabricmoddingtemplate.command.core.ModCommands;
-import io.github.brainage04.fabricmoddingtemplate.config.ModConfig;
+import io.github.brainage04.modernminecraftmodtemplate.command.core.ModCommands;
+import io.github.brainage04.modernminecraftmodtemplate.config.ModConfig;
 import net.fabricmc.api.ModInitializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class FabricModdingTemplate implements ModInitializer {
-    public static final String MOD_ID = "fabricmoddingtemplate";
-    public static final String MOD_NAME = "FabricModdingTemplate";
+public class ModernMinecraftModTemplate implements ModInitializer {
+    public static final String MOD_ID = "modernminecraftmodtemplate";
+    public static final String MOD_NAME = "ModernMinecraftModTemplate";
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_NAME);
 
 	@Override

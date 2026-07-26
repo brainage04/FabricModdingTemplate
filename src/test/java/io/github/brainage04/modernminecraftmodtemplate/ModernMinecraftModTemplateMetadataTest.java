@@ -1,4 +1,4 @@
-package io.github.brainage04.fabricmoddingtemplate;
+package io.github.brainage04.modernminecraftmodtemplate;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class FabricModdingTemplateMetadataTest {
+class ModernMinecraftModTemplateMetadataTest {
     @Test
     void fabricLoaderBootsInServerModeForTests() {
         assertEquals(EnvType.SERVER, FabricLoader.getInstance().getEnvironmentType());
@@ -19,13 +19,13 @@ class FabricModdingTemplateMetadataTest {
     @Test
     void fabricLoaderCanResolveTheTemplateModMetadata() {
         ModContainer mod = FabricLoader.getInstance()
-                .getModContainer(FabricModdingTemplate.MOD_ID)
+                .getModContainer(ModernMinecraftModTemplate.MOD_ID)
                 .orElseThrow(() -> new AssertionError("Expected the template mod to be loaded for tests."));
         ModMetadata metadata = mod.getMetadata();
 
         assertAll(
-                () -> assertEquals(FabricModdingTemplate.MOD_ID, metadata.getId()),
-                () -> assertEquals(FabricModdingTemplate.MOD_NAME, metadata.getName()),
+                () -> assertEquals(ModernMinecraftModTemplate.MOD_ID, metadata.getId()),
+                () -> assertEquals(ModernMinecraftModTemplate.MOD_NAME, metadata.getName()),
                 () -> assertTrue(metadata.getLicense().contains("MIT")),
                 () -> assertTrue(mod.findPath("fabric.mod.json").isPresent())
         );

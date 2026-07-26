@@ -1,4 +1,4 @@
-package io.github.brainage04.fabricmoddingtemplate.mixin.client;
+package io.github.brainage04.modernminecraftmodtemplate.mixin.client;
 
 import net.minecraft.client.Minecraft;
 import org.spongepowered.asm.mixin.Mixin;

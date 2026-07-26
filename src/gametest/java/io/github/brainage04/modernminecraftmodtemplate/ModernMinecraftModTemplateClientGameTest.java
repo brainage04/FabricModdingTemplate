@@ -1,4 +1,4 @@
-package io.github.brainage04.fabricmoddingtemplate;
+package io.github.brainage04.modernminecraftmodtemplate;
 
 import io.github.brainage04.fabricmoddingconventions.ClientGameTestRecorder;
 import io.github.brainage04.fabricmoddingconventions.ClientGameTestServers;
@@ -10,16 +10,16 @@ import net.fabricmc.fabric.api.client.gametest.v1.context.TestDedicatedServerCon
 import java.util.Properties;
 
 @SuppressWarnings("UnstableApiUsage")
-public class FabricModdingTemplateClientGameTest implements FabricClientGameTest {
+public class ModernMinecraftModTemplateClientGameTest implements FabricClientGameTest {
     @Override
     public void runTest(ClientGameTestContext context) {
         Properties serverProperties = ClientGameTestServers.flatServerProperties();
 
         try (TestDedicatedServerContext server = context.worldBuilder().createServer(serverProperties)) {
-            ClientGameTestServers.connectToDedicatedServer(context, server, "FabricModdingTemplate GameTest");
+            ClientGameTestServers.connectToDedicatedServer(context, server, "ModernMinecraftModTemplate GameTest");
             try {
                 context.computeOnClient(client -> {
-                    if (!FabricModdingTemplateClient.isInitialized()) {
+                    if (!ModernMinecraftModTemplateClient.isInitialized()) {
                         throw new AssertionError("Expected the client initializer to run before the client GameTest.");
                     }
 

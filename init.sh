@@ -216,9 +216,9 @@ fi
   # earlier replacements. This matters when the new mod id contains the
   # template mod id as a prefix.
   find "${find_paths[@]}" -type f ! -name 'fabric.mod.json' -exec sed -i \
-    -e "s/io\.github\.brainage04\.fabricmoddingtemplate/$package_name_placeholder/g" \
-    -e "s/fabricmoddingtemplate/$mod_id_replacement/g" \
-    -e "s/FabricModdingTemplate/$mod_name_replacement/g" \
+    -e "s/io\.github\.brainage04\.modernminecraftmodtemplate/$package_name_placeholder/g" \
+    -e "s/modernminecraftmodtemplate/$mod_id_replacement/g" \
+    -e "s/ModernMinecraftModTemplate/$mod_name_replacement/g" \
     -e "s/$package_name_placeholder/$package_name_replacement/g" {} +
 
   # jq variables in this filter are populated by --arg, not expanded by the shell.
@@ -264,43 +264,43 @@ fi
 
   sed -i \
     -e "s/^mod_side=.*/mod_side=$side/" \
-    -e "s/io\.github\.brainage04\.fabricmoddingtemplate/$package_name_placeholder/g" \
-    -e "s/fabricmoddingtemplate/$mod_id_replacement/g" \
-    -e "s/FabricModdingTemplate/$mod_name_replacement/g" \
+    -e "s/io\.github\.brainage04\.modernminecraftmodtemplate/$package_name_placeholder/g" \
+    -e "s/modernminecraftmodtemplate/$mod_id_replacement/g" \
+    -e "s/ModernMinecraftModTemplate/$mod_name_replacement/g" \
     -e "s/$package_name_placeholder/$package_name_replacement/g" "$base/gradle.properties"
 
   sed -i \
-    -e "s#io/github/brainage04/fabricmoddingtemplate#$package_dir_placeholder#g" \
-    -e "s/fabricmoddingtemplate/$mod_id_replacement/g" \
-    -e "s/FabricModdingTemplate/$mod_name_replacement/g" \
+    -e "s#io/github/brainage04/modernminecraftmodtemplate#$package_dir_placeholder#g" \
+    -e "s/modernminecraftmodtemplate/$mod_id_replacement/g" \
+    -e "s/ModernMinecraftModTemplate/$mod_name_replacement/g" \
     -e "s#$package_dir_placeholder#$package_dir_replacement#g" "$base/README.md"
 
   # refactor accesswidener and mixin file names
-  mv "$base"/src/main/resources/fabricmoddingtemplate.accesswidener "$base"/src/main/resources/"$mod_id".accesswidener
-  mv "$base"/src/main/resources/fabricmoddingtemplate.mixins.json "$base"/src/main/resources/"$mod_id".mixins.json
-  mv "$base"/src/client/resources/fabricmoddingtemplate.client.mixins.json "$base"/src/client/resources/"$mod_id".client.mixins.json
+  mv "$base"/src/main/resources/modernminecraftmodtemplate.accesswidener "$base"/src/main/resources/"$mod_id".accesswidener
+  mv "$base"/src/main/resources/modernminecraftmodtemplate.mixins.json "$base"/src/main/resources/"$mod_id".mixins.json
+  mv "$base"/src/client/resources/modernminecraftmodtemplate.client.mixins.json "$base"/src/client/resources/"$mod_id".client.mixins.json
 
   # refactor assets directory
-  mv "$base"/src/main/resources/assets/fabricmoddingtemplate "$base"/src/main/resources/assets/"$mod_id"
-  mv "$base"/src/client/resources/assets/fabricmoddingtemplate "$base"/src/client/resources/assets/"$mod_id"
-  mv "$base"/src/gametest/resources/assets/fabricmoddingtemplate "$base"/src/gametest/resources/assets/"$mod_id"
+  mv "$base"/src/main/resources/assets/modernminecraftmodtemplate "$base"/src/main/resources/assets/"$mod_id"
+  mv "$base"/src/client/resources/assets/modernminecraftmodtemplate "$base"/src/client/resources/assets/"$mod_id"
+  mv "$base"/src/gametest/resources/assets/modernminecraftmodtemplate "$base"/src/gametest/resources/assets/"$mod_id"
 
   # rename main class
-  mv "$base"/src/main/java/io/github/brainage04/fabricmoddingtemplate/FabricModdingTemplate.java "$base"/src/main/java/io/github/brainage04/fabricmoddingtemplate/"$mod_name".java
-  mv "$base"/src/test/java/io/github/brainage04/fabricmoddingtemplate/FabricModdingTemplateMetadataTest.java "$base"/src/test/java/io/github/brainage04/fabricmoddingtemplate/"$mod_name"MetadataTest.java
-  mv "$base"/src/gametest/java/io/github/brainage04/fabricmoddingtemplate/FabricModdingTemplateGameTest.java "$base"/src/gametest/java/io/github/brainage04/fabricmoddingtemplate/"$mod_name"GameTest.java
-  mv "$base"/src/gametest/java/io/github/brainage04/fabricmoddingtemplate/FabricModdingTemplateClientGameTest.java "$base"/src/gametest/java/io/github/brainage04/fabricmoddingtemplate/"$mod_name"ClientGameTest.java
+  mv "$base"/src/main/java/io/github/brainage04/modernminecraftmodtemplate/ModernMinecraftModTemplate.java "$base"/src/main/java/io/github/brainage04/modernminecraftmodtemplate/"$mod_name".java
+  mv "$base"/src/test/java/io/github/brainage04/modernminecraftmodtemplate/ModernMinecraftModTemplateMetadataTest.java "$base"/src/test/java/io/github/brainage04/modernminecraftmodtemplate/"$mod_name"MetadataTest.java
+  mv "$base"/src/gametest/java/io/github/brainage04/modernminecraftmodtemplate/ModernMinecraftModTemplateGameTest.java "$base"/src/gametest/java/io/github/brainage04/modernminecraftmodtemplate/"$mod_name"GameTest.java
+  mv "$base"/src/gametest/java/io/github/brainage04/modernminecraftmodtemplate/ModernMinecraftModTemplateClientGameTest.java "$base"/src/gametest/java/io/github/brainage04/modernminecraftmodtemplate/"$mod_name"ClientGameTest.java
   if [ "$side" != "server" ]; then
-    mv "$base"/src/client/java/io/github/brainage04/fabricmoddingtemplate/FabricModdingTemplateClient.java "$base"/src/client/java/io/github/brainage04/fabricmoddingtemplate/"$mod_name"Client.java
+    mv "$base"/src/client/java/io/github/brainage04/modernminecraftmodtemplate/ModernMinecraftModTemplateClient.java "$base"/src/client/java/io/github/brainage04/modernminecraftmodtemplate/"$mod_name"Client.java
   fi
 
   # lastly, refactor package directory
-  move_package_tree "$base"/src/main/java/io/github/brainage04/fabricmoddingtemplate "$base"/src/main/java/"$package_dir"
-  move_package_tree "$base"/src/test/java/io/github/brainage04/fabricmoddingtemplate "$base"/src/test/java/"$package_dir"
-  move_package_tree "$base"/src/gametest/java/io/github/brainage04/fabricmoddingtemplate "$base"/src/gametest/java/"$package_dir"
+  move_package_tree "$base"/src/main/java/io/github/brainage04/modernminecraftmodtemplate "$base"/src/main/java/"$package_dir"
+  move_package_tree "$base"/src/test/java/io/github/brainage04/modernminecraftmodtemplate "$base"/src/test/java/"$package_dir"
+  move_package_tree "$base"/src/gametest/java/io/github/brainage04/modernminecraftmodtemplate "$base"/src/gametest/java/"$package_dir"
 
   if [ "$side" != "server" ]; then
-    move_package_tree "$base"/src/client/java/io/github/brainage04/fabricmoddingtemplate "$base"/src/client/java/"$package_dir"
+    move_package_tree "$base"/src/client/java/io/github/brainage04/modernminecraftmodtemplate "$base"/src/client/java/"$package_dir"
   fi
 
   case "$side" in

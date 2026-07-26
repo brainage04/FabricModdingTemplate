@@ -3,29 +3,29 @@
 	"id": "${mod_id}",
 	"version": "${mod_version}",
 	"name": "${mod_name}",
-	"description": "My Minecraft Fabric modding template.",
+	"description": "My modern Minecraft Fabric modding template.",
 	"authors": [
 		"brainage04"
 	],
 	"contact": {
-		"homepage": "https://github.com/brainage04/FabricModdingTemplate",
-		"sources": "https://github.com/brainage04/FabricModdingTemplate"
+		"homepage": "https://github.com/brainage04/ModernMinecraftModTemplate",
+		"sources": "https://github.com/brainage04/ModernMinecraftModTemplate"
 	},
 	"license": "MIT",
-	"icon": "assets/fabricmoddingtemplate/icon.png",
+	"icon": "assets/modernminecraftmodtemplate/icon.png",
 	"environment": "*",
 	"entrypoints": {
 		"client": [
-			"io.github.brainage04.fabricmoddingtemplate.FabricModdingTemplateClient"
+			"io.github.brainage04.modernminecraftmodtemplate.ModernMinecraftModTemplateClient"
 		],
 		"main": [
-			"io.github.brainage04.fabricmoddingtemplate.FabricModdingTemplate"
+			"io.github.brainage04.modernminecraftmodtemplate.ModernMinecraftModTemplate"
 		]
 	},
 	"mixins": [
-		"fabricmoddingtemplate.mixins.json",
+		"modernminecraftmodtemplate.mixins.json",
 		{
-			"config": "fabricmoddingtemplate.client.mixins.json",
+			"config": "modernminecraftmodtemplate.client.mixins.json",
 			"environment": "client"
 		}
 	],
@@ -36,5 +36,5 @@
 		"fabric-api": "*",
 		"fzzy_config": ">=0.7.6"
 	},
-    "accessWidener": "fabricmoddingtemplate.accesswidener"
+    "accessWidener": "modernminecraftmodtemplate.accesswidener"
 }

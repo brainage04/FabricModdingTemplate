@@ -120,11 +120,11 @@ compact_json_in_place() {
 
 smoke_side() {
   local side="$1"
-  local target="$tmp_root/$side/FabricModdingTemplate-${side}_42"
-  local package_dir="io/github/brainage04/fabricmoddingtemplate_${side}_42"
-  local package_name="io.github.brainage04.fabricmoddingtemplate_${side}_42"
-  local main_class="FabricModdingTemplate${side^}42"
-  local mod_id="fabricmoddingtemplate_${side}_42"
+  local target="$tmp_root/$side/ModernMinecraftModTemplate-${side}_42"
+  local package_dir="io/github/brainage04/modernminecraftmodtemplate_${side}_42"
+  local package_name="io.github.brainage04.modernminecraftmodtemplate_${side}_42"
+  local main_class="ModernMinecraftModTemplate${side^}42"
+  local mod_id="modernminecraftmodtemplate_${side}_42"
   local -a build_args
 
   echo "Testing init.sh --side=${side}"
@@ -139,7 +139,7 @@ smoke_side() {
       compact_json_in_place src/gametest/resources/fabric.mod.json
     fi
 
-    ./init.sh --side="$side" "FabricModdingTemplate-${side}_42"
+    ./init.sh --side="$side" "ModernMinecraftModTemplate-${side}_42"
 
     assert_path_missing "init.sh"
     assert_path_missing ".github/workflows/init.yml"
@@ -161,8 +161,8 @@ smoke_side() {
     assert_json_string src/main/resources/fabric.mod.json 'type' object
     assert_json_string src/main/resources/fabric.mod.json 'keys_unsorted[0]' schemaVersion
     assert_json_string src/gametest/resources/fabric.mod.json 'keys_unsorted[0]' schemaVersion
-    assert_json_string src/main/resources/fabric.mod.json '.contact.homepage' "https://github.com/brainage04/FabricModdingTemplate-${side}_42"
-    assert_json_string src/main/resources/fabric.mod.json '.contact.sources' "https://github.com/brainage04/FabricModdingTemplate-${side}_42"
+    assert_json_string src/main/resources/fabric.mod.json '.contact.homepage' "https://github.com/brainage04/ModernMinecraftModTemplate-${side}_42"
+    assert_json_string src/main/resources/fabric.mod.json '.contact.sources' "https://github.com/brainage04/ModernMinecraftModTemplate-${side}_42"
     assert_json_string src/gametest/resources/fabric.mod.json 'type' object
 
     if [ "$side" = "server" ]; then
@@ -251,7 +251,7 @@ smoke_side() {
     grep -qx "mod_side=${side}" gradle.properties
     assert_no_match 'splitEnvironmentSourceSets|sourceSets\.client|configureTests|processGametestResources|maven-publish|publishing[[:space:]]*\{' build.gradle
     assert_no_match 'ExampleConfig' README.md build.gradle gradle.properties LICENSE src
-    assert_no_match 'com\.example|io\.github\.brainage04\.fabricmoddingtemplate([^_a-z0-9]|$)|io/github/brainage04/fabricmoddingtemplate([^_a-z0-9]|$)|fabricmoddingtemplate\.(accesswidener|mixins\.json)|assets/fabricmoddingtemplate/icon\.png' README.md build.gradle gradle.properties LICENSE src
+    assert_no_match 'com\.example|io\.github\.brainage04\.modernminecraftmodtemplate([^_a-z0-9]|$)|io/github/brainage04/modernminecraftmodtemplate([^_a-z0-9]|$)|modernminecraftmodtemplate\.(accesswidener|mixins\.json)|assets/modernminecraftmodtemplate/icon\.png' README.md build.gradle gradle.properties LICENSE src
     assert_no_match 'package [^;]*-' src
 
     if [ "${TEMPLATE_SMOKE_SKIP_BUILD:-false}" = "true" ]; then

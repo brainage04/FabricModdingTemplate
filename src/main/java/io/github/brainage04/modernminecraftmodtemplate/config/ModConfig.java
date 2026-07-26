@@ -1,6 +1,6 @@
-package io.github.brainage04.fabricmoddingtemplate.config;
+package io.github.brainage04.modernminecraftmodtemplate.config;
 
-import io.github.brainage04.fabricmoddingtemplate.FabricModdingTemplate;
+import io.github.brainage04.modernminecraftmodtemplate.ModernMinecraftModTemplate;
 import me.fzzyhmstrs.fzzy_config.api.ConfigApi;
 import me.fzzyhmstrs.fzzy_config.api.RegisterType;
 import me.fzzyhmstrs.fzzy_config.config.Config;
@@ -39,7 +39,7 @@ public class ModConfig extends Config {
     public GameplaySection gameplay = new GameplaySection();
 
     public ModConfig() {
-        super(Identifier.fromNamespaceAndPath(FabricModdingTemplate.MOD_ID, "settings"));
+        super(Identifier.fromNamespaceAndPath(ModernMinecraftModTemplate.MOD_ID, "settings"));
     }
 
     public static void init() {

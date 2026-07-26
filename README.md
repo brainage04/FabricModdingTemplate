@@ -1,6 +1,6 @@
-# About
+# ModernMinecraftModTemplate
 
-My template for Minecraft Fabric mods, with common code in `src/main`, client-only code in `src/client`, and GameTests in `src/gametest`.
+My template for modern Minecraft Fabric mods, with common code in `src/main`, client-only code in `src/client`, and GameTests in `src/gametest`.
 
 The easiest way to use this is:
 
@@ -25,7 +25,7 @@ When the GitHub Actions workflow initializes a template repository, it uses the 
 Generated packages always use `io.github.brainage04.<mod_id>`, where `<mod_id>` is sanitized from `<mod_name>` so it is safe for Fabric mod IDs and Java package names.
 
 The workflow and script are designed to be run once. After successful initialization, they safely delete:
-  - Leftover unused folders that are not tracked by Git (such as `src/main/java/io/github/brainage04/fabricmoddingtemplate`, `src/client/java/io/github/brainage04/fabricmoddingtemplate`, and `src/main/resources/fabricmoddingtemplate`).
+  - Leftover unused folders that are not tracked by Git (such as `src/main/java/io/github/brainage04/modernminecraftmodtemplate`, `src/client/java/io/github/brainage04/modernminecraftmodtemplate`, and `src/main/resources/modernminecraftmodtemplate`).
   - The `init` script after successful execution.
 
 GitHub Actions initialization preserves files under `.github/workflows`.

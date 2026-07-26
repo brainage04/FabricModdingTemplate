@@ -3,14 +3,14 @@
 	"id": "${mod_id}-gametest",
 	"version": "${mod_version}",
 	"name": "${mod_name} Game Tests",
-	"icon": "assets/fabricmoddingtemplate/icon.png",
+	"icon": "assets/modernminecraftmodtemplate/icon.png",
 	"environment": "*",
 	"entrypoints": {
 		"fabric-client-gametest": [
-			"io.github.brainage04.fabricmoddingtemplate.FabricModdingTemplateClientGameTest"
+			"io.github.brainage04.modernminecraftmodtemplate.ModernMinecraftModTemplateClientGameTest"
 		],
 		"fabric-gametest": [
-			"io.github.brainage04.fabricmoddingtemplate.FabricModdingTemplateGameTest"
+			"io.github.brainage04.modernminecraftmodtemplate.ModernMinecraftModTemplateGameTest"
 		]
 	}
 }
